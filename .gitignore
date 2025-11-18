@@ -24,6 +24,7 @@ Desktop.ini
 [Pp]ackages/com.unity.ml-agents/Results/
 
 # Visual Studio / JetBrains Rider
+.vs/
 .vscode/
 .idea/
 *.suo
