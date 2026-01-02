@@ -30,6 +30,7 @@ namespace BombermanRL
 
             if(_levelTiles.Count < _gridHeight * _gridWidth)
             {
+                // Prevent insufficient tile data
                 int missingTileCount = (_gridWidth * _gridHeight) - _levelTiles.Count;
                 for (int i = 0; i < missingTileCount; i++)
                 {
@@ -39,11 +40,13 @@ namespace BombermanRL
             }
             else if(_levelTiles.Count > _gridHeight * _gridWidth)
             {
+                // Prevent excessive tile data
                 int excessiveTileCount = _levelTiles.Count - (_gridHeight * _gridWidth);
                 _levelTiles.RemoveRange(_gridWidth * _gridHeight, excessiveTileCount);
                 Debug.LogWarning($"Tile Size Exceed Grid Width & Height Limit! Removing {excessiveTileCount} tiles");
             }
         }
+
     }
 }
 

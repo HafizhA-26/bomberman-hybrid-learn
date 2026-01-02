@@ -8,7 +8,8 @@ namespace BombermanRL
         Empty,
         Wall,
         Crate,
-        PlayerSpawn
+        PlayerSpawn,
+        EnemySpawn
     }
 
 }
