@@ -14,7 +14,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3672868777114816096, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
       propertyPath: m_Name
-      value: BaseChara Variant
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 4157796752016872666, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
       propertyPath: m_LocalPosition.x
@@ -65,5 +65,37 @@ PrefabInstance:
     - {fileID: 5830524274555239878, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
     - {fileID: 5080782718836958287, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3672868777114816096, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -3790709645247450120}
   m_SourcePrefab: {fileID: 100100000, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
+--- !u!114 &496146310716234447 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: -4983567206543806626, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
+  m_PrefabInstance: {fileID: 4338226993749767569}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1066469955479436273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c67c6189988f69445b6de46a6c7786a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &1066469955479436273 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3672868777114816096, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
+  m_PrefabInstance: {fileID: 4338226993749767569}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-3790709645247450120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1066469955479436273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 258dbf52ab7b80a43bf0cdd9f955158b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _view: {fileID: 496146310716234447}

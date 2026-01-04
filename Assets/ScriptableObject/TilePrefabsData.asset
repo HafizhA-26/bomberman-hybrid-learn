@@ -29,3 +29,4 @@ MonoBehaviour:
     PrefabObject: {fileID: 1066469955479436273, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
     OffsetSpawn: {x: 0, y: -0.3, z: 0}
   _floorPrefab: {fileID: 2358753831339107784, guid: e6c4fa4ec44ac144a942752775dff800, type: 3}
+  _bombPrefab: {fileID: 7814840908419862579, guid: 488504a212cee8c4284b32d658834fb2, type: 3}

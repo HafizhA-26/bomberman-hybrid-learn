@@ -11,6 +11,7 @@ namespace BombermanRL.Character
         [SerializeField] private CharacterController _controller;
 
         [Header("Action Parameter")]
+        [SerializeField] private GameObject _bombPrefab;
         [SerializeField] private float _cooldown = 0.5f;
 
         private PlayerInputActions _inputAction;

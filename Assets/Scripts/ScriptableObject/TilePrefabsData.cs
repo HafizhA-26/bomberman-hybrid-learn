@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static BombermanRL.LevelTilemapData;
 
 namespace BombermanRL
 {
@@ -14,8 +13,12 @@ namespace BombermanRL
 
         [Tooltip("Prefab of the level floor")]
         [SerializeField] private GameObject _floorPrefab;
+
+        [Tooltip("Prefab for placing bomb")]
+        [SerializeField] private GameObject _bombPrefab;
         public Dictionary<TileType, TilePrefab> TilePrefabDict { get => _tilePrefabs.ToDictionary(item => item.TileType); }
         public GameObject FloorPrefab { get => _floorPrefab; }
+        public GameObject BombPrefab { get => _bombPrefab; }
 
         [Serializable]
         public class TilePrefab
