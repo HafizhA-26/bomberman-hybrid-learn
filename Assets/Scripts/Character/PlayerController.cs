@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using DG.Tweening;
+using System;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 namespace BombermanRL.Character
 {
-    public class PlayerController : MonoBehaviour, PlayerInputActions.IGameplayActions
+    public class PlayerController : MonoBehaviour, PlayerInputActions.IGameplayActions, IMovableCharacter
     {
         [Header("References")]
         [SerializeField] private CharacterView _view;
@@ -13,18 +15,29 @@ namespace BombermanRL.Character
         [Header("Action Parameter")]
         [SerializeField] private GameObject _bombPrefab;
         [SerializeField] private float _cooldown = 0.5f;
+        [SerializeField] private float _moveDuration = 1f;
 
         private PlayerInputActions _inputAction;
         private ActionCooldown _actionCooldown;
         private bool _isDead;
+        private bool _isWalk;
 
-        public readonly UnityEvent<Vector2> OnRequestMove = new UnityEvent<Vector2>();
+        public readonly UnityEvent<Vector2> OnRequestMove = new();
+        public readonly UnityEvent OnRequestPlaceBomb = new();
+
+        public Vector3 OffsetMovement { get; set; }
 
         private void Awake()
         {
             _inputAction = new PlayerInputActions();
             _actionCooldown = new ActionCooldown(_cooldown);
             _inputAction.Gameplay.SetCallbacks(this);
+        }
+
+        private void OnDestroy()
+        {
+            OnRequestMove.RemoveAllListeners();
+            OnRequestPlaceBomb.RemoveAllListeners();
         }
 
         private void OnEnable()
@@ -50,16 +63,37 @@ namespace BombermanRL.Character
 
         public void OnMove(InputAction.CallbackContext context)
         {
-            if (_isDead & !_actionCooldown.CanAction()) return;
+            if (_isDead || _isWalk || !_actionCooldown.CanAction()) return;
             Vector2 moveInput = context.ReadValue<Vector2>();
+            Debug.Log("Action "+moveInput);
             OnRequestMove?.Invoke(moveInput);
         }
 
         public void OnPlaceBomb(InputAction.CallbackContext context)
         {
-            if(_isDead & !_actionCooldown.CanAction()) return;
+            if(_isDead || _isWalk || !_actionCooldown.CanAction()) return;
+            OnRequestPlaceBomb?.Invoke();
+        }
 
-            // TODO: Instantiate Bomb Object
+        public void Move(Vector3 targetPos, bool canMove, Action onCompleteMove)
+        {
+            Vector3 direction = targetPos - transform.position;
+            direction.y = 0f;
+
+            Quaternion faceRotation = Quaternion.LookRotation(direction);
+            transform.rotation = faceRotation;
+
+            if(canMove)
+            {
+                _isWalk = true;
+                _view.SetWalk();
+                transform.DOMove(targetPos, _moveDuration).OnComplete(() =>
+                {
+                    _isWalk = false;
+                    _view.SetIdle();
+                    onCompleteMove?.Invoke();
+                });
+            }
         }
     }
 }
