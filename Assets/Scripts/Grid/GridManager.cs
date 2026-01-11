@@ -109,7 +109,7 @@ namespace BombermanRL
                         _playerGridPos = new GridPos(row, col);
                         _player.OffsetMovement = tilePrefabDict[type].OffsetSpawn;
                         _player.OnRequestMove.AddListener((Vector2 direction) => MoveEntity(_player, _playerGridPos, direction));
-                        _player.OnRequestPlaceBomb.AddListener(() => PlaceBomb(_playerGridPos));
+                        _player.OnRequestPlaceBomb.AddListener(() => PlaceBomb(_player, _playerGridPos));
                         break;
                     case TileType.EnemySpawn:
                         tile.name = $"Enemy{_enemies.Count}";
@@ -145,7 +145,7 @@ namespace BombermanRL
             }
             else if(direction.x > 0)
             {
-                Debug.Log("[CanMove] Check 3");
+                Debug.Log($"[CanMove] Check 3 {fromPos.col} = {_grid.GetLength(1) - 1}");
                 if (fromPos.col == _grid.GetLength(1) - 1) return false;
                 nextTile = _grid[fromPos.row, fromPos.col + 1];
             }
@@ -156,6 +156,7 @@ namespace BombermanRL
                 nextTile = _grid[fromPos.row, fromPos.col - 1];
             }
 
+            Debug.Log("Next Tile Condition: "+nextTile);
             bool isMovable = nextTile.Type == TileType.Empty && 
                 !nextTile.HasSubstate(TileSubState.OnPlayer) && 
                 !nextTile.HasSubstate(TileSubState.OnBomb) &&
@@ -169,7 +170,7 @@ namespace BombermanRL
             !_grid[tilePos.row, tilePos.col].HasSubstate(TileSubState.OnExplosion);
         private bool IsDeadly(GridPos tilePos) => _grid[tilePos.row, tilePos.col].HasSubstate(TileSubState.OnExplosion);
 
-        private void PlaceBomb(GridPos tilePos)
+        private void PlaceBomb(IBombermanCharacter entity, GridPos tilePos)
         {
             if(!CanPlaceBomb(tilePos)) return;
 
@@ -180,12 +181,14 @@ namespace BombermanRL
             _grid[tilePos.row, tilePos.col].AddSubstate(TileSubState.OnBomb);
             
             // Initialize bomb component
-            if(bombObject.TryGetComponent<BombHandler>(out BombHandler bomb))
+            if(bombObject.TryGetComponent(out BombHandler bomb))
             {
                 List<Vector3> explosionWorldPos = new List<Vector3>();
                 int explosionRadius = bomb.ExplosionRadius;
 
                 explosionWorldPos.Add(GridToWorld(tilePos)); // Add bomb self position into first explosion pos
+                explosionGridPos.Add(new GridPos(tilePos.row, tilePos.col));
+
                 // Propagate explosion tile based on bomb's explosion radius
                 for (int i = 1; i <= explosionRadius; i++)
                 {
@@ -210,9 +213,10 @@ namespace BombermanRL
                         explosionGridPos.Add(new GridPos(tilePos.row, tilePos.col - i));
                     }
                 }
-                bomb.Initalize(explosionWorldPos);
                 bomb.OnBombExplode.AddListener(() => OnBombExplode(explosionGridPos));
-                bomb.OnExplosionFinish.AddListener(() => OnExplosionFinish(explosionGridPos));
+                bomb.OnExplosionFinish.AddListener(() => OnExplosionFinish(entity, explosionGridPos));
+                bomb.Initalize(explosionWorldPos);
+                entity.BombCount++;
             }
         }
 
@@ -221,6 +225,7 @@ namespace BombermanRL
             // Change substate OnBomb and OnExplosion to exploding tiles
             foreach (GridPos item in explosionGridPos)
             {
+                Debug.Log($"[Bomb Explode] Tile [{item.row}-{item.col}]" + _grid[item.row, item.col]);
                 if(_grid[item.row, item.col].HasSubstate(TileSubState.OnBomb)) _grid[item.row, item.col].RemoveSubstate(TileSubState.OnBomb);
                 _grid[item.row, item.col].AddSubstate(TileSubState.OnExplosion);
             }
@@ -229,11 +234,14 @@ namespace BombermanRL
         /// <summary>
         /// Event listener on any finished bomb explosion
         /// </summary>
-        /// <param name="explosionGridPos">Explosion Grid Positions</param>
-        private void OnExplosionFinish(List<GridPos> explosionGridPos)
+        /// <param name="entity">Entity that placed the bomb</param>
+        /// <param name="explosionGridPos">Bomb Explosion Tiles position</param>
+        private void OnExplosionFinish(IBombermanCharacter entity, List<GridPos> explosionGridPos)
         {
             foreach (GridPos item in explosionGridPos)
                 _grid[item.row, item.col].RemoveSubstate(TileSubState.OnExplosion);
+
+            entity.BombCount--;
         }
 
         /// <summary>
@@ -254,8 +262,9 @@ namespace BombermanRL
         /// <param name="fromPos">Origin position on grid</param>
         /// <param name="moveDirection">Direction to move. -1 to left/down, 1 to right/up</param>
         /// <returns>True if success move</returns>
-        private void MoveEntity(IMovableCharacter entity, GridPos fromPos, Vector2 moveDirection)
+        private void MoveEntity(IBombermanCharacter entity, GridPos fromPos, Vector2 moveDirection)
         {
+            if (Math.Abs(moveDirection.x) <= 0.1f && Math.Abs(moveDirection.y) <= 0.1f) return;
             bool canMove = CanMove(fromPos, moveDirection);
 
             moveDirection.x = Math.Sign(moveDirection.x);

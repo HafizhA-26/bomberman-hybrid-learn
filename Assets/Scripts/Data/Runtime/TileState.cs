@@ -15,5 +15,9 @@
         public bool HasSubstate(TileSubState subState) => _subState.HasFlag(subState);
         public void AddSubstate(TileSubState subState) => _subState |= subState;
         public void RemoveSubstate(TileSubState subState) => _subState &= ~subState;
+        public override string ToString()
+        {
+            return $"Type: {_type} | Substate {_subState}";
+        }
     }
 }

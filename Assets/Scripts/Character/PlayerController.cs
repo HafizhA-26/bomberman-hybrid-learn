@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 namespace BombermanRL.Character
 {
-    public class PlayerController : MonoBehaviour, PlayerInputActions.IGameplayActions, IMovableCharacter
+    public class PlayerController : MonoBehaviour, PlayerInputActions.IGameplayActions, IBombermanCharacter
     {
         [Header("References")]
         [SerializeField] private CharacterView _view;
@@ -16,16 +16,19 @@ namespace BombermanRL.Character
         [SerializeField] private GameObject _bombPrefab;
         [SerializeField] private float _cooldown = 0.5f;
         [SerializeField] private float _moveDuration = 1f;
+        [SerializeField] private int _bombLimit = 1;
 
         private PlayerInputActions _inputAction;
         private ActionCooldown _actionCooldown;
+        private int _curBombCount;
         private bool _isDead;
         private bool _isWalk;
 
-        public readonly UnityEvent<Vector2> OnRequestMove = new();
-        public readonly UnityEvent OnRequestPlaceBomb = new();
+        public UnityEvent<Vector2> OnRequestMove { get;  set; } = new();
+        public UnityEvent OnRequestPlaceBomb { get; set; } = new();
 
         public Vector3 OffsetMovement { get; set; }
+        public int BombCount { get => _curBombCount; set => _curBombCount = value; }
 
         private void Awake()
         {
@@ -71,7 +74,7 @@ namespace BombermanRL.Character
 
         public void OnPlaceBomb(InputAction.CallbackContext context)
         {
-            if(_isDead || _isWalk || !_actionCooldown.CanAction()) return;
+            if(_isDead || _isWalk || _curBombCount >= _bombLimit || !_actionCooldown.CanAction()) return;
             OnRequestPlaceBomb?.Invoke();
         }
 
