@@ -13,5 +13,6 @@ namespace BombermanRL.Character
         UnityEvent OnRequestPlaceBomb { get; set; }
 
         void Move(Vector3 targetPos, bool canMove, Action onCompleteMove);
+        void Dead();
     }
 }

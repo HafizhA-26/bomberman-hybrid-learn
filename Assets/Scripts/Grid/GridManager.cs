@@ -1,8 +1,6 @@
 using BombermanRL.Character;
-using DG.Tweening;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace BombermanRL
@@ -17,10 +15,10 @@ namespace BombermanRL
         private GameObject[,] _floors;
         private GameObject[,] _tiles;
         private TileState[,] _grid;
-        private List<EnemyController> _enemies = new List<EnemyController>();
         private PlayerController _player;
+        private readonly List<EnemyController> _enemies = new List<EnemyController>();
+        private readonly Dictionary<IBombermanCharacter, GridPos> _entityPositions = new Dictionary<IBombermanCharacter, GridPos>();
 
-        private GridPos _playerGridPos;
         private Vector3 _tileSize;
 
         public struct GridPos
@@ -31,7 +29,8 @@ namespace BombermanRL
                 this.col = col;
             }
             public int row, col;
-            public override string ToString()
+
+            public override readonly string ToString()
             {
                 return $"[{row},{col}]";
             }
@@ -50,6 +49,7 @@ namespace BombermanRL
             CreateFloor();
             LoadLevelTile();
         }
+
 
         private void CreateFloor()
         {
@@ -85,7 +85,9 @@ namespace BombermanRL
                 if (type == TileType.Empty) continue; // Skip instantiation if empty
 
                 GameObject tile = Instantiate(tilePrefabDict[type].PrefabObject, _objectsTileParent, true);
-                Vector3 newPos = GridToWorld(row, col);
+                GridPos tileGridPos = new GridPos(row, col);
+                Vector3 newPos = GridToWorld(tileGridPos);
+
                 newPos += tilePrefabDict[type].OffsetSpawn;
                 tile.transform.position = newPos;
 
@@ -104,17 +106,17 @@ namespace BombermanRL
                     case TileType.PlayerSpawn:
                         tile.name = "Player";
                         _grid[row, col] = new(TileType.Empty);
-                        _grid[row, col].AddSubstate(TileSubState.OnPlayer);
+                        _grid[row, col].AddSubstate(TileSubState.OnCharacter);
                         _player = tile.GetComponent<PlayerController>();
-                        _playerGridPos = new GridPos(row, col);
+                        _entityPositions[_player] = tileGridPos;
                         _player.OffsetMovement = tilePrefabDict[type].OffsetSpawn;
-                        _player.OnRequestMove.AddListener((Vector2 direction) => MoveEntity(_player, _playerGridPos, direction));
-                        _player.OnRequestPlaceBomb.AddListener(() => PlaceBomb(_player, _playerGridPos));
+                        _player.OnRequestMove.AddListener((Vector2 direction) => MoveEntity(_player, _entityPositions[_player], direction));
+                        _player.OnRequestPlaceBomb.AddListener(() => PlaceBomb(_player, _entityPositions[_player]));
                         break;
                     case TileType.EnemySpawn:
                         tile.name = $"Enemy{_enemies.Count}";
                         _grid[row, col] = new(TileType.Empty);
-                        _grid[row, col].AddSubstate(TileSubState.OnEnemy);
+                        _grid[row, col].AddSubstate(TileSubState.OnCharacter);
                         _enemies.Add(tile.GetComponent<EnemyController>());
                         break;
                 }
@@ -156,18 +158,24 @@ namespace BombermanRL
                 nextTile = _grid[fromPos.row, fromPos.col - 1];
             }
 
-            Debug.Log("Next Tile Condition: "+nextTile);
-            bool isMovable = nextTile.Type == TileType.Empty && 
-                !nextTile.HasSubstate(TileSubState.OnPlayer) && 
+            bool isMovable = nextTile.Type == TileType.Empty &&
+                !nextTile.HasSubstate(TileSubState.OnCharacter) &&
                 !nextTile.HasSubstate(TileSubState.OnBomb) &&
-                !nextTile.HasSubstate(TileSubState.OnExplosion) &&
-                !nextTile.HasSubstate(TileSubState.OnEnemy);
+                !nextTile.HasSubstate(TileSubState.OnExplosion);
 
             return isMovable;
         }
         private bool CanPlaceBomb(GridPos tilePos) 
             => !_grid[tilePos.row, tilePos.col].HasSubstate(TileSubState.OnBomb) &&
             !_grid[tilePos.row, tilePos.col].HasSubstate(TileSubState.OnExplosion);
+        private bool CanExplosionSpawn(GridPos tilePos) =>
+            tilePos.row < _grid.GetLength(0) && 
+            tilePos.row >= 0 &&
+            tilePos.col < _grid.GetLength(1) &&
+            tilePos.col >= 0 &&
+            _grid[tilePos.row, tilePos.col].Type != TileType.Wall;
+
+        private bool IsExplosionBlocked(GridPos tilePos) => _grid[tilePos.row, tilePos.col].Type == TileType.Crate;
         private bool IsDeadly(GridPos tilePos) => _grid[tilePos.row, tilePos.col].HasSubstate(TileSubState.OnExplosion);
 
         private void PlaceBomb(IBombermanCharacter entity, GridPos tilePos)
@@ -189,30 +197,29 @@ namespace BombermanRL
                 explosionWorldPos.Add(GridToWorld(tilePos)); // Add bomb self position into first explosion pos
                 explosionGridPos.Add(new GridPos(tilePos.row, tilePos.col));
 
-                // Propagate explosion tile based on bomb's explosion radius
-                for (int i = 1; i <= explosionRadius; i++)
+                // Propagate explosion tile with + shape based on bomb's explosion radius
+                for (int i = 0; i < 4; i++)
                 {
-                    if(tilePos.row + i <= _grid.GetLength(0) - 1)
+                    for (int j = 1; j <= explosionRadius; j++)
                     {
-                        explosionWorldPos.Add(GridToWorld(tilePos.row + i, tilePos.col));
-                        explosionGridPos.Add(new GridPos(tilePos.row + i, tilePos.col));
-                    }
-                    if(tilePos.col + i <= _grid.GetLength(1) - 1)
-                    {
-                        explosionWorldPos.Add(GridToWorld(tilePos.row, tilePos.col + i));
-                        explosionGridPos.Add(new GridPos(tilePos.row, tilePos.col + i));
-                    }
-                    if(tilePos.row - i >= 0)
-                    {
-                        explosionWorldPos.Add(GridToWorld(tilePos.row - i, tilePos.col));
-                        explosionGridPos.Add(new GridPos(tilePos.row - i, tilePos.col));
-                    }
-                    if(tilePos.col - i >= 0)
-                    {
-                        explosionWorldPos.Add(GridToWorld(tilePos.row, tilePos.col - i));
-                        explosionGridPos.Add(new GridPos(tilePos.row, tilePos.col - i));
+                        GridPos explosionPos = new();
+                        if(i == 0) explosionPos = new GridPos(tilePos.row + j, tilePos.col);
+                        else if (i == 1) explosionPos = new GridPos(tilePos.row, tilePos.col + j);
+                        else if (i == 2) explosionPos = new GridPos(tilePos.row - j, tilePos.col);
+                        else if (i == 3) explosionPos = new GridPos(tilePos.row, tilePos.col - j);
+
+                        if (CanExplosionSpawn(explosionPos))
+                        {
+                            explosionGridPos.Add(explosionPos);
+                            explosionWorldPos.Add(GridToWorld(explosionPos));
+                            // Skipped further propagation if tile is
+                            if (IsExplosionBlocked(explosionPos)) break; 
+                        }
+                        else break;
                     }
                 }
+
+                Debug.Log("Explosion Grid Length " + explosionGridPos.Count);
                 bomb.OnBombExplode.AddListener(() => OnBombExplode(explosionGridPos));
                 bomb.OnExplosionFinish.AddListener(() => OnExplosionFinish(entity, explosionGridPos));
                 bomb.Initalize(explosionWorldPos);
@@ -228,6 +235,12 @@ namespace BombermanRL
                 Debug.Log($"[Bomb Explode] Tile [{item.row}-{item.col}]" + _grid[item.row, item.col]);
                 if(_grid[item.row, item.col].HasSubstate(TileSubState.OnBomb)) _grid[item.row, item.col].RemoveSubstate(TileSubState.OnBomb);
                 _grid[item.row, item.col].AddSubstate(TileSubState.OnExplosion);
+            }
+
+            // Check bomberman characters deadly tiles 
+            foreach (KeyValuePair<IBombermanCharacter, GridPos> entityPos in _entityPositions)
+            {
+                if (IsDeadly(entityPos.Value)) entityPos.Key.Dead();
             }
         }
 
@@ -275,16 +288,15 @@ namespace BombermanRL
             targetWorldPos += entity.OffsetMovement;
             Debug.Log($"Move Entity {fromPos} to {targetGridPos} | CanMove {canMove}");
 
-            if (canMove) _grid[targetGridPos.row, targetGridPos.col].AddSubstate(TileSubState.OnPlayer);
-            entity.Move(targetWorldPos, canMove, () =>
+            if (canMove) _grid[targetGridPos.row, targetGridPos.col].AddSubstate(TileSubState.OnCharacter);
+            entity.Move(targetWorldPos, canMove, onCompleteMove: () =>
             {
-                _grid[fromPos.row, fromPos.col].RemoveSubstate(TileSubState.OnPlayer);
-                _playerGridPos = targetGridPos;
+                _grid[fromPos.row, fromPos.col].RemoveSubstate(TileSubState.OnCharacter);
+                _entityPositions[entity] = targetGridPos;
             });
         }
 
         private Vector3 GridToWorld(GridPos tilePos) => new Vector3(tilePos.col * _tileSize.x, _tileSize.y * 1.5f, tilePos.row * _tileSize.z * -1);
-        private Vector3 GridToWorld(int x, int y) => new Vector3(y * _tileSize.x, _tileSize.y * 1.5f, x * _tileSize.z * -1);
     }
 
 }

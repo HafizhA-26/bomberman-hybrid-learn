@@ -53,17 +53,6 @@ namespace BombermanRL.Character
             _inputAction.Gameplay.Disable();
         }
 
-        private void OnTriggerEnter(Collider other)
-        {
-            if(_isDead) return;
-
-            if(other.CompareTag("Explosion"))
-            {
-                _isDead = true;
-                _view.SetGoodDeath();
-            }
-        }
-
         public void OnMove(InputAction.CallbackContext context)
         {
             if (_isDead || _isWalk || !_actionCooldown.CanAction()) return;
@@ -97,6 +86,14 @@ namespace BombermanRL.Character
                     onCompleteMove?.Invoke();
                 });
             }
+        }
+
+        public void Dead()
+        {
+            if(_isDead) return;
+
+            _isDead = true;
+            _view.SetGoodDeath();
         }
     }
 }
