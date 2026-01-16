@@ -22,6 +22,7 @@ namespace BombermanRL
         private List<GameObject> _explosions = new List<GameObject>();
         private List<Vector3> _explodePos = new List<Vector3>();
         private Tween _countdownTween;
+        private float _currentTimer;
 
         public readonly UnityEvent OnBombExplode = new UnityEvent();
         public readonly UnityEvent OnExplosionFinish = new UnityEvent();
@@ -48,7 +49,8 @@ namespace BombermanRL
                 () => countdown,
                 time =>
                 {
-                    _countdownText.text = Mathf.RoundToInt(time).ToString();
+                    _currentTimer = time;
+                    _countdownText.text = Mathf.CeilToInt(time).ToString();
                 }, 0, _explodeCountdown).SetDelay(0.5f);
 
             _countdownTween.OnComplete(SpawnExplosion);
@@ -98,6 +100,8 @@ namespace BombermanRL
                 });
             });
         }
+
+        public float GetCurrentTimerNorm() => Mathf.InverseLerp(0, _explodeCountdown, _currentTimer);
     }
 
 }

@@ -20,7 +20,6 @@ namespace BombermanRL.Character
 
         private PlayerInputActions _inputAction;
         private ActionCooldown _actionCooldown;
-        private int _curBombCount;
         private bool _isDead;
         private bool _isWalk;
 
@@ -28,7 +27,8 @@ namespace BombermanRL.Character
         public UnityEvent OnRequestPlaceBomb { get; set; } = new();
 
         public Vector3 OffsetMovement { get; set; }
-        public int BombCount { get => _curBombCount; set => _curBombCount = value; }
+        public int BombCount { get; set; }
+        public int BombLimit { get => _bombLimit; set => _bombLimit = value; }
 
         private void Awake()
         {
@@ -63,7 +63,7 @@ namespace BombermanRL.Character
 
         public void OnPlaceBomb(InputAction.CallbackContext context)
         {
-            if(_isDead || _isWalk || _curBombCount >= _bombLimit || !_actionCooldown.CanAction()) return;
+            if(_isDead || _isWalk || BombCount >= _bombLimit || !_actionCooldown.CanAction()) return;
             OnRequestPlaceBomb?.Invoke();
         }
 

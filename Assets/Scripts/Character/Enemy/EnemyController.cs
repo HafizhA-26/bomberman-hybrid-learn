@@ -15,6 +15,7 @@ namespace BombermanRL.Character
         [SerializeField] private float _cooldown = 0.5f;
         [SerializeField] private float _moveDuration = 1f;
         [SerializeField] private int _bombLimit = 1;
+        [SerializeField] private int _nearbyObserveRadius = 2;
 
         private IDecisionProvider _decisionProvider;
         private bool _isDead;
@@ -22,9 +23,11 @@ namespace BombermanRL.Character
 
         public Vector3 OffsetMovement { get; set; } = new Vector3();
         public int BombCount { get; set; }
-        public UnityEvent<Vector2> OnRequestMove { get; set; }
-        public UnityEvent OnRequestPlaceBomb { get; set; }
-        public Func<GameplayState> OnRequestGameState { get; set; }
+        public UnityEvent<Vector2> OnRequestMove { get; set; } = new();
+        public UnityEvent OnRequestPlaceBomb { get; set; } = new();
+        public Func<GameplayState> OnRequestGameplayState { get; set; }
+        public int NearbyObserveRadius { get => _nearbyObserveRadius; }
+        public int BombLimit { get => _bombLimit; set => _bombLimit = value; }
 
         private void Start()
         {
@@ -66,7 +69,7 @@ namespace BombermanRL.Character
         public void Dead()
         {
             if (_isDead) return;
-
+            Debug.Log(OnRequestGameplayState?.Invoke());
             _isDead = true;
             _view.SetGoodDeath();
         }

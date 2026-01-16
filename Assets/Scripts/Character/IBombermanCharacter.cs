@@ -6,9 +6,9 @@ namespace BombermanRL.Character
 {
     public interface IBombermanCharacter
     {
-        Vector3 OffsetMovement { get; set; }
+        int BombLimit { get; set; }
         int BombCount { get; set; }
-
+        Vector3 OffsetMovement { get; set; }
         UnityEvent<Vector2> OnRequestMove {  get; set; } 
         UnityEvent OnRequestPlaceBomb { get; set; }
 
