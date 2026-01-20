@@ -4,7 +4,7 @@ namespace BombermanRL
 {
     public class GameplayState
     {
-        public GameplayState(GridPos entityPos, Dictionary<GridPos, TileState> nearbyCondition, GridPos playerPos, List<float> bombTimerNorm)
+        public GameplayState(GridPos entityPos, Dictionary<GridPos, TileState> nearbyCondition, GridPos playerPos, Dictionary<GridPos, float> bombTimerNorm)
         {
             EntityPos = entityPos;
             NearbyCondition = nearbyCondition;
@@ -15,7 +15,7 @@ namespace BombermanRL
         public GridPos EntityPos { get; private set; } 
         public Dictionary<GridPos, TileState> NearbyCondition { get; private set; } // Nearby tiles condition (Includes Current Tiles)
         public GridPos PlayerPos { get; private set; }
-        public List<float> BombTimerNorm { get; private set; } // In List form, incase bomberman chara can spawn > 1 bomb
+        public Dictionary<GridPos, float> BombTimerNorm { get; private set; } // Nearby placed bomb timer
 
         public override string ToString()
         {
@@ -25,9 +25,9 @@ namespace BombermanRL
             {
                 strNearbyCon += $"|{item.Key} - {item.Value}| ";
             }
-            for (int i = 0; i < BombTimerNorm.Count; i++)
+            foreach (KeyValuePair<GridPos, float> item in BombTimerNorm)
             {
-                strBombTimerNorm += $"|Bomb {i} : {BombTimerNorm[i]}| ";
+                strBombTimerNorm += $"|Bomb {item.Key} : {item.Value}| ";
             }
 
             return $"Entity Pos : {EntityPos}\n" +

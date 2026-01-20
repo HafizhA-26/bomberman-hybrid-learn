@@ -41,19 +41,11 @@ namespace BombermanRL.Character
             List<GridPos> dangerousTiles = new List<GridPos>();
             Dictionary<GridPos, TileState> nearby = state.NearbyCondition;
 
-            // Check own nearly exploded bomb
-            bool isNearlyExploded = false;
-            foreach (float coutdown in state.BombTimerNorm)
-            {
-                isNearlyExploded = coutdown > _dangerBombThreshold;
-                break;
-            }
-
             // Find dangerous and safe tiles in nearby observed tiles
             foreach (KeyValuePair<GridPos, TileState> tile in nearby)
             {
                 bool isExplosion = tile.Value.HasSubstate(TileSubState.OnExplosion);
-                bool isBombDanger = tile.Value.HasSubstate(TileSubState.OnBomb) && isNearlyExploded;
+                bool isBombDanger = tile.Value.HasSubstate(TileSubState.OnBomb) && state.BombTimerNorm[tile.Key] > _dangerBombThreshold;
 
                 if (isExplosion || isBombDanger)
                     dangerousTiles.Add(tile.Key);

@@ -1,7 +1,6 @@
 using BombermanRL.Character;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace BombermanRL
@@ -18,8 +17,8 @@ namespace BombermanRL
         private TileState[,] _grid;
         private PlayerController _player;
         private readonly List<EnemyController> _enemies = new List<EnemyController>();
+        private readonly Dictionary<GridPos, BombHandler> _placedBomb = new Dictionary<GridPos, BombHandler>();
         private readonly Dictionary<IBombermanCharacter, GridPos> _entityPositions = new Dictionary<IBombermanCharacter, GridPos>();
-        private readonly Dictionary<IBombermanCharacter, BombHandler[]> _bombPlaced = new Dictionary<IBombermanCharacter, BombHandler[]>(); 
 
         private Vector3 _tileSize;
 
@@ -97,7 +96,6 @@ namespace BombermanRL
                         _grid[row, col].AddSubstate(TileSubState.OnCharacter);
                         _player = tile.GetComponent<PlayerController>();
                         _entityPositions[_player] = tileGridPos;
-                        _bombPlaced[_player] = new BombHandler[_player.BombLimit];
                         _player.OffsetMovement = tilePrefabDict[type].OffsetSpawn;
                         _player.OnRequestMove.AddListener((Vector2 direction) => MoveEntity(_player, _entityPositions[_player], direction));
                         _player.OnRequestPlaceBomb.AddListener(() => PlaceBomb(_player, _entityPositions[_player]));
@@ -110,7 +108,6 @@ namespace BombermanRL
                         EnemyController enemy = tile.GetComponent<EnemyController>();
                         _enemies.Add(enemy);
                         _entityPositions[enemy] = tileGridPos;
-                        _bombPlaced[enemy] = new BombHandler[enemy.BombLimit];
                         enemy.OnRequestMove.AddListener((Vector2 direction) => MoveEntity(enemy, _entityPositions[enemy], direction));
                         enemy.OnRequestPlaceBomb.AddListener(() => PlaceBomb(enemy, _entityPositions[enemy]));
                         enemy.OnRequestGameplayState += () => GetCurrentState(enemy, enemy.NearbyObserveRadius);
@@ -216,15 +213,11 @@ namespace BombermanRL
                     }
                 }
 
-                int bombIndex = _bombPlaced[entity].ToList().FindIndex(item => item == null);
-
-                if (bombIndex >= 0) _bombPlaced[entity][bombIndex] = bomb;
-                else Debug.LogError("Can't find empy bomb slot for " + entity);
-
 
                 bomb.OnBombExplode.AddListener(() => OnBombExplode(explosionGridPos));
                 bomb.OnExplosionFinish.AddListener(() => OnExplosionFinish(entity, explosionGridPos));
                 bomb.Initalize(explosionWorldPos);
+                _placedBomb[tilePos] = bomb;
                 entity.BombCount++;
             }
         }
@@ -303,7 +296,7 @@ namespace BombermanRL
         private GameplayState GetCurrentState(IBombermanCharacter entity, int NearbyRadius)
         {
             Dictionary<GridPos, TileState> nearbyCondition = new Dictionary<GridPos, TileState>();
-            List<float> bombTimerNorm = _bombPlaced[entity].Select(item => item?.GetCurrentTimerNorm() ?? -1).ToList();
+            Dictionary<GridPos, float> bombTimerNorm = new Dictionary<GridPos, float>();
 
             // Get nearby tiles condition based on radius
             GridPos entityPos = _entityPositions[entity];
@@ -315,7 +308,13 @@ namespace BombermanRL
             for (int i = startRow; i <= endRow; i++)
             {
                 for (int j = startCol; j <= endCol; j++)
-                    nearbyCondition[new GridPos(i, j)] = _grid[i, j];
+                {
+                    GridPos pos = new GridPos(i, j);
+                    nearbyCondition[pos] = _grid[i, j];
+
+                    if (_grid[i, j].HasSubstate(TileSubState.OnBomb))
+                        bombTimerNorm[new GridPos(i, j)] = _placedBomb[pos]?.GetCurrentTimerNorm() ?? - 1;
+                }
             }
 
             return new

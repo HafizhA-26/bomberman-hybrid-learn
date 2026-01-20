@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace BombermanRL
 {
@@ -31,6 +32,11 @@ namespace BombermanRL
             if (!(obj is GridPos)) return false;
             GridPos pos = (GridPos)obj;
             return row == pos.row && col == pos.col;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(row, col);
         }
 
         public override readonly string ToString()
