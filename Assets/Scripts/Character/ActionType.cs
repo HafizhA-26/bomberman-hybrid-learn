@@ -3,7 +3,7 @@
     public enum ActionType
     {
         Idle = 0,
-        MoveUo = 1,
+        MoveUp = 1,
         MoveDown = 2,
         MoveLeft = 3,
         MoveRight = 4,

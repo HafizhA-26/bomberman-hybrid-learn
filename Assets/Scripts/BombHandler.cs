@@ -101,7 +101,7 @@ namespace BombermanRL
             });
         }
 
-        public float GetCurrentTimerNorm() => Mathf.InverseLerp(0, _explodeCountdown, _currentTimer);
+        public float GetCurrentTimerNorm() => Mathf.InverseLerp(_explodeCountdown, 0, _currentTimer);
     }
 
 }

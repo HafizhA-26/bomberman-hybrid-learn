@@ -18,6 +18,7 @@ namespace BombermanRL.Character
         [SerializeField] private int _nearbyObserveRadius = 2;
 
         private IDecisionProvider _decisionProvider;
+        private Tween _decisionTween;
         private bool _isDead;
         private bool _isWalk;
 
@@ -43,6 +44,43 @@ namespace BombermanRL.Character
                 case AIType.HybrilRL:
                     break;
             }
+
+            _decisionTween = DOVirtual.DelayedCall(_cooldown, () =>
+            {
+                if(!_isDead && !_isWalk)
+                {
+                    GameplayState currState = OnRequestGameplayState?.Invoke();
+                    ActionType actionToTake = _decisionProvider.Decide(currState);
+                    //Debug.Log("Curr State : " + currState);
+                    //Debug.Log("Action to Take : "+actionToTake);
+                    switch (actionToTake)
+                    {
+                        case ActionType.Idle:
+                            break;
+                        case ActionType.MoveUp:
+                            OnRequestMove.Invoke(Vector2.up);
+                            break;
+                        case ActionType.MoveDown:
+                            OnRequestMove.Invoke(Vector2.down);
+                            break;
+                        case ActionType.MoveLeft:
+                            OnRequestMove.Invoke(Vector2.left);
+                            break;
+                        case ActionType.MoveRight:
+                            OnRequestMove.Invoke(Vector2.right);
+                            break;
+                        case ActionType.PlaceBomb:
+                            if(BombCount < BombLimit) OnRequestPlaceBomb.Invoke();
+                            break;
+                    }
+                }
+
+            }).SetLoops(-1);
+        }
+
+        private void OnDestroy()
+        {
+            _decisionTween?.Kill();
         }
 
         public void Move(Vector3 targetPos, bool canMove, Action onCompleteMove)
@@ -69,7 +107,7 @@ namespace BombermanRL.Character
         public void Dead()
         {
             if (_isDead) return;
-            Debug.Log(OnRequestGameplayState?.Invoke());
+
             _isDead = true;
             _view.SetGoodDeath();
         }

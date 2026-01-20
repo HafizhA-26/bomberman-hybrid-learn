@@ -19,5 +19,11 @@
         {
             return $"Type: {_type} | Substate {_subState}";
         }
+
+        public static bool IsWalkable(TileState tileState) =>
+            !tileState.HasSubstate(TileSubState.OnCharacter) &&
+            !tileState.HasSubstate(TileSubState.OnBomb) &&
+            !tileState.HasSubstate(TileSubState.OnExplosion) &&
+            tileState.Type == TileType.Empty;
     }
 }
