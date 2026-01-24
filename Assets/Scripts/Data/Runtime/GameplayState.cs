@@ -1,21 +1,38 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace BombermanRL
 {
     public class GameplayState
     {
-        public GameplayState(GridPos entityPos, Dictionary<GridPos, TileState> nearbyCondition, GridPos playerPos, Dictionary<GridPos, float> bombTimerNorm)
+        public GameplayState(GridPos entityPos, Dictionary<GridPos, TileState> nearbyCondition, GridPos playerPos, Dictionary<GridPos, float> bombTimerNorm, int observationRadius)
         {
             EntityPos = entityPos;
             NearbyCondition = nearbyCondition;
             PlayerPos = playerPos;
             BombTimerNorm = bombTimerNorm;
+            ObservationRadius = observationRadius;
         }
 
-        public GridPos EntityPos { get; private set; } 
+        public int ObservationRadius { get; private set; }
+        public GridPos EntityPos { get; private set; } // Related entity position that requested gameplay state
         public Dictionary<GridPos, TileState> NearbyCondition { get; private set; } // Nearby tiles condition (Includes Current Tiles)
-        public GridPos PlayerPos { get; private set; }
+        public GridPos PlayerPos { get; private set; } // Player position inside grid
         public Dictionary<GridPos, float> BombTimerNorm { get; private set; } // Nearby placed bomb timer
+
+        public bool TryGetTileState(GridPos pos, out TileState state)
+        {
+            if(NearbyCondition.ContainsKey(pos))
+            {
+                state = NearbyCondition[pos];
+                return true;
+            }
+            else
+            {
+                state = null;
+                return false;
+            }
+        }
 
         public override string ToString()
         {

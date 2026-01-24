@@ -322,7 +322,8 @@ namespace BombermanRL
                     _entityPositions[entity],
                     nearbyCondition,
                     _entityPositions[_player],
-                    bombTimerNorm
+                    bombTimerNorm,
+                    NearbyRadius
                 );
         }
     }

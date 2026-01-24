@@ -38,10 +38,13 @@ namespace BombermanRL.Character
                     _decisionProvider = new RuleBasedDecision();
                     break;
                 case AIType.OfflineOnly:
+                    _decisionProvider = new RLDecisionProvider(GetComponent<AgentBomber>(), LearningType.OnlineLearning);
                     break;
                 case AIType.OnlineOnly:
+                    _decisionProvider = new RLDecisionProvider(GetComponent<AgentBomber>(), LearningType.OfflineLearning);
                     break;
                 case AIType.HybrilRL:
+                    _decisionProvider = new RLDecisionProvider(GetComponent<AgentBomber>(), LearningType.HybridLearning);
                     break;
             }
 
@@ -109,7 +112,7 @@ namespace BombermanRL.Character
             if (_isDead) return;
 
             _isDead = true;
-            _view.SetGoodDeath();
+            _view.SetBadDeath();
         }
 
     }

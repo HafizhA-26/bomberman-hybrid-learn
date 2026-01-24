@@ -27,6 +27,15 @@ namespace BombermanRL
             return new GridPos(a.row - b.row, a.col - b.col);
         }
 
+        public static GridPos operator +(GridPos a, GridPos b)
+        {
+            return new GridPos(a.row + b.row, a.col + b.col);
+        }
+        public static GridPos operator +(GridPos a, (int row, int col) b)
+        {
+            return new GridPos(a.row + b.row, a.col + b.col);
+        }
+
         public override bool Equals(object obj)
         {
             if (!(obj is GridPos)) return false;
