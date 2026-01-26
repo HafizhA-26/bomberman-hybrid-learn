@@ -117,6 +117,7 @@ namespace BombermanRL.Character
                     {
                         if(!tileChangedTriggered && _moveTween.ElapsedPercentage() >= 0.5f)
                         {
+                            
                             tileChangedTriggered = true;
                             onTileChanged?.Invoke();
                         }

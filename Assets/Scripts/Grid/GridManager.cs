@@ -249,7 +249,7 @@ namespace BombermanRL
                 if (IsDeadly(entityPos.Value))
                 {
                     entityPos.Key.Dead();
-                    GameEventManager.SomeoneKilled(placer, entityPos.Key);
+                    placer.Kill(entityPos.Key);
                 }
             }
 
