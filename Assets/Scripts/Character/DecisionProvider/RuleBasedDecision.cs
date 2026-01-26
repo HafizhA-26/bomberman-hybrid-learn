@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using BombermanRL.Props;
+using System.Collections.Generic;
 using System.Linq;
+using Unity.MLAgents;
 using UnityEngine;
 
 namespace BombermanRL.Character
@@ -7,28 +9,28 @@ namespace BombermanRL.Character
     public class RuleBasedDecision : IDecisionProvider
     {
         private int _offensiveDistance = 2;
-        private float _dangerBombThreshold = 0.7f;
+        private float _dangerBombThreshold = 0.3f;
 
         public ActionType Decide(GameplayState state)
         {
             ActionType actionToTake;
 
-            //Debug.Log("Check Survival");
+            Debug.Log("Check Survival");
             // Priority 1: Survival
             actionToTake = CheckSurvival(state);
             if (actionToTake != ActionType.Idle) return actionToTake;
 
-            //Debug.Log("Check Offensive");
+            Debug.Log("Check Offensive");
             // Priority 2: Offensive
             actionToTake = CheckOffensive(state);
             if (actionToTake != ActionType.Idle) return actionToTake;
 
-            //Debug.Log("Check Destrcutive");
+            Debug.Log("Check Destrcutive");
             // Priority 3: Destroy Environment
             actionToTake = CheckDestructive(state);
             if (actionToTake != ActionType.Idle) return actionToTake;
 
-            //Debug.Log("Check Exploration");
+            Debug.Log("Check Exploration");
             // Priority 4: Exploration
             actionToTake = CheckExploration(state);
             return actionToTake;
@@ -139,6 +141,8 @@ namespace BombermanRL.Character
               .Select(item => item.Key)
               .ToList();
 
+            nearby = nearby.OrderBy(item => item.Distance(state.PlayerPos)).Take(2).ToList();
+
             if (nearby.Count > 0)
             {
                 int randomMove = Random.Range(0, nearby.Count);
@@ -158,5 +162,14 @@ namespace BombermanRL.Character
             else actionToTake = ActionType.Idle;
             return actionToTake;
         }
+
+        public void OnDestroy() { }
+
+        public void OnDestroyProps(IDestroyableProps prop) { }
+
+        public void OnKillSomeone(IBombermanCharacter character) { }
+
+        public void OnDead() { }
+
     }
 }

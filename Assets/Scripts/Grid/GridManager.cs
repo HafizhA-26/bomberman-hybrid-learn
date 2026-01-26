@@ -1,7 +1,9 @@
 using BombermanRL.Character;
+using BombermanRL.Props;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 namespace BombermanRL
 {
@@ -19,6 +21,7 @@ namespace BombermanRL
         private readonly List<EnemyController> _enemies = new List<EnemyController>();
         private readonly Dictionary<GridPos, BombHandler> _placedBomb = new Dictionary<GridPos, BombHandler>();
         private readonly Dictionary<IBombermanCharacter, GridPos> _entityPositions = new Dictionary<IBombermanCharacter, GridPos>();
+        private readonly Dictionary<GridPos, IDestroyableProps> _destroyableProps = new Dictionary<GridPos, IDestroyableProps>(); 
 
         private Vector3 _tileSize;
 
@@ -88,7 +91,7 @@ namespace BombermanRL
                     case TileType.Crate:
                         tile.name = $"{type.ToString()}[{row}-{col}]";
                         _tiles[row, col] = tile;
-                        tile.GetComponent<CrateHandler>().OnCrateDestroyed.AddListener(() => OnCrateDestroyed(new GridPos(row, col)));
+                        _destroyableProps[tileGridPos] = tile.GetComponent<CrateHandler>();
                         break;
                     case TileType.PlayerSpawn:
                         tile.name = "Player";
@@ -129,25 +132,21 @@ namespace BombermanRL
             TileState nextTile = new TileState(TileType.Empty);
             if(direction.y > 0)
             {
-                Debug.Log("[CanMove] Check 1");
                 if (fromPos.row == 0) return false;
                 nextTile = _grid[fromPos.row - 1, fromPos.col];
             }
             else if(direction.y < 0)
             {
-                Debug.Log("[CanMove] Check 2");
                 if (fromPos.row == _grid.GetLength(0) - 1) return false;
                 nextTile = _grid[fromPos.row + 1, fromPos.col];
             }
             else if(direction.x > 0)
             {
-                Debug.Log($"[CanMove] Check 3 {fromPos.col} = {_grid.GetLength(1) - 1}");
                 if (fromPos.col == _grid.GetLength(1) - 1) return false;
                 nextTile = _grid[fromPos.row, fromPos.col + 1];
             }
             else if(direction.x < 0)
             {
-                Debug.Log("[CanMove] Check 4");
                 if (fromPos.col == 0) return false;
                 nextTile = _grid[fromPos.row, fromPos.col - 1];
             }
@@ -214,7 +213,7 @@ namespace BombermanRL
                 }
 
 
-                bomb.OnBombExplode.AddListener(() => OnBombExplode(explosionGridPos));
+                bomb.OnBombExplode.AddListener(() => OnBombExplode(entity, explosionGridPos));
                 bomb.OnExplosionFinish.AddListener(() => OnExplosionFinish(entity, explosionGridPos));
                 bomb.Initalize(explosionWorldPos);
                 _placedBomb[tilePos] = bomb;
@@ -222,7 +221,7 @@ namespace BombermanRL
             }
         }
 
-        private void OnBombExplode(List<GridPos> explosionGridPos)
+        private void OnBombExplode(IBombermanCharacter placer, List<GridPos> explosionGridPos)
         {
             // Change substate OnBomb and OnExplosion to exploding tiles
             foreach (GridPos item in explosionGridPos)
@@ -230,13 +229,30 @@ namespace BombermanRL
                 Debug.Log($"[Bomb Explode] Tile [{item.row}-{item.col}]" + _grid[item.row, item.col]);
                 if(_grid[item.row, item.col].HasSubstate(TileSubState.OnBomb)) _grid[item.row, item.col].RemoveSubstate(TileSubState.OnBomb);
                 _grid[item.row, item.col].AddSubstate(TileSubState.OnExplosion);
+
+                // Check destroyable props to destroy
+                if (_destroyableProps.ContainsKey(item) && !_destroyableProps[item].IsDestroyed && _destroyableProps[item].CanBeDestroyedBy(placer.Type))
+                {
+                    if(_grid[item.row, item.col].Type == TileType.Crate)
+                    {
+                        _grid[item.row, item.col].Type = TileType.Empty;
+                        _grid[item.row, item.col].AddSubstate(TileSubState.OnDestroyedCrate);
+                    }
+                    _destroyableProps[item].DestroyProps();
+                    placer.DestroyProps(_destroyableProps[item]);
+                }
             }
 
             // Check bomberman characters deadly tiles 
             foreach (KeyValuePair<IBombermanCharacter, GridPos> entityPos in _entityPositions)
             {
-                if (IsDeadly(entityPos.Value)) entityPos.Key.Dead();
+                if (IsDeadly(entityPos.Value))
+                {
+                    entityPos.Key.Dead();
+                    GameEventManager.SomeoneKilled(placer, entityPos.Key);
+                }
             }
+
         }
 
         /// <summary>
@@ -252,16 +268,6 @@ namespace BombermanRL
             entity.BombCount--;
         }
 
-        /// <summary>
-        /// Event listener on any crate destroyed inside grid
-        /// Will change grid type and substate
-        /// </summary>
-        /// <param name="cratePos">Crate Explosion Coordinate</param>
-        private void OnCrateDestroyed(GridPos cratePos)
-        {
-            _grid[cratePos.row, cratePos.col].Type = TileType.Empty;
-            _grid[cratePos.row, cratePos.col].AddSubstate(TileSubState.OnDestroyedCrate);
-        }
 
         /// <summary>
         /// Event listener on any movable entity request to move between tiles in grid
@@ -284,8 +290,9 @@ namespace BombermanRL
             Debug.Log($"Move Entity {fromPos} to {targetGridPos} | CanMove {canMove}");
 
             if (canMove) _grid[targetGridPos.row, targetGridPos.col].AddSubstate(TileSubState.OnCharacter);
-            entity.Move(targetWorldPos, canMove, onCompleteMove: () =>
+            entity.Move(targetWorldPos, canMove, onTileChanged: () =>
             {
+                Debug.Log($"{entity.Name} tile changed");
                 _grid[fromPos.row, fromPos.col].RemoveSubstate(TileSubState.OnCharacter);
                 _entityPositions[entity] = targetGridPos;
             });

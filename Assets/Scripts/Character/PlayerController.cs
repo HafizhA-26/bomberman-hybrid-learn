@@ -1,8 +1,10 @@
-﻿using DG.Tweening;
+﻿using BombermanRL.Props;
+using DG.Tweening;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.TextCore.Text;
 
 namespace BombermanRL.Character
 {
@@ -20,15 +22,18 @@ namespace BombermanRL.Character
 
         private PlayerInputActions _inputAction;
         private ActionCooldown _actionCooldown;
+        private Tween _moveTween;
         private bool _isDead;
         private bool _isWalk;
 
+        public string Name => gameObject.name;
+        public CharacterType Type => CharacterType.Player;
         public UnityEvent<Vector2> OnRequestMove { get;  set; } = new();
         public UnityEvent OnRequestPlaceBomb { get; set; } = new();
-
         public Vector3 OffsetMovement { get; set; }
         public int BombCount { get; set; }
         public int BombLimit { get => _bombLimit; set => _bombLimit = value; }
+
 
         private void Awake()
         {
@@ -67,7 +72,7 @@ namespace BombermanRL.Character
             OnRequestPlaceBomb?.Invoke();
         }
 
-        public void Move(Vector3 targetPos, bool canMove, Action onCompleteMove)
+        public void Move(Vector3 targetPos, bool canMove, Action onTileChanged)
         {
             Vector3 direction = targetPos - transform.position;
             direction.y = 0f;
@@ -79,12 +84,21 @@ namespace BombermanRL.Character
             {
                 _isWalk = true;
                 _view.SetWalk();
-                transform.DOMove(targetPos, _moveDuration).OnComplete(() =>
-                {
-                    _isWalk = false;
-                    _view.SetIdle();
-                    onCompleteMove?.Invoke();
-                });
+                bool tileChangedTriggered = false;
+                _moveTween = transform.DOMove(targetPos, _moveDuration)
+                    .OnUpdate(() =>
+                    {
+                        if (!tileChangedTriggered && _moveTween.ElapsedPercentage() >= 0.5f)
+                        {
+                            tileChangedTriggered = true;
+                            onTileChanged?.Invoke();
+                        }
+                    })
+                    .OnComplete(() =>
+                    {
+                        _isWalk = false;
+                        _view.SetIdle();
+                    });
             }
         }
 
@@ -94,6 +108,16 @@ namespace BombermanRL.Character
 
             _isDead = true;
             _view.SetGoodDeath();
+        }
+
+        public void Kill(IBombermanCharacter character)
+        {
+            Debug.Log($"{Name} Kills {character.Name}");
+        }
+
+        public void DestroyProps(IDestroyableProps prop)
+        {
+            Debug.Log($"{Name} Destroy {prop.Name}");
         }
     }
 }

@@ -95,9 +95,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da0b3d65ad636414a929cf6a020aa7b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnCrateDestroyed:
-    m_PersistentCalls:
-      m_Calls: []
+  _tileType: 2
+  _allowedDestroyer: -1
 --- !u!1001 &2210428268327951341
 PrefabInstance:
   m_ObjectHideFlags: 0

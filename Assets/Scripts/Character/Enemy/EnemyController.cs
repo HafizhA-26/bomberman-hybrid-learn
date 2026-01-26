@@ -1,7 +1,9 @@
-﻿using DG.Tweening;
+﻿using BombermanRL.Props;
+using DG.Tweening;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.TextCore.Text;
 
 namespace BombermanRL.Character
 {
@@ -11,6 +13,7 @@ namespace BombermanRL.Character
         [SerializeField] private CharacterView _view;
 
         [Header("Action Parameter")]
+        [SerializeField] private CharacterType _type = CharacterType.Bandit;
         [SerializeField] private AIType _AIType = AIType.RuleBased;
         [SerializeField] private float _cooldown = 0.5f;
         [SerializeField] private float _moveDuration = 1f;
@@ -19,9 +22,12 @@ namespace BombermanRL.Character
 
         private IDecisionProvider _decisionProvider;
         private Tween _decisionTween;
+        private Tween _moveTween;
         private bool _isDead;
         private bool _isWalk;
 
+        public string Name => gameObject.name;
+        public CharacterType Type => _type;
         public Vector3 OffsetMovement { get; set; } = new Vector3();
         public int BombCount { get; set; }
         public UnityEvent<Vector2> OnRequestMove { get; set; } = new();
@@ -29,6 +35,12 @@ namespace BombermanRL.Character
         public Func<GameplayState> OnRequestGameplayState { get; set; }
         public int NearbyObserveRadius { get => _nearbyObserveRadius; }
         public int BombLimit { get => _bombLimit; set => _bombLimit = value; }
+
+
+        private void Awake()
+        {
+            
+        }
 
         private void Start()
         {
@@ -83,10 +95,11 @@ namespace BombermanRL.Character
 
         private void OnDestroy()
         {
+            _decisionProvider?.OnDestroy();
             _decisionTween?.Kill();
         }
 
-        public void Move(Vector3 targetPos, bool canMove, Action onCompleteMove)
+        public void Move(Vector3 targetPos, bool canMove, Action onTileChanged)
         {
             Vector3 direction = targetPos - transform.position;
             direction.y = 0f;
@@ -98,12 +111,21 @@ namespace BombermanRL.Character
             {
                 _isWalk = true;
                 _view.SetWalk();
-                transform.DOMove(targetPos, _moveDuration).OnComplete(() =>
-                {
-                    _isWalk = false;
-                    _view.SetIdle();
-                    onCompleteMove?.Invoke();
-                });
+                bool tileChangedTriggered = false;
+                _moveTween = transform.DOMove(targetPos, _moveDuration)
+                    .OnUpdate(() =>
+                    {
+                        if(!tileChangedTriggered && _moveTween.ElapsedPercentage() >= 0.5f)
+                        {
+                            tileChangedTriggered = true;
+                            onTileChanged?.Invoke();
+                        }
+                    })
+                    .OnComplete(() =>
+                    {
+                        _isWalk = false;
+                        _view.SetIdle();
+                    });
             }
         }
 
@@ -112,8 +134,20 @@ namespace BombermanRL.Character
             if (_isDead) return;
 
             _isDead = true;
+            _decisionProvider.OnDead();
             _view.SetBadDeath();
         }
 
+        public void Kill(IBombermanCharacter character)
+        {
+            Debug.Log($"{Name} Kills {character.Name}");
+            _decisionProvider.OnKillSomeone(character);
+        }
+
+        public void DestroyProps(IDestroyableProps prop)
+        {
+            Debug.Log($"{Name} Destroy {prop.Name}");
+            _decisionProvider?.OnDestroyProps(prop);
+        }
     }
 }
