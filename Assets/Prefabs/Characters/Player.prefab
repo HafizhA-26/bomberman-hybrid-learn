@@ -158,10 +158,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _view: {fileID: 1867523951547977403}
   _controller: {fileID: -1413249216986960972}
-  _bombPrefab: {fileID: 0}
-  _cooldown: 0.3
-  _moveDuration: 0.5
+  _cooldown: 0.8
+  _moveDuration: 0.6
   _bombLimit: 1
+  _useRuleBasedAction: 1
+  _nearbyObserveRadius: 2
 --- !u!114 &1867523951547977403 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: -4983567206543806626, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}

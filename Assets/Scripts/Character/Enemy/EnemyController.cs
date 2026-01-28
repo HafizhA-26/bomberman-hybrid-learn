@@ -95,6 +95,8 @@ namespace BombermanRL.Character
 
         private void OnDestroy()
         {
+            OnRequestMove.RemoveAllListeners();
+            OnRequestPlaceBomb.RemoveAllListeners();
             _decisionProvider?.OnDestroy();
             _decisionTween?.Kill();
         }

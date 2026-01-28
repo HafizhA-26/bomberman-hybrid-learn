@@ -2,6 +2,7 @@ using BombermanRL.Character;
 using BombermanRL.Props;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static UnityEditor.Progress;
 
@@ -50,7 +51,7 @@ namespace BombermanRL
                 for (int j = 0; j < _floors.GetLength(1); j++)
                 {
                     GameObject floor = Instantiate(_tilePrefabsData.FloorPrefab, _floorsParent, true);
-                    Vector3 newPos = new Vector3(_tileSize.x * j, _tileSize.y * 0.5f, _tileSize.z * i * -1);
+                    Vector3 newPos = new Vector3(_tileSize.x * j + transform.parent.position.x, _tileSize.y * 0.5f, _tileSize.z * i * -1 + transform.parent.position.z);
                     floor.transform.position = newPos;
                     floor.name = $"Floor[{i}-{j}]";
                     _floors[i, j] = floor;
@@ -102,6 +103,7 @@ namespace BombermanRL
                         _player.OffsetMovement = tilePrefabDict[type].OffsetSpawn;
                         _player.OnRequestMove.AddListener((Vector2 direction) => MoveEntity(_player, _entityPositions[_player], direction));
                         _player.OnRequestPlaceBomb.AddListener(() => PlaceBomb(_player, _entityPositions[_player]));
+                        _player.OnRequestGameplayState += () => GetCurrentState(_player, _player.NearbyObserveRadius);
                         break;
                     case TileType.EnemySpawn:
                         tile.name = $"Enemy{_enemies.Count}";
@@ -298,7 +300,7 @@ namespace BombermanRL
             });
         }
 
-        private Vector3 GridToWorld(GridPos tilePos) => new Vector3(tilePos.col * _tileSize.x, _tileSize.y * 1.5f, tilePos.row * _tileSize.z * -1);
+        private Vector3 GridToWorld(GridPos tilePos) => new Vector3(tilePos.col * _tileSize.x + transform.parent.position.x, _tileSize.y * 1.5f, tilePos.row * _tileSize.z * -1 + transform.parent.position.z);
 
         private GameplayState GetCurrentState(IBombermanCharacter entity, int NearbyRadius)
         {
@@ -324,11 +326,25 @@ namespace BombermanRL
                 }
             }
 
+            GridPos enemyPos = new GridPos(-1, -1);
+
+            switch (entity.Type)
+            {
+                case CharacterType.None:
+                    break;
+                case CharacterType.Player:
+                    enemyPos = _entityPositions.FirstOrDefault(item => item.Key.Type!= CharacterType.Player).Value;
+                    break;
+                case CharacterType.Bandit:
+                    enemyPos = _entityPositions[_player];
+                    break;
+            }
+
             return new
                 (
                     _entityPositions[entity],
                     nearbyCondition,
-                    _entityPositions[_player],
+                    enemyPos,
                     bombTimerNorm,
                     NearbyRadius
                 );
