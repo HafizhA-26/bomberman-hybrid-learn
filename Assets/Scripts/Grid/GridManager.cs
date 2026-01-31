@@ -1,10 +1,10 @@
 using BombermanRL.Character;
 using BombermanRL.Props;
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 namespace BombermanRL
 {
@@ -21,13 +21,16 @@ namespace BombermanRL
         private PlayerController _player;
         private readonly List<EnemyController> _enemies = new List<EnemyController>();
         private readonly Dictionary<GridPos, BombHandler> _placedBomb = new Dictionary<GridPos, BombHandler>();
+        private Dictionary<IBombermanCharacter, GridPos> _startEntityPositions = new Dictionary<IBombermanCharacter, GridPos>();
         private readonly Dictionary<IBombermanCharacter, GridPos> _entityPositions = new Dictionary<IBombermanCharacter, GridPos>();
         private readonly Dictionary<GridPos, IDestroyableProps> _destroyableProps = new Dictionary<GridPos, IDestroyableProps>(); 
 
         private Vector3 _tileSize;
+        private bool _isOnReset;
 
         private void Awake()
         {
+            Application.targetFrameRate = 30;
             _floors = new GameObject[_levelData.GridWidth, _levelData.GridHeight];
             _tiles = new GameObject[_levelData.GridWidth, _levelData.GridHeight];
             _grid = new TileState[_levelData.GridWidth, _levelData.GridHeight];
@@ -121,6 +124,32 @@ namespace BombermanRL
                 }
                 
             }
+
+            _startEntityPositions = new Dictionary<IBombermanCharacter, GridPos>(_entityPositions);
+        }
+
+        private void ResetGrid(bool isPlayerDead)
+        {
+            foreach (GameObject item in _floors)
+            {
+                MeshRenderer floorRenderer = item.GetComponent<MeshRenderer>();
+                if (floorRenderer) floorRenderer.material = isPlayerDead ? _tilePrefabsData.AgentSuccessFloorMat : _tilePrefabsData.AgentFailedFloorMat;
+            }
+
+            DOVirtual.DelayedCall(3f, () =>
+            {
+                foreach (KeyValuePair<IBombermanCharacter, GridPos> entity in _startEntityPositions)
+                {
+                    entity.Key.ResetEntity(GridToWorld(entity.Value));
+                }
+
+                foreach (GameObject item in _floors)
+                {
+                    MeshRenderer floorRenderer = item.GetComponent<MeshRenderer>();
+                    if (floorRenderer) floorRenderer.material = _tilePrefabsData.FloorPrefab.GetComponent<MeshRenderer>().sharedMaterial;
+                }
+                _isOnReset = false;
+            });
         }
 
         /// <summary>
@@ -176,6 +205,7 @@ namespace BombermanRL
         private void PlaceBomb(IBombermanCharacter entity, GridPos tilePos)
         {
             if(!CanPlaceBomb(tilePos)) return;
+            if (_isOnReset) return;
 
             List<GridPos> explosionGridPos = new List<GridPos>();
             GameObject bombObject = Instantiate(_tilePrefabsData.BombPrefab, _objectsTileParent, true);
@@ -252,6 +282,9 @@ namespace BombermanRL
                 {
                     entityPos.Key.Dead();
                     placer.Kill(entityPos.Key);
+
+                    _isOnReset = true;
+                    ResetGrid(entityPos.Key.Type == CharacterType.Player);
                 }
             }
 
@@ -281,6 +314,8 @@ namespace BombermanRL
         private void MoveEntity(IBombermanCharacter entity, GridPos fromPos, Vector2 moveDirection)
         {
             if (Math.Abs(moveDirection.x) <= 0.1f && Math.Abs(moveDirection.y) <= 0.1f) return;
+            if (_isOnReset) return;
+
             bool canMove = CanMove(fromPos, moveDirection);
 
             moveDirection.x = Math.Sign(moveDirection.x);

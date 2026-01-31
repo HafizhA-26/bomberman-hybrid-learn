@@ -50,47 +50,17 @@ namespace BombermanRL.Character
                     _decisionProvider = new RuleBasedDecision();
                     break;
                 case AIType.OfflineOnly:
-                    _decisionProvider = new RLDecisionProvider(GetComponent<AgentBomber>(), LearningType.OnlineLearning);
+                    _decisionProvider = new RLDecisionProvider(GetComponent<AgentBomber>(), LearningType.OfflineLearning);
                     break;
                 case AIType.OnlineOnly:
-                    _decisionProvider = new RLDecisionProvider(GetComponent<AgentBomber>(), LearningType.OfflineLearning);
+                    _decisionProvider = new RLDecisionProvider(GetComponent<AgentBomber>(), LearningType.OnlineLearning);
                     break;
                 case AIType.HybrilRL:
                     _decisionProvider = new RLDecisionProvider(GetComponent<AgentBomber>(), LearningType.HybridLearning);
                     break;
             }
 
-            _decisionTween = DOVirtual.DelayedCall(_cooldown, () =>
-            {
-                if(!_isDead && !_isWalk)
-                {
-                    GameplayState currState = OnRequestGameplayState?.Invoke();
-                    ActionType actionToTake = _decisionProvider.Decide(currState);
-                    //Debug.Log("Curr State : " + currState);
-                    //Debug.Log("Action to Take : "+actionToTake);
-                    switch (actionToTake)
-                    {
-                        case ActionType.Idle:
-                            break;
-                        case ActionType.MoveUp:
-                            OnRequestMove.Invoke(Vector2.up);
-                            break;
-                        case ActionType.MoveDown:
-                            OnRequestMove.Invoke(Vector2.down);
-                            break;
-                        case ActionType.MoveLeft:
-                            OnRequestMove.Invoke(Vector2.left);
-                            break;
-                        case ActionType.MoveRight:
-                            OnRequestMove.Invoke(Vector2.right);
-                            break;
-                        case ActionType.PlaceBomb:
-                            if(BombCount < BombLimit) OnRequestPlaceBomb.Invoke();
-                            break;
-                    }
-                }
-
-            }).SetLoops(-1);
+            _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
         }
 
         private void OnDestroy()
@@ -99,6 +69,38 @@ namespace BombermanRL.Character
             OnRequestPlaceBomb.RemoveAllListeners();
             _decisionProvider?.OnDestroy();
             _decisionTween?.Kill();
+        }
+
+        private void DecisionCallback()
+        {
+            if (!_isDead && !_isWalk)
+            {
+                GameplayState currState = OnRequestGameplayState?.Invoke();
+                ActionType actionToTake = _decisionProvider.Decide(currState);
+                Debug.Log("Request Action");
+                //Debug.Log("Curr State : " + currState);
+                //Debug.Log("Action to Take : "+actionToTake);
+                switch (actionToTake)
+                {
+                    case ActionType.Idle:
+                        break;
+                    case ActionType.MoveUp:
+                        OnRequestMove.Invoke(Vector2.up);
+                        break;
+                    case ActionType.MoveDown:
+                        OnRequestMove.Invoke(Vector2.down);
+                        break;
+                    case ActionType.MoveLeft:
+                        OnRequestMove.Invoke(Vector2.left);
+                        break;
+                    case ActionType.MoveRight:
+                        OnRequestMove.Invoke(Vector2.right);
+                        break;
+                    case ActionType.PlaceBomb:
+                        if (BombCount < BombLimit) OnRequestPlaceBomb.Invoke();
+                        break;
+                }
+            }
         }
 
         public void Move(Vector3 targetPos, bool canMove, Action onTileChanged)
@@ -136,9 +138,11 @@ namespace BombermanRL.Character
         {
             if (_isDead) return;
 
+            _decisionTween?.Kill();
             _isDead = true;
             _decisionProvider.OnDead();
             _view.SetBadDeath();
+
         }
 
         public void Kill(IBombermanCharacter character)
@@ -151,6 +155,18 @@ namespace BombermanRL.Character
         {
             Debug.Log($"{Name} Destroy {prop.Name}");
             _decisionProvider?.OnDestroyProps(prop);
+        }
+
+        public void ResetEntity(Vector3 resetWorldPos)
+        {
+            _isDead = false;
+            _isWalk = false;
+            _decisionTween?.Kill();
+            _view.SetIdle();
+            Debug.Log("Reset Enemy");
+
+            _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
+            transform.position = resetWorldPos;
         }
     }
 }

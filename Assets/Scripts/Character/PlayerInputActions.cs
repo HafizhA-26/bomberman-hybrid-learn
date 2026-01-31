@@ -203,6 +203,98 @@ namespace BombermanRL.Character
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""EnemyHeuristic"",
+            ""id"": ""275e74a6-23b0-433c-9c19-2cffa4463af0"",
+            ""actions"": [
+                {
+                    ""name"": ""Move"",
+                    ""type"": ""Value"",
+                    ""id"": ""4789db34-280a-4908-b398-fcce129e0f62"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""PlaceBomb"",
+                    ""type"": ""Button"",
+                    ""id"": ""1fe26b48-a326-4334-9e72-16aef447b5e0"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": ""ArrowMove"",
+                    ""id"": ""a9b5d2e4-f8f4-418f-bc58-8aa4e145e5c7"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""10f21ad3-89df-40de-9571-162f27f2de0c"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""29f82618-bd3a-463c-a737-48224295d880"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""e1d78389-d37c-43e5-87f4-4e266c2f3596"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""8cc2abee-5033-4d03-9f8d-31af8097fd16"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9007d764-da26-4813-ac51-da4ce41a5e91"",
+                    ""path"": ""<Keyboard>/backslash"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PlaceBomb"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -211,11 +303,16 @@ namespace BombermanRL.Character
             m_Gameplay = asset.FindActionMap("Gameplay", throwIfNotFound: true);
             m_Gameplay_Move = m_Gameplay.FindAction("Move", throwIfNotFound: true);
             m_Gameplay_PlaceBomb = m_Gameplay.FindAction("PlaceBomb", throwIfNotFound: true);
+            // EnemyHeuristic
+            m_EnemyHeuristic = asset.FindActionMap("EnemyHeuristic", throwIfNotFound: true);
+            m_EnemyHeuristic_Move = m_EnemyHeuristic.FindAction("Move", throwIfNotFound: true);
+            m_EnemyHeuristic_PlaceBomb = m_EnemyHeuristic.FindAction("PlaceBomb", throwIfNotFound: true);
         }
 
         ~@PlayerInputActions()
         {
             UnityEngine.Debug.Assert(!m_Gameplay.enabled, "This will cause a leak and performance issues, PlayerInputActions.Gameplay.Disable() has not been called.");
+            UnityEngine.Debug.Assert(!m_EnemyHeuristic.enabled, "This will cause a leak and performance issues, PlayerInputActions.EnemyHeuristic.Disable() has not been called.");
         }
 
         /// <summary>
@@ -394,12 +491,141 @@ namespace BombermanRL.Character
         /// Provides a new <see cref="GameplayActions" /> instance referencing this action map.
         /// </summary>
         public GameplayActions @Gameplay => new GameplayActions(this);
+
+        // EnemyHeuristic
+        private readonly InputActionMap m_EnemyHeuristic;
+        private List<IEnemyHeuristicActions> m_EnemyHeuristicActionsCallbackInterfaces = new List<IEnemyHeuristicActions>();
+        private readonly InputAction m_EnemyHeuristic_Move;
+        private readonly InputAction m_EnemyHeuristic_PlaceBomb;
+        /// <summary>
+        /// Provides access to input actions defined in input action map "EnemyHeuristic".
+        /// </summary>
+        public struct EnemyHeuristicActions
+        {
+            private @PlayerInputActions m_Wrapper;
+
+            /// <summary>
+            /// Construct a new instance of the input action map wrapper class.
+            /// </summary>
+            public EnemyHeuristicActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
+            /// <summary>
+            /// Provides access to the underlying input action "EnemyHeuristic/Move".
+            /// </summary>
+            public InputAction @Move => m_Wrapper.m_EnemyHeuristic_Move;
+            /// <summary>
+            /// Provides access to the underlying input action "EnemyHeuristic/PlaceBomb".
+            /// </summary>
+            public InputAction @PlaceBomb => m_Wrapper.m_EnemyHeuristic_PlaceBomb;
+            /// <summary>
+            /// Provides access to the underlying input action map instance.
+            /// </summary>
+            public InputActionMap Get() { return m_Wrapper.m_EnemyHeuristic; }
+            /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+            public void Enable() { Get().Enable(); }
+            /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+            public void Disable() { Get().Disable(); }
+            /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+            public bool enabled => Get().enabled;
+            /// <summary>
+            /// Implicitly converts an <see ref="EnemyHeuristicActions" /> to an <see ref="InputActionMap" /> instance.
+            /// </summary>
+            public static implicit operator InputActionMap(EnemyHeuristicActions set) { return set.Get(); }
+            /// <summary>
+            /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+            /// </summary>
+            /// <param name="instance">Callback instance.</param>
+            /// <remarks>
+            /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+            /// </remarks>
+            /// <seealso cref="EnemyHeuristicActions" />
+            public void AddCallbacks(IEnemyHeuristicActions instance)
+            {
+                if (instance == null || m_Wrapper.m_EnemyHeuristicActionsCallbackInterfaces.Contains(instance)) return;
+                m_Wrapper.m_EnemyHeuristicActionsCallbackInterfaces.Add(instance);
+                @Move.started += instance.OnMove;
+                @Move.performed += instance.OnMove;
+                @Move.canceled += instance.OnMove;
+                @PlaceBomb.started += instance.OnPlaceBomb;
+                @PlaceBomb.performed += instance.OnPlaceBomb;
+                @PlaceBomb.canceled += instance.OnPlaceBomb;
+            }
+
+            /// <summary>
+            /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+            /// </summary>
+            /// <remarks>
+            /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+            /// </remarks>
+            /// <seealso cref="EnemyHeuristicActions" />
+            private void UnregisterCallbacks(IEnemyHeuristicActions instance)
+            {
+                @Move.started -= instance.OnMove;
+                @Move.performed -= instance.OnMove;
+                @Move.canceled -= instance.OnMove;
+                @PlaceBomb.started -= instance.OnPlaceBomb;
+                @PlaceBomb.performed -= instance.OnPlaceBomb;
+                @PlaceBomb.canceled -= instance.OnPlaceBomb;
+            }
+
+            /// <summary>
+            /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="EnemyHeuristicActions.UnregisterCallbacks(IEnemyHeuristicActions)" />.
+            /// </summary>
+            /// <seealso cref="EnemyHeuristicActions.UnregisterCallbacks(IEnemyHeuristicActions)" />
+            public void RemoveCallbacks(IEnemyHeuristicActions instance)
+            {
+                if (m_Wrapper.m_EnemyHeuristicActionsCallbackInterfaces.Remove(instance))
+                    UnregisterCallbacks(instance);
+            }
+
+            /// <summary>
+            /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+            /// </summary>
+            /// <remarks>
+            /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+            /// </remarks>
+            /// <seealso cref="EnemyHeuristicActions.AddCallbacks(IEnemyHeuristicActions)" />
+            /// <seealso cref="EnemyHeuristicActions.RemoveCallbacks(IEnemyHeuristicActions)" />
+            /// <seealso cref="EnemyHeuristicActions.UnregisterCallbacks(IEnemyHeuristicActions)" />
+            public void SetCallbacks(IEnemyHeuristicActions instance)
+            {
+                foreach (var item in m_Wrapper.m_EnemyHeuristicActionsCallbackInterfaces)
+                    UnregisterCallbacks(item);
+                m_Wrapper.m_EnemyHeuristicActionsCallbackInterfaces.Clear();
+                AddCallbacks(instance);
+            }
+        }
+        /// <summary>
+        /// Provides a new <see cref="EnemyHeuristicActions" /> instance referencing this action map.
+        /// </summary>
+        public EnemyHeuristicActions @EnemyHeuristic => new EnemyHeuristicActions(this);
         /// <summary>
         /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Gameplay" which allows adding and removing callbacks.
         /// </summary>
         /// <seealso cref="GameplayActions.AddCallbacks(IGameplayActions)" />
         /// <seealso cref="GameplayActions.RemoveCallbacks(IGameplayActions)" />
         public interface IGameplayActions
+        {
+            /// <summary>
+            /// Method invoked when associated input action "Move" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnMove(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "PlaceBomb" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnPlaceBomb(InputAction.CallbackContext context);
+        }
+        /// <summary>
+        /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "EnemyHeuristic" which allows adding and removing callbacks.
+        /// </summary>
+        /// <seealso cref="EnemyHeuristicActions.AddCallbacks(IEnemyHeuristicActions)" />
+        /// <seealso cref="EnemyHeuristicActions.RemoveCallbacks(IEnemyHeuristicActions)" />
+        public interface IEnemyHeuristicActions
         {
             /// <summary>
             /// Method invoked when associated input action "Move" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.

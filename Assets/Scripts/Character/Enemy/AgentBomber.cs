@@ -3,17 +3,22 @@ using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace BombermanRL.Character
 {
-    public class AgentBomber : Agent
+    public class AgentBomber : Agent, PlayerInputActions.IEnemyHeuristicActions
     {
         private GameplayState _currentState;
         public event Action<ActionType> OnActionDecided;
 
+        private Vector2 _moveInput;
+        private bool _placeBomb;
+
         public override void Initialize()
         {
-            
+            Application.targetFrameRate = 60;
+            Time.timeScale = 1f;
         }
 
         public override void CollectObservations(VectorSensor sensor)
@@ -53,35 +58,32 @@ namespace BombermanRL.Character
             sensor.AddObservation(playerColDis);
         }
 
+
         public override void OnActionReceived(ActionBuffers actions)
         {
             int action = actions.DiscreteActions[0];
             ActionType type = (ActionType)action;
+            Debug.Log("Action Received : " + action);
             OnActionDecided?.Invoke(type);
         }
 
         public override void Heuristic(in ActionBuffers actionsOut)
         {
             ActionSegment<int> discreteActions = actionsOut.DiscreteActions;
-
-            // Get Arrow input for movement (avoid using WASD, prevent conflicted input with player input)
-            bool moveUp = Input.GetKey(KeyCode.UpArrow);
-            bool moveDown = Input.GetKey(KeyCode.DownArrow);
-            bool moveLeft = Input.GetKey(KeyCode.LeftArrow);
-            bool moveRight = Input.GetKey(KeyCode.RightArrow);
-            bool bombInput = Input.GetKey(KeyCode.Backslash);
-
             // Only take one action at the same time for heuristic
-            if (moveUp)
+            if (_moveInput.y > 0)
                 discreteActions[0] = 1;
-            else if (moveDown)
+            else if (_moveInput.y < 0)
                 discreteActions[0] = 2;
-            else if (moveLeft)
+            else if (_moveInput.x < 0)
                 discreteActions[0] = 3;
-            else if (moveRight)
+            else if (_moveInput.x > 0)
                 discreteActions[0] = 4;
-            else if (bombInput)
+            else if (_placeBomb)
+            {
                 discreteActions[0] = 5;
+                _placeBomb = false;
+            }
             else
                 discreteActions[0] = 0;
 
@@ -97,6 +99,15 @@ namespace BombermanRL.Character
             _currentState = state;
         }
 
+        public void OnMove(InputAction.CallbackContext context)
+        {
+            _moveInput = context.ReadValue<Vector2>();
+        }
+
+        public void OnPlaceBomb(InputAction.CallbackContext context)
+        {
+            _placeBomb = true;
+        }
     }
 
 }

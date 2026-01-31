@@ -52,37 +52,7 @@ namespace BombermanRL.Character
             if(_useRuleBasedAction)
             {
                 _decisionProvider = new RuleBasedDecision();
-                _decisionTween = DOVirtual.DelayedCall(_cooldown, () =>
-                {
-                    if (!_isDead && !_isWalk)
-                    {
-                        GameplayState currState = OnRequestGameplayState?.Invoke();
-                        ActionType actionToTake = _decisionProvider.Decide(currState);
-                        //Debug.Log("Curr State : " + currState);
-                        //Debug.Log("Action to Take : "+actionToTake);
-                        switch (actionToTake)
-                        {
-                            case ActionType.Idle:
-                                break;
-                            case ActionType.MoveUp:
-                                OnRequestMove.Invoke(Vector2.up);
-                                break;
-                            case ActionType.MoveDown:
-                                OnRequestMove.Invoke(Vector2.down);
-                                break;
-                            case ActionType.MoveLeft:
-                                OnRequestMove.Invoke(Vector2.left);
-                                break;
-                            case ActionType.MoveRight:
-                                OnRequestMove.Invoke(Vector2.right);
-                                break;
-                            case ActionType.PlaceBomb:
-                                if (BombCount < BombLimit) OnRequestPlaceBomb.Invoke();
-                                break;
-                        }
-                    }
-
-                }).SetLoops(-1);
+                _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
             }
         }
 
@@ -100,6 +70,38 @@ namespace BombermanRL.Character
         private void OnDisable()
         {
             _inputAction.Gameplay.Disable();
+        }
+
+        private void DecisionCallback()
+        {
+            if (!_isDead && !_isWalk)
+            {
+                //Debug.Log("[Player] Get Decision");
+                GameplayState currState = OnRequestGameplayState?.Invoke();
+                ActionType actionToTake = _decisionProvider.Decide(currState);
+                //Debug.Log("Curr State : " + currState);
+                //Debug.Log("Action to Take : "+actionToTake);
+                switch (actionToTake)
+                {
+                    case ActionType.Idle:
+                        break;
+                    case ActionType.MoveUp:
+                        OnRequestMove.Invoke(Vector2.up);
+                        break;
+                    case ActionType.MoveDown:
+                        OnRequestMove.Invoke(Vector2.down);
+                        break;
+                    case ActionType.MoveLeft:
+                        OnRequestMove.Invoke(Vector2.left);
+                        break;
+                    case ActionType.MoveRight:
+                        OnRequestMove.Invoke(Vector2.right);
+                        break;
+                    case ActionType.PlaceBomb:
+                        if (BombCount < BombLimit) OnRequestPlaceBomb.Invoke();
+                        break;
+                }
+            }
         }
 
         public void OnMove(InputAction.CallbackContext context)
@@ -150,6 +152,7 @@ namespace BombermanRL.Character
         {
             if(_isDead) return;
 
+            _decisionTween?.Kill();
             _isDead = true;
             _view.SetGoodDeath();
         }
@@ -162,6 +165,20 @@ namespace BombermanRL.Character
         public void DestroyProps(IDestroyableProps prop)
         {
             Debug.Log($"{Name} Destroy {prop.Name}");
+        }
+
+        public void ResetEntity(Vector3 resetWorldPos)
+        {
+            _isDead = false;
+            _isWalk = false;
+            _decisionTween?.Kill();
+            _view.SetIdle();
+
+            if (_useRuleBasedAction)
+            {
+                _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
+            }
+            transform.position = resetWorldPos;
         }
     }
 }

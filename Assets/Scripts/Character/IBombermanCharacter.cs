@@ -20,5 +20,6 @@ namespace BombermanRL.Character
         void Dead();
         void Kill(IBombermanCharacter character);
         void DestroyProps(IDestroyableProps prop);
+        void ResetEntity(Vector3 resetWorldPos);
     }
 }

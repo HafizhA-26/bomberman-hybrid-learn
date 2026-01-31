@@ -13,12 +13,17 @@ namespace BombermanRL
 
         [Tooltip("Prefab of the level floor")]
         [SerializeField] private GameObject _floorPrefab;
+        [SerializeField] private Material _agentSuccessFloorMat;
+        [SerializeField] private Material _agentFailedFloorMat;
 
+        [Space(10)]
         [Tooltip("Prefab for placing bomb")]
         [SerializeField] private GameObject _bombPrefab;
         public Dictionary<TileType, TilePrefab> TilePrefabDict { get => _tilePrefabs.ToDictionary(item => item.TileType); }
         public GameObject FloorPrefab { get => _floorPrefab; }
         public GameObject BombPrefab { get => _bombPrefab; }
+        public Material AgentSuccessFloorMat { get => _agentSuccessFloorMat; }
+        public Material AgentFailedFloorMat { get => _agentFailedFloorMat; }
 
         [Serializable]
         public class TilePrefab

@@ -9,7 +9,7 @@ namespace BombermanRL.Character
     public class RuleBasedDecision : IDecisionProvider
     {
         private int _offensiveDistance = 2;
-        private float _dangerBombThreshold = 0.3f;
+        private float _dangerBombThreshold = 0.9f;
 
         public ActionType Decide(GameplayState state)
         {
@@ -141,7 +141,7 @@ namespace BombermanRL.Character
               .Select(item => item.Key)
               .ToList();
 
-            nearby = nearby.OrderBy(item => item.Distance(state.PlayerPos)).Take(2).ToList();
+            nearby = nearby.OrderBy(item => item.Distance(state.PlayerPos)).Take(3).ToList();
 
             if (nearby.Count > 0)
             {

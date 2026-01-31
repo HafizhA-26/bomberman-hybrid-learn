@@ -10,11 +10,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -3790709645247450120, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
       propertyPath: _AIType
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -3790709645247450120, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
       propertyPath: _cooldown
-      value: 0.8
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -3790709645247450120, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
       propertyPath: _moveDuration
@@ -64,7 +64,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy_AI
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3225186581724341602, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
+    - {fileID: 4682525847341083606, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -93,7 +95,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 0
+    VectorObservationSize: 127
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -103,7 +105,7 @@ MonoBehaviour:
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
   m_Model: {fileID: 0}
-  m_InferenceDevice: 0
+  m_InferenceDevice: 1
   m_BehaviorType: 0
   m_BehaviorName: BombermanHybrid
   TeamId: 0
@@ -126,4 +128,4 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 500000

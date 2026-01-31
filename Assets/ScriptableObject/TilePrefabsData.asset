@@ -26,7 +26,9 @@ MonoBehaviour:
     PrefabObject: {fileID: 1280343449075969925, guid: bd5eedf361dd54c4ca00276dae78c7fb, type: 3}
     OffsetSpawn: {x: 0, y: -0.3, z: 0}
   - TileType: 4
-    PrefabObject: {fileID: 1066469955479436273, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
+    PrefabObject: {fileID: 1760600524691412346, guid: 27596807851a4d84d98296b4f21d7f16, type: 3}
     OffsetSpawn: {x: 0, y: -0.3, z: 0}
   _floorPrefab: {fileID: 2358753831339107784, guid: e6c4fa4ec44ac144a942752775dff800, type: 3}
+  _agentSuccessFloorMat: {fileID: 2100000, guid: 04dbeb9121e3d2c4aa9974285b2c545b, type: 2}
+  _agentFailedFloorMat: {fileID: 2100000, guid: 8e000a9d1a1a19a4d8ec017d09db8f95, type: 2}
   _bombPrefab: {fileID: 7814840908419862579, guid: 488504a212cee8c4284b32d658834fb2, type: 3}
