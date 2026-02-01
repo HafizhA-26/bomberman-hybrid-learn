@@ -76,11 +76,11 @@ namespace BombermanRL.Character
         {
             if (!_isDead && !_isWalk)
             {
-                //Debug.Log("[Player] Get Decision");
                 GameplayState currState = OnRequestGameplayState?.Invoke();
                 ActionType actionToTake = _decisionProvider.Decide(currState);
-                //Debug.Log("Curr State : " + currState);
                 //Debug.Log("Action to Take : "+actionToTake);
+                Debug.Log("[Player] Curr State : " + currState);
+                Debug.Log($"[Player] Get Decision {actionToTake}");
                 switch (actionToTake)
                 {
                     case ActionType.Idle:
@@ -143,7 +143,7 @@ namespace BombermanRL.Character
                     .OnComplete(() =>
                     {
                         _isWalk = false;
-                        _view.SetIdle();
+                        if(!_isDead) _view.SetIdle();
                     });
             }
         }
@@ -167,18 +167,24 @@ namespace BombermanRL.Character
             Debug.Log($"{Name} Destroy {prop.Name}");
         }
 
-        public void ResetEntity(Vector3 resetWorldPos)
+        public void ResetEntity(Vector3 resetWorldPos, float resetDelay)
         {
-            _isDead = false;
-            _isWalk = false;
             _decisionTween?.Kill();
-            _view.SetIdle();
+            Debug.Log("Reset Player");
 
-            if (_useRuleBasedAction)
+            DOVirtual.DelayedCall(resetDelay, () =>
             {
-                _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
-            }
-            transform.position = resetWorldPos;
+                transform.position = resetWorldPos;
+                _isDead = false;
+                _isWalk = false;
+                BombCount = 0;
+                _view.SetIdle();
+
+                if (_useRuleBasedAction)
+                {
+                    _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
+                }
+            });
         }
     }
 }

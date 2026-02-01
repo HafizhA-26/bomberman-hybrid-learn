@@ -1,4 +1,5 @@
 ﻿using BombermanRL.Character;
+using UnityEngine;
 
 namespace BombermanRL.Props
 {
@@ -9,5 +10,6 @@ namespace BombermanRL.Props
         bool IsDestroyed { get; }
         bool CanBeDestroyedBy(CharacterType characterType);
         void DestroyProps();
+        void ResetProp(Vector3 resetWorldPos);
     }
 }

@@ -158,7 +158,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _view: {fileID: 1867523951547977403}
   _controller: {fileID: -1413249216986960972}
-  _cooldown: 2
+  _cooldown: 0.8
   _moveDuration: 0.6
   _bombLimit: 1
   _useRuleBasedAction: 1

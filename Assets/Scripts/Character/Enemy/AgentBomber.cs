@@ -10,10 +10,31 @@ namespace BombermanRL.Character
     public class AgentBomber : Agent, PlayerInputActions.IEnemyHeuristicActions
     {
         private GameplayState _currentState;
+        private PlayerInputActions _inputAction;
+
         public event Action<ActionType> OnActionDecided;
 
         private Vector2 _moveInput;
         private bool _placeBomb;
+
+        protected override void Awake()
+        {
+            base.Awake();
+            _inputAction = new PlayerInputActions();
+            _inputAction.EnemyHeuristic.SetCallbacks(this);
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            _inputAction.EnemyHeuristic.Enable();
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            _inputAction.EnemyHeuristic.Disable();
+        }
 
         public override void Initialize()
         {
@@ -87,6 +108,11 @@ namespace BombermanRL.Character
             else
                 discreteActions[0] = 0;
 
+            int action = discreteActions[0];
+            //Debug.Log("Action Heuristic : " + action);
+            //ActionType type = (ActionType)action;
+            //OnActionDecided?.Invoke(type);
+
         }
 
         public override void OnEpisodeBegin()
@@ -102,11 +128,13 @@ namespace BombermanRL.Character
         public void OnMove(InputAction.CallbackContext context)
         {
             _moveInput = context.ReadValue<Vector2>();
+            Debug.Log("Input Enemy Heuristic");
         }
 
         public void OnPlaceBomb(InputAction.CallbackContext context)
         {
-            _placeBomb = true;
+            if(context.performed)
+                _placeBomb = true;
         }
     }
 

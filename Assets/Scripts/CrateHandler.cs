@@ -35,5 +35,11 @@ namespace BombermanRL
         {
             return (_allowedDestroyer & characterType) != 0;
         }
+
+        public void ResetProp(Vector3 resetWorldPos)
+        {
+            _crateTransform.position = resetWorldPos;
+            _isDestroyed = false;
+        }
     }
 }

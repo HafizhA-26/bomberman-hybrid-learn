@@ -19,11 +19,12 @@ namespace BombermanRL
         private GameObject[,] _tiles;
         private TileState[,] _grid;
         private PlayerController _player;
+
+        public Dictionary<IBombermanCharacter, GridPos> _startEntityPositions = new Dictionary<IBombermanCharacter, GridPos>();
         private readonly List<EnemyController> _enemies = new List<EnemyController>();
         private readonly Dictionary<GridPos, BombHandler> _placedBomb = new Dictionary<GridPos, BombHandler>();
-        private Dictionary<IBombermanCharacter, GridPos> _startEntityPositions = new Dictionary<IBombermanCharacter, GridPos>();
-        private readonly Dictionary<IBombermanCharacter, GridPos> _entityPositions = new Dictionary<IBombermanCharacter, GridPos>();
         private readonly Dictionary<GridPos, IDestroyableProps> _destroyableProps = new Dictionary<GridPos, IDestroyableProps>(); 
+        private readonly Dictionary<IBombermanCharacter, GridPos> _entityPositions = new Dictionary<IBombermanCharacter, GridPos>();
 
         private Vector3 _tileSize;
         private bool _isOnReset;
@@ -130,23 +131,70 @@ namespace BombermanRL
 
         private void ResetGrid(bool isPlayerDead)
         {
+            if (_isOnReset) return;
+            _isOnReset = true;
+
             foreach (GameObject item in _floors)
             {
                 MeshRenderer floorRenderer = item.GetComponent<MeshRenderer>();
                 if (floorRenderer) floorRenderer.material = isPlayerDead ? _tilePrefabsData.AgentSuccessFloorMat : _tilePrefabsData.AgentFailedFloorMat;
             }
 
+
+            foreach (KeyValuePair<GridPos, BombHandler> item in _placedBomb)
+            {
+                if(item.Value == null) continue;
+                item.Value.StopExplosion();
+                Destroy(item.Value.gameObject);
+                Debug.Log("[Reset Grid] Destory unexploded bomb at " + item.Key);
+            }
+
+            Debug.Log($"[Reset Entity] Try Reset Entity {_startEntityPositions.Count} state");
+            foreach (KeyValuePair<IBombermanCharacter, GridPos> item in _startEntityPositions)
+                item.Key.ResetEntity(GridToWorld(item.Value), 3f);
+
             DOVirtual.DelayedCall(3f, () =>
             {
-                foreach (KeyValuePair<IBombermanCharacter, GridPos> entity in _startEntityPositions)
+                // Reset entity pos
+                foreach (KeyValuePair<IBombermanCharacter, GridPos> item in _startEntityPositions)
                 {
-                    entity.Key.ResetEntity(GridToWorld(entity.Value));
+                    _entityPositions[item.Key] = item.Value;
+                    //Debug.Log($"[TryResetEntity] pos {item.Key.Type} to {item.Value}");
                 }
 
+                // Reset Tile States
+                for (int i = 0; i < _levelData.LevelTiles.Count; i++)
+                {
+                    int row = i / _levelData.GridWidth;
+                    int col = i % _levelData.GridHeight;
+
+                    TileType type = _levelData.LevelTiles[i];
+                    _grid[row, col] = new(type);
+                    _grid[row, col].ResetSubstate();
+                    GridPos tileGridPos = new GridPos(row, col);
+
+                    switch (type)
+                    {
+                        case TileType.Crate:
+                            _tiles[row, col].GetComponent<IDestroyableProps>().ResetProp(GridToWorld(tileGridPos));
+                            break;
+                        case TileType.PlayerSpawn:
+                        case TileType.EnemySpawn:
+                            _grid[row, col] = new(TileType.Empty);
+                            break;
+                    }
+                }
+
+                // Reset floor color material
                 foreach (GameObject item in _floors)
                 {
                     MeshRenderer floorRenderer = item.GetComponent<MeshRenderer>();
                     if (floorRenderer) floorRenderer.material = _tilePrefabsData.FloorPrefab.GetComponent<MeshRenderer>().sharedMaterial;
+                }
+
+                foreach (KeyValuePair<IBombermanCharacter, GridPos> item in _entityPositions)
+                {
+                    Debug.Log($"[ResetedEntity] pos {item.Key.Type} to {item.Value}");
                 }
                 _isOnReset = false;
             });
@@ -204,8 +252,8 @@ namespace BombermanRL
 
         private void PlaceBomb(IBombermanCharacter entity, GridPos tilePos)
         {
-            if(!CanPlaceBomb(tilePos)) return;
             if (_isOnReset) return;
+            if(!CanPlaceBomb(tilePos)) return;
 
             List<GridPos> explosionGridPos = new List<GridPos>();
             GameObject bombObject = Instantiate(_tilePrefabsData.BombPrefab, _objectsTileParent, true);
@@ -255,6 +303,8 @@ namespace BombermanRL
 
         private void OnBombExplode(IBombermanCharacter placer, List<GridPos> explosionGridPos)
         {
+            if (_isOnReset) return;
+
             // Change substate OnBomb and OnExplosion to exploding tiles
             foreach (GridPos item in explosionGridPos)
             {
@@ -283,7 +333,6 @@ namespace BombermanRL
                     entityPos.Key.Dead();
                     placer.Kill(entityPos.Key);
 
-                    _isOnReset = true;
                     ResetGrid(entityPos.Key.Type == CharacterType.Player);
                 }
             }
@@ -300,6 +349,7 @@ namespace BombermanRL
             foreach (GridPos item in explosionGridPos)
                 _grid[item.row, item.col].RemoveSubstate(TileSubState.OnExplosion);
 
+            if (_placedBomb.ContainsKey(explosionGridPos[0])) _placedBomb.Remove(explosionGridPos[0]);
             entity.BombCount--;
         }
 
@@ -313,6 +363,7 @@ namespace BombermanRL
         /// <returns>True if success move</returns>
         private void MoveEntity(IBombermanCharacter entity, GridPos fromPos, Vector2 moveDirection)
         {
+            Debug.Log($"Try move Entity {entity.Type} {fromPos} with Direction {moveDirection}");
             if (Math.Abs(moveDirection.x) <= 0.1f && Math.Abs(moveDirection.y) <= 0.1f) return;
             if (_isOnReset) return;
 
@@ -357,7 +408,7 @@ namespace BombermanRL
                     nearbyCondition[pos] = _grid[i, j];
 
                     if (_grid[i, j].HasSubstate(TileSubState.OnBomb))
-                        bombTimerNorm[new GridPos(i, j)] = _placedBomb[pos]?.GetCurrentTimerNorm() ?? - 1;
+                        bombTimerNorm[new GridPos(i, j)] = _placedBomb.ContainsKey(pos) ? _placedBomb[pos].GetCurrentTimerNorm() : -1;
                 }
             }
 

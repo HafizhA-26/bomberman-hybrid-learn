@@ -1,7 +1,6 @@
 ﻿using BombermanRL.Props;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.MLAgents;
 using UnityEngine;
 
 namespace BombermanRL.Character
@@ -9,28 +8,28 @@ namespace BombermanRL.Character
     public class RuleBasedDecision : IDecisionProvider
     {
         private int _offensiveDistance = 2;
-        private float _dangerBombThreshold = 0.9f;
+        private float _dangerBombThreshold = 0.5f;
 
         public ActionType Decide(GameplayState state)
         {
             ActionType actionToTake;
 
-            Debug.Log("Check Survival");
+            //Debug.Log("Check Survival");
             // Priority 1: Survival
             actionToTake = CheckSurvival(state);
             if (actionToTake != ActionType.Idle) return actionToTake;
 
-            Debug.Log("Check Offensive");
+            //Debug.Log("Check Offensive");
             // Priority 2: Offensive
             actionToTake = CheckOffensive(state);
             if (actionToTake != ActionType.Idle) return actionToTake;
 
-            Debug.Log("Check Destrcutive");
+            //Debug.Log("Check Destrcutive");
             // Priority 3: Destroy Environment
             actionToTake = CheckDestructive(state);
             if (actionToTake != ActionType.Idle) return actionToTake;
 
-            Debug.Log("Check Exploration");
+            //Debug.Log("Check Exploration");
             // Priority 4: Exploration
             actionToTake = CheckExploration(state);
             return actionToTake;
@@ -82,7 +81,7 @@ namespace BombermanRL.Character
                         farthestDis = dis;
                     }
                 }
-                //Debug.Log($"Safest Tile is {safestTile} with distance from {dangerousTile}: {farthestDis}");
+                Debug.Log($"Safest Tile is {safestTile} with distance from {dangerousTile}: {farthestDis}");
 
                 // Get entity direction to move into safest tile
                 Vector2 direction = (safestTile - state.EntityPos).ToVector2();

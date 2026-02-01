@@ -77,7 +77,7 @@ namespace BombermanRL.Character
             {
                 GameplayState currState = OnRequestGameplayState?.Invoke();
                 ActionType actionToTake = _decisionProvider.Decide(currState);
-                Debug.Log("Request Action");
+                Debug.Log("[Enemy] Get Decision");
                 //Debug.Log("Curr State : " + currState);
                 //Debug.Log("Action to Take : "+actionToTake);
                 switch (actionToTake)
@@ -129,7 +129,7 @@ namespace BombermanRL.Character
                     .OnComplete(() =>
                     {
                         _isWalk = false;
-                        _view.SetIdle();
+                        if(!_isDead) _view.SetIdle();
                     });
             }
         }
@@ -157,16 +157,21 @@ namespace BombermanRL.Character
             _decisionProvider?.OnDestroyProps(prop);
         }
 
-        public void ResetEntity(Vector3 resetWorldPos)
+        public void ResetEntity(Vector3 resetWorldPos, float resetDelay)
         {
-            _isDead = false;
-            _isWalk = false;
             _decisionTween?.Kill();
-            _view.SetIdle();
             Debug.Log("Reset Enemy");
 
-            _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
-            transform.position = resetWorldPos;
+            DOVirtual.DelayedCall(resetDelay, () =>
+            {
+                _isDead = false;
+                _isWalk = false;
+                BombCount = 0;
+                transform.position = resetWorldPos;
+                _view.SetIdle();
+
+                _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
+            });
         }
     }
 }
