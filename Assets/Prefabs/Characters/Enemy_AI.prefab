@@ -18,7 +18,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -3790709645247450120, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
       propertyPath: _moveDuration
-      value: 0.6
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 398300744426070347, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
       propertyPath: m_LocalPosition.x
@@ -101,7 +101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 127
+    VectorObservationSize: 152
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0

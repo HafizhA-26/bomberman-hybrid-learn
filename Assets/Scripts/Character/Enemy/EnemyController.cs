@@ -25,6 +25,7 @@ namespace BombermanRL.Character
         private Tween _moveTween;
         private bool _isDead;
         private bool _isWalk;
+        private bool _isOnReset;
 
         public string Name => gameObject.name;
         public CharacterType Type => _type;
@@ -77,7 +78,7 @@ namespace BombermanRL.Character
             {
                 GameplayState currState = OnRequestGameplayState?.Invoke();
                 ActionType actionToTake = _decisionProvider.Decide(currState);
-                Debug.Log("[Enemy] Get Decision");
+                //Debug.Log("[Enemy] Get Decision");
                 //Debug.Log("Curr State : " + currState);
                 //Debug.Log("Action to Take : "+actionToTake);
                 switch (actionToTake)
@@ -97,7 +98,7 @@ namespace BombermanRL.Character
                         OnRequestMove.Invoke(Vector2.right);
                         break;
                     case ActionType.PlaceBomb:
-                        if (BombCount < BombLimit) OnRequestPlaceBomb.Invoke();
+                        PlaceBomb();
                         break;
                 }
             }
@@ -111,6 +112,7 @@ namespace BombermanRL.Character
             Quaternion faceRotation = Quaternion.LookRotation(direction);
             transform.rotation = faceRotation;
 
+            _decisionProvider.OnMove(canMove);
             if (canMove)
             {
                 _isWalk = true;
@@ -119,9 +121,8 @@ namespace BombermanRL.Character
                 _moveTween = transform.DOMove(targetPos, _moveDuration)
                     .OnUpdate(() =>
                     {
-                        if(!tileChangedTriggered && _moveTween.ElapsedPercentage() >= 0.5f)
+                        if(!tileChangedTriggered && _moveTween.ElapsedPercentage() >= 0.3f)
                         {
-                            
                             tileChangedTriggered = true;
                             onTileChanged?.Invoke();
                         }
@@ -134,11 +135,21 @@ namespace BombermanRL.Character
             }
         }
 
+        private void PlaceBomb()
+        {
+            if (BombCount >= BombLimit) return;
+
+            OnRequestPlaceBomb.Invoke();
+            _decisionProvider.OnPlaceBomb();
+        }
+
         public void Dead()
         {
             if (_isDead) return;
 
             _decisionTween?.Kill();
+            _moveTween?.Kill();
+            _isWalk = false;
             _isDead = true;
             _decisionProvider.OnDead();
             _view.SetBadDeath();
@@ -147,23 +158,29 @@ namespace BombermanRL.Character
 
         public void Kill(IBombermanCharacter character)
         {
+            if (_isDead || character.Name.Equals(Name) || _isOnReset) return;
+
             Debug.Log($"{Name} Kills {character.Name}");
             _decisionProvider.OnKillSomeone(character);
         }
 
         public void DestroyProps(IDestroyableProps prop)
         {
+            if (_isDead || _isOnReset) return;
+
             Debug.Log($"{Name} Destroy {prop.Name}");
             _decisionProvider?.OnDestroyProps(prop);
         }
 
         public void ResetEntity(Vector3 resetWorldPos, float resetDelay)
         {
+            _isOnReset = true;
             _decisionTween?.Kill();
-            Debug.Log("Reset Enemy");
+            _decisionProvider.OnReset();
 
             DOVirtual.DelayedCall(resetDelay, () =>
             {
+                _isOnReset = false;
                 _isDead = false;
                 _isWalk = false;
                 BombCount = 0;

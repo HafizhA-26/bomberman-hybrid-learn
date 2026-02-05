@@ -129,7 +129,7 @@ namespace BombermanRL
             _startEntityPositions = new Dictionary<IBombermanCharacter, GridPos>(_entityPositions);
         }
 
-        private void ResetGrid(bool isPlayerDead)
+        private void ResetGrid(bool isEnemyKilledPlayer, bool isPlayerSuicide)
         {
             if (_isOnReset) return;
             _isOnReset = true;
@@ -137,19 +137,20 @@ namespace BombermanRL
             foreach (GameObject item in _floors)
             {
                 MeshRenderer floorRenderer = item.GetComponent<MeshRenderer>();
-                if (floorRenderer) floorRenderer.material = isPlayerDead ? _tilePrefabsData.AgentSuccessFloorMat : _tilePrefabsData.AgentFailedFloorMat;
+                if (isEnemyKilledPlayer)
+                    floorRenderer.material = _tilePrefabsData.AgentSuccessFloorMat;
+                else if (isPlayerSuicide)
+                    floorRenderer.material = _tilePrefabsData.AgentNeutralFloorMat;
+                else
+                    floorRenderer.material = _tilePrefabsData.AgentFailedFloorMat;
             }
-
 
             foreach (KeyValuePair<GridPos, BombHandler> item in _placedBomb)
             {
                 if(item.Value == null) continue;
                 item.Value.StopExplosion();
-                Destroy(item.Value.gameObject);
-                Debug.Log("[Reset Grid] Destory unexploded bomb at " + item.Key);
             }
 
-            Debug.Log($"[Reset Entity] Try Reset Entity {_startEntityPositions.Count} state");
             foreach (KeyValuePair<IBombermanCharacter, GridPos> item in _startEntityPositions)
                 item.Key.ResetEntity(GridToWorld(item.Value), 3f);
 
@@ -159,7 +160,13 @@ namespace BombermanRL
                 foreach (KeyValuePair<IBombermanCharacter, GridPos> item in _startEntityPositions)
                 {
                     _entityPositions[item.Key] = item.Value;
-                    //Debug.Log($"[TryResetEntity] pos {item.Key.Type} to {item.Value}");
+                }
+
+                foreach (KeyValuePair<GridPos, BombHandler> item in _placedBomb)
+                {
+                    if (item.Value == null) continue;
+                    Destroy(item.Value.gameObject);
+                    //Debug.Log("[Reset Grid] Destroy unexploded bomb at " + item.Key);
                 }
 
                 // Reset Tile States
@@ -192,10 +199,6 @@ namespace BombermanRL
                     if (floorRenderer) floorRenderer.material = _tilePrefabsData.FloorPrefab.GetComponent<MeshRenderer>().sharedMaterial;
                 }
 
-                foreach (KeyValuePair<IBombermanCharacter, GridPos> item in _entityPositions)
-                {
-                    Debug.Log($"[ResetedEntity] pos {item.Key.Type} to {item.Value}");
-                }
                 _isOnReset = false;
             });
         }
@@ -298,6 +301,7 @@ namespace BombermanRL
                 bomb.Initalize(explosionWorldPos);
                 _placedBomb[tilePos] = bomb;
                 entity.BombCount++;
+                Debug.Log($"[Bomb Placed] from {entity.Name} on Tile [{tilePos.row},{tilePos.col}]");
             }
         }
 
@@ -308,7 +312,7 @@ namespace BombermanRL
             // Change substate OnBomb and OnExplosion to exploding tiles
             foreach (GridPos item in explosionGridPos)
             {
-                Debug.Log($"[Bomb Explode] Tile [{item.row}-{item.col}]" + _grid[item.row, item.col]);
+                //Debug.Log($"[Bomb Explode] Tile [{item.row}-{item.col}]" + _grid[item.row, item.col]);
                 if(_grid[item.row, item.col].HasSubstate(TileSubState.OnBomb)) _grid[item.row, item.col].RemoveSubstate(TileSubState.OnBomb);
                 _grid[item.row, item.col].AddSubstate(TileSubState.OnExplosion);
 
@@ -333,7 +337,9 @@ namespace BombermanRL
                     entityPos.Key.Dead();
                     placer.Kill(entityPos.Key);
 
-                    ResetGrid(entityPos.Key.Type == CharacterType.Player);
+                    bool isEnemyKilledPlayer = placer.Type == CharacterType.Bandit && entityPos.Key.Type == CharacterType.Player;
+                    bool isPlayerSuicide = placer.Type == CharacterType.Player && entityPos.Key.Type == CharacterType.Player;
+                    ResetGrid(isEnemyKilledPlayer, isPlayerSuicide);
                 }
             }
 
@@ -363,7 +369,7 @@ namespace BombermanRL
         /// <returns>True if success move</returns>
         private void MoveEntity(IBombermanCharacter entity, GridPos fromPos, Vector2 moveDirection)
         {
-            Debug.Log($"Try move Entity {entity.Type} {fromPos} with Direction {moveDirection}");
+            //Debug.Log($"Try move Entity {entity.Type} {fromPos} with Direction {moveDirection}");
             if (Math.Abs(moveDirection.x) <= 0.1f && Math.Abs(moveDirection.y) <= 0.1f) return;
             if (_isOnReset) return;
 
@@ -375,12 +381,12 @@ namespace BombermanRL
             GridPos targetGridPos = new GridPos((int)(fromPos.row + moveDirection.y), (int)(fromPos.col + moveDirection.x));
             Vector3 targetWorldPos = GridToWorld(targetGridPos);
             targetWorldPos += entity.OffsetMovement;
-            Debug.Log($"Move Entity {fromPos} to {targetGridPos} | CanMove {canMove}");
+            //Debug.Log($"Move Entity {fromPos} to {targetGridPos} | CanMove {canMove}");
 
             if (canMove) _grid[targetGridPos.row, targetGridPos.col].AddSubstate(TileSubState.OnCharacter);
             entity.Move(targetWorldPos, canMove, onTileChanged: () =>
             {
-                Debug.Log($"{entity.Name} tile changed");
+                //Debug.Log($"{entity.Name} tile changed");
                 _grid[fromPos.row, fromPos.col].RemoveSubstate(TileSubState.OnCharacter);
                 _entityPositions[entity] = targetGridPos;
             });

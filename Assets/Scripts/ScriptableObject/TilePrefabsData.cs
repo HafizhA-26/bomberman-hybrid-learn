@@ -15,6 +15,7 @@ namespace BombermanRL
         [SerializeField] private GameObject _floorPrefab;
         [SerializeField] private Material _agentSuccessFloorMat;
         [SerializeField] private Material _agentFailedFloorMat;
+        [SerializeField] private Material _agentNeutralFloorMat;
 
         [Space(10)]
         [Tooltip("Prefab for placing bomb")]
@@ -24,6 +25,7 @@ namespace BombermanRL
         public GameObject BombPrefab { get => _bombPrefab; }
         public Material AgentSuccessFloorMat { get => _agentSuccessFloorMat; }
         public Material AgentFailedFloorMat { get => _agentFailedFloorMat; }
+        public Material AgentNeutralFloorMat { get => _agentNeutralFloorMat; }
 
         [Serializable]
         public class TilePrefab

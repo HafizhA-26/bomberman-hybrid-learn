@@ -56,18 +56,20 @@ namespace BombermanRL.Character
                 {
                     GridPos pos = _currentState.EntityPos + (rowOffset, colOffset);
 
-
                     if(_currentState.TryGetTileState(pos, out TileState tile))
                     {
+                        bool hasOtherCharacrer = tile.HasSubstate(TileSubState.OnCharacter) && !pos.Equals(_currentState.EntityPos);
                         sensor.AddObservation(tile.Type == TileType.Wall ? 1f : 0f);
                         sensor.AddObservation(tile.Type == TileType.Crate ? 1f : 0f);
                         sensor.AddObservation(tile.HasSubstate(TileSubState.OnBomb) ? 1f : 0f);
                         sensor.AddObservation(tile.HasSubstate(TileSubState.OnExplosion) ? 1f : 0f);
+                        sensor.AddObservation(hasOtherCharacrer ? 1f : 0f);
                         sensor.AddObservation(_currentState.BombTimerNorm.ContainsKey(pos) ? _currentState.BombTimerNorm[pos] : 0f);
                     }
                     else
                     {
                         sensor.AddObservation(1f);
+                        sensor.AddObservation(0f);
                         sensor.AddObservation(0f);
                         sensor.AddObservation(0f);
                         sensor.AddObservation(0f);
@@ -84,7 +86,7 @@ namespace BombermanRL.Character
         {
             int action = actions.DiscreteActions[0];
             ActionType type = (ActionType)action;
-            Debug.Log("Action Received : " + action);
+            //Debug.Log("Action Received : " + action);
             OnActionDecided?.Invoke(type);
         }
 
@@ -128,7 +130,6 @@ namespace BombermanRL.Character
         public void OnMove(InputAction.CallbackContext context)
         {
             _moveInput = context.ReadValue<Vector2>();
-            Debug.Log("Input Enemy Heuristic");
         }
 
         public void OnPlaceBomb(InputAction.CallbackContext context)

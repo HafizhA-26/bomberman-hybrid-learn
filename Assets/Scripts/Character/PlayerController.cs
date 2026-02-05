@@ -79,8 +79,8 @@ namespace BombermanRL.Character
                 GameplayState currState = OnRequestGameplayState?.Invoke();
                 ActionType actionToTake = _decisionProvider.Decide(currState);
                 //Debug.Log("Action to Take : "+actionToTake);
-                Debug.Log("[Player] Curr State : " + currState);
-                Debug.Log($"[Player] Get Decision {actionToTake}");
+                //Debug.Log("[Player] Curr State : " + currState);
+                //Debug.Log($"[Player] Get Decision {actionToTake}");
                 switch (actionToTake)
                 {
                     case ActionType.Idle:
@@ -108,7 +108,7 @@ namespace BombermanRL.Character
         {
             if (_isDead || _isWalk || !_actionCooldown.CanAction()) return;
             Vector2 moveInput = context.ReadValue<Vector2>();
-            Debug.Log("Action "+moveInput);
+            //Debug.Log("Action "+moveInput);
             OnRequestMove?.Invoke(moveInput);
         }
 
@@ -126,6 +126,7 @@ namespace BombermanRL.Character
             Quaternion faceRotation = Quaternion.LookRotation(direction);
             transform.rotation = faceRotation;
 
+            _decisionProvider.OnMove(canMove);
             if(canMove)
             {
                 _isWalk = true;
@@ -134,7 +135,7 @@ namespace BombermanRL.Character
                 _moveTween = transform.DOMove(targetPos, _moveDuration)
                     .OnUpdate(() =>
                     {
-                        if (!tileChangedTriggered && _moveTween.ElapsedPercentage() >= 0.5f)
+                        if (!tileChangedTriggered && _moveTween.ElapsedPercentage() >= 0.3f)
                         {
                             tileChangedTriggered = true;
                             onTileChanged?.Invoke();
@@ -153,6 +154,8 @@ namespace BombermanRL.Character
             if(_isDead) return;
 
             _decisionTween?.Kill();
+            _moveTween?.Kill();
+            _isWalk = false;
             _isDead = true;
             _view.SetGoodDeath();
         }

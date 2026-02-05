@@ -34,6 +34,7 @@ namespace BombermanRL
         private void OnDestroy()
         {
             StopExplosion();
+
             foreach (GameObject item in _explosions)
             {
                 if (item) Destroy(item);
@@ -90,7 +91,7 @@ namespace BombermanRL
                 foreach (GameObject item in _explosions)
                 {
                     // Animate fade finish explosion
-                    Material material = item.GetComponent<MeshRenderer>()?.material;
+                    Material material = item.GetComponent<MeshRenderer>().material;
                     Tween finishExplode = DOTween.To(() => material.GetColor("_BaseColor").a, x =>
                     {
                         Color temp = material.GetColor("_BaseColor");
@@ -115,16 +116,6 @@ namespace BombermanRL
         public void StopExplosion()
         {
             _countdownTween?.Kill();
-
-            foreach (Tween item in _explosionTween)
-            {
-                item.Kill();
-            }
-
-            foreach (Tween item in _finishExplosionTween)
-            {
-                item.Kill();
-            }
         }
 
         public float GetCurrentTimerNorm() => Mathf.InverseLerp(_explodeCountdown, 0, _currentTimer);

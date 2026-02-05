@@ -8,7 +8,7 @@ namespace BombermanRL.Character
     public class RuleBasedDecision : IDecisionProvider
     {
         private int _offensiveDistance = 2;
-        private float _dangerBombThreshold = 0.5f;
+        private float _dangerBombThreshold = 0.4f;
 
         public ActionType Decide(GameplayState state)
         {
@@ -81,7 +81,7 @@ namespace BombermanRL.Character
                         farthestDis = dis;
                     }
                 }
-                Debug.Log($"Safest Tile is {safestTile} with distance from {dangerousTile}: {farthestDis}");
+                //Debug.Log($"Safest Tile is {safestTile} with distance from {dangerousTile}: {farthestDis}");
 
                 // Get entity direction to move into safest tile
                 Vector2 direction = (safestTile - state.EntityPos).ToVector2();
@@ -140,7 +140,7 @@ namespace BombermanRL.Character
               .Select(item => item.Key)
               .ToList();
 
-            nearby = nearby.OrderBy(item => item.Distance(state.PlayerPos)).Take(3).ToList();
+            //nearby = nearby.OrderBy(item => item.Distance(state.PlayerPos)).Take(3).ToList();
 
             if (nearby.Count > 0)
             {
@@ -169,6 +169,12 @@ namespace BombermanRL.Character
         public void OnKillSomeone(IBombermanCharacter character) { }
 
         public void OnDead() { }
+
+        public void OnPlaceBomb() { }
+
+        public void OnMove(bool canMove) { }
+
+        public void OnReset() { }
 
     }
 }
