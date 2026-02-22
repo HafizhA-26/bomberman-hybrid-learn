@@ -21,6 +21,7 @@ namespace BombermanRL.Character
         [Header("Rule Based Action")]
         [SerializeField] private bool _useRuleBasedAction = false;
         [SerializeField] private int _nearbyObserveRadius = 2;
+        [SerializeField] private bool _isRandomizedParam = false;
 
         private IDecisionProvider _decisionProvider;
         private PlayerInputActions _inputAction;
@@ -39,6 +40,7 @@ namespace BombermanRL.Character
         public int BombLimit { get => _bombLimit; set => _bombLimit = value; }
         public Func<GameplayState> OnRequestGameplayState { get; set; }
         public int NearbyObserveRadius { get => _nearbyObserveRadius; }
+        public bool IsDead => _isDead;
 
         private void Awake()
         {
@@ -51,8 +53,7 @@ namespace BombermanRL.Character
         {
             if(_useRuleBasedAction)
             {
-                _decisionProvider = new RuleBasedDecision();
-                _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
+                StartDecisionLoop();
             }
         }
 
@@ -70,6 +71,21 @@ namespace BombermanRL.Character
         private void OnDisable()
         {
             _inputAction.Gameplay.Disable();
+        }
+
+        private void StartDecisionLoop()
+        {
+            int offensiveDis = 2;
+            float dangerBombThres = 0.4f;
+            if (_isRandomizedParam)
+            {
+                _cooldown = UnityEngine.Random.Range(0.6f, 1.4f);
+                _moveDuration = _cooldown - 0.1f;
+                offensiveDis = UnityEngine.Random.Range(1, 4);
+                dangerBombThres = UnityEngine.Random.Range(0.2f, 0.45f);
+            }
+            _decisionProvider = new RuleBasedDecision(offensiveDis, dangerBombThres);
+            _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
         }
 
         private void DecisionCallback()
@@ -126,7 +142,6 @@ namespace BombermanRL.Character
             Quaternion faceRotation = Quaternion.LookRotation(direction);
             transform.rotation = faceRotation;
 
-            _decisionProvider.OnMove(canMove);
             if(canMove)
             {
                 _isWalk = true;
@@ -149,14 +164,14 @@ namespace BombermanRL.Character
             }
         }
 
-        public void Dead()
+        public void Dead(bool isSuicide)
         {
             if(_isDead) return;
+            _isDead = true;
 
             _decisionTween?.Kill();
             _moveTween?.Kill();
             _isWalk = false;
-            _isDead = true;
             _view.SetGoodDeath();
         }
 
@@ -173,21 +188,22 @@ namespace BombermanRL.Character
         public void ResetEntity(Vector3 resetWorldPos, float resetDelay)
         {
             _decisionTween?.Kill();
-            Debug.Log("Reset Player");
 
             DOVirtual.DelayedCall(resetDelay, () =>
             {
-                transform.position = resetWorldPos;
                 _isDead = false;
                 _isWalk = false;
                 BombCount = 0;
+                transform.position = resetWorldPos + OffsetMovement;
                 _view.SetIdle();
 
-                if (_useRuleBasedAction)
-                {
-                    _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
-                }
+                StartDecisionLoop();
             });
+        }
+
+        public void Win()
+        {
+            Debug.Log($"{Name} Win!");
         }
     }
 }

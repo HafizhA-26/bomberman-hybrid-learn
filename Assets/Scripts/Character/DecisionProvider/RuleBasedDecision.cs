@@ -7,12 +7,25 @@ namespace BombermanRL.Character
 {
     public class RuleBasedDecision : IDecisionProvider
     {
-        private int _offensiveDistance = 2;
+        private int _offensiveDistance = 3;
         private float _dangerBombThreshold = 0.4f;
+        //private float _foolsChance = 0.4f;
+
+        public RuleBasedDecision() { }
+        public RuleBasedDecision(int offensiveDistance, float dangerBombThreshold) 
+        {
+            _offensiveDistance = offensiveDistance;
+            _dangerBombThreshold = dangerBombThreshold;
+        }
+
 
         public ActionType Decide(GameplayState state)
         {
             ActionType actionToTake;
+
+            // Fools Chance
+            //if (Random.value < _foolsChance)
+            //    return (ActionType)Random.Range(0, 5);
 
             //Debug.Log("Check Survival");
             // Priority 1: Survival
@@ -168,13 +181,15 @@ namespace BombermanRL.Character
 
         public void OnKillSomeone(IBombermanCharacter character) { }
 
-        public void OnDead() { }
+        public void OnDead(bool isSuicide) { }
 
         public void OnPlaceBomb() { }
 
         public void OnMove(bool canMove) { }
 
         public void OnReset() { }
+
+        public void OnWin() { }
 
     }
 }

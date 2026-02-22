@@ -1,21 +1,32 @@
 ﻿using BombermanRL.Props;
 using System.Collections.Generic;
+using Unity.MLAgents;
 using Unity.MLAgents.Policies;
+using UnityEngine;
 
 namespace BombermanRL.Character
 {
     public class RLDecisionProvider : IDecisionProvider
     {
         private readonly float _dangerBombThreshold = 0.4f;
-        private readonly int _offensiveDistance = 2;
+        private readonly int _offensiveDistance = 3;
 
         private AgentBomber _agent;
         private ActionType _lastAction = ActionType.Idle;
         private GameplayState _currentState;
         private int _bumpedMoveCount = 0;
-        private int _prevDistance = -1;
-        private bool _wasInDangerLastStep = false;
-        private bool _dodgeRewardGiven = false;
+
+        // Stats variable
+        private int _bombPlacedCount = 0;
+        private int _bombPlacedNearPlayer = 0;
+        private int _stepsAlive = 0;
+        private int _destroyCrateCount = 0;
+        private int _dodgeBombCount = 0;
+        private int _bumpedMoveStatCount = 0;
+        private int _killCount = 0;
+        private int _deadCount = 0;
+        private int _suicideCount = 0;
+        private int _winCount = 0;
 
         //private int _minimumStepToEnd = 30;
         //private int _currentStep = 0;
@@ -43,31 +54,11 @@ namespace BombermanRL.Character
         public ActionType Decide(GameplayState state)
         {
             _currentState = state;
-            _agent.AddReward(0.001f); // For keeping agent alive
+            _stepsAlive++;
+            _agent.AddReward(-0.001f); // Step penalty
             _agent.SetGameplayState(state);
 
-            // Add reward if entity get closer to the enemy
-            int enemyDistance = state.EntityPos.Distance(state.PlayerPos);
-            if (_prevDistance >= 0 && enemyDistance < _prevDistance)
-                _agent.AddReward(0.004f);
-            else if(_prevDistance >= 0 && enemyDistance > _prevDistance)
-                _agent.AddReward(-0.002f);
-
-            _prevDistance = enemyDistance;
-
-            // Add dodging bomb reward
-            bool isInDangerNow = IsInDanger(state);
-            if (_wasInDangerLastStep && !isInDangerNow && !_dodgeRewardGiven)
-            {
-                _agent.AddReward(0.025f); 
-                _dodgeRewardGiven = true;
-            }
-            if (isInDangerNow)
-                _dodgeRewardGiven = false;
-            _wasInDangerLastStep = isInDangerNow;
-
             _agent.RequestDecision();
-
             return _lastAction;
         }
 
@@ -79,7 +70,10 @@ namespace BombermanRL.Character
         public void OnDestroyProps(IDestroyableProps prop)
         {
             if(prop.PropType == TileType.Crate)
+            {
                 _agent.AddReward(0.1f);
+                _destroyCrateCount++;
+            }
         }
 
         public void OnKillSomeone(IBombermanCharacter character)
@@ -89,10 +83,12 @@ namespace BombermanRL.Character
                 case CharacterType.None:
                     break;
                 case CharacterType.Player:
-                    _agent.AddReward(1f);
+                    _killCount++;
+                    _agent.AddReward(4f);
+                    
                     break;
                 case CharacterType.Bandit:
-                    _agent.AddReward(-0.1f);
+                    _agent.AddReward(-0.5f); // On kill other bandit
                     break;
             }
         }
@@ -102,42 +98,42 @@ namespace BombermanRL.Character
             _lastAction = action;
         }
 
-        public void OnDead()
+        public void OnDead(bool isSuicide)
         {
-            _prevDistance = -1;
-            _wasInDangerLastStep = false;
-            _dodgeRewardGiven = false;
-            _agent.AddReward(-1f);
+            if (isSuicide)
+            {
+                _agent.AddReward(-2f);
+                _suicideCount++;
+            }
+            else _agent.AddReward(-1f);
+            _deadCount++;
         }
 
         public void OnPlaceBomb()
         {
-            Dictionary<GridPos, TileState> nearby = _currentState.NearbyCondition;
-            bool isPlayerNearby = false;
-            bool isSafeTileExists = false;
-            foreach (KeyValuePair<GridPos, TileState> item in nearby)
+            _agent.AddReward(0.02f);
+            if (_currentState.EntityPos.Distance(_currentState.EntityPos) <= _offensiveDistance)
             {
-                if (item.Key.Equals(_currentState.PlayerPos) && _currentState.EntityPos.Distance(item.Key) <= _offensiveDistance)
-                    isPlayerNearby = true;
-                if (item.Value.Type == TileType.Empty && _currentState.EntityPos.Distance(item.Key) == 1)
-                    isSafeTileExists = true;
+                _agent.AddReward(0.1f);
+                _bombPlacedNearPlayer++;
             }
-            if (isPlayerNearby && isSafeTileExists)
-            {
-                _agent.AddReward(0.2f);
-            }
+
+            _bombPlacedCount++;
         }
 
         public void OnMove(bool canMove)
         {
             // Check rewarding bumped move
             if (!canMove)
+            {
                 _bumpedMoveCount++;
+                _bumpedMoveStatCount++;
+            }
             else
                 _bumpedMoveCount = 0;
 
             if (_bumpedMoveCount >= 2)
-                _agent.AddReward(-0.001f);
+                _agent.AddReward(-0.02f);
 
         }
 
@@ -153,7 +149,34 @@ namespace BombermanRL.Character
 
         public void OnReset()
         {
+            Academy.Instance.StatsRecorder.Add("Enemy/StepsAlive", _stepsAlive);
+            Academy.Instance.StatsRecorder.Add("Enemy/BumpedMove", _bumpedMoveStatCount);
+            Academy.Instance.StatsRecorder.Add("Enemy/BombPlaced", _bombPlacedCount);
+            Academy.Instance.StatsRecorder.Add("Enemy/GoodBombPlaced", _bombPlacedNearPlayer);
+            Academy.Instance.StatsRecorder.Add("Enemy/DodgedBomb", _dodgeBombCount);
+            Academy.Instance.StatsRecorder.Add("Enemy/DestroyCrates", _destroyCrateCount);
+            Academy.Instance.StatsRecorder.Add("Enemy/Kills", _killCount);
+            Academy.Instance.StatsRecorder.Add("Enemy/Deaths", _deadCount);
+            Academy.Instance.StatsRecorder.Add("Enemy/Suicides", _suicideCount);
+            Academy.Instance.StatsRecorder.Add("Enemy/Win", _winCount);
+
             _agent.EndEpisode();
+            _bombPlacedCount = 0;
+            _bombPlacedNearPlayer = 0;
+            _stepsAlive = 0;
+            _bumpedMoveStatCount = 0;
+            _destroyCrateCount = 0;
+            _dodgeBombCount = 0;
+            _killCount = 0;
+            _deadCount = 0;
+            _suicideCount = 0;
+            _winCount = 0;
+        }
+
+        public void OnWin()
+        {
+            _winCount++;
+            _agent.AddReward(1.5f);
         }
     }
 }

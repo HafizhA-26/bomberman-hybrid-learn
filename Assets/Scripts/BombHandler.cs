@@ -27,6 +27,7 @@ namespace BombermanRL
         private float _currentTimer;
 
         public readonly UnityEvent OnBombExplode = new UnityEvent();
+        public readonly UnityEvent OnTickExplosion = new UnityEvent();
         public readonly UnityEvent OnExplosionFinish = new UnityEvent();
 
         public int ExplosionRadius { get => _explosionRadius; }
@@ -66,6 +67,8 @@ namespace BombermanRL
             _bomb.SetActive(false);
             _countdownText.gameObject.SetActive(false);
             OnBombExplode?.Invoke();
+            OnTickExplosion.Invoke();
+            DOVirtual.DelayedCall(_explodeTime / 4, () => OnTickExplosion?.Invoke()).SetLoops(3);
 
             foreach (Vector3 item in _explodePos)
             {

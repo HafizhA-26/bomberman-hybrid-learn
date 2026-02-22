@@ -8,6 +8,7 @@ namespace BombermanRL.Character
     public interface IBombermanCharacter
     {
         string Name { get; }
+        bool IsDead { get; }
         CharacterType Type { get; }
         int BombLimit { get; set; }
         int BombCount { get; set; }
@@ -17,8 +18,9 @@ namespace BombermanRL.Character
         UnityEvent OnRequestPlaceBomb { get; set; }
         Func<GameplayState> OnRequestGameplayState { get; set; }
         void Move(Vector3 targetPos, bool canMove, Action onTileChanged);
-        void Dead();
+        void Dead(bool isSuicide);
         void Kill(IBombermanCharacter character);
+        void Win();
         void DestroyProps(IDestroyableProps prop);
         void ResetEntity(Vector3 resetWorldPos, float resetDelay);
     }

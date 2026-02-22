@@ -9,7 +9,8 @@ namespace BombermanRL.Character
         void OnMove(bool canMove);
         void OnDestroyProps(IDestroyableProps prop);
         void OnKillSomeone(IBombermanCharacter character);
-        void OnDead();
+        void OnDead(bool isSuicide);
+        void OnWin();
         void OnDestroy();
         void OnReset();
     }
