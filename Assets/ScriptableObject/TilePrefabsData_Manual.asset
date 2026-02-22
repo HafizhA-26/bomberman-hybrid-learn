@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f868a9c09d45ccc4480ee891d8263294, type: 3}
+  m_Name: TilePrefabsData_Manual
+  m_EditorClassIdentifier: 
+  _tilePrefabs:
+  - TileType: 0
+    PrefabObject: {fileID: 0}
+    OffsetSpawn: {x: 0, y: 0, z: 0}
+  - TileType: 1
+    PrefabObject: {fileID: 524895481395062065, guid: 9a03bc4d40f00594db027ca18da62944, type: 3}
+    OffsetSpawn: {x: 0, y: 0, z: 0}
+  - TileType: 2
+    PrefabObject: {fileID: 83528806007082849, guid: 258c1648a2742af40847a1e39ee41454, type: 3}
+    OffsetSpawn: {x: 0, y: 0, z: 0}
+  - TileType: 3
+    PrefabObject: {fileID: 7073353713238942121, guid: a4d7804f4b1ce2c47b92a7fc058c2eba, type: 3}
+    OffsetSpawn: {x: 0, y: -0.3, z: 0}
+  - TileType: 4
+    PrefabObject: {fileID: 1066469955479436273, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
+    OffsetSpawn: {x: 0, y: -0.3, z: 0}
+  _floorPrefab: {fileID: 2358753831339107784, guid: e6c4fa4ec44ac144a942752775dff800, type: 3}
+  _agentSuccessFloorMat: {fileID: 2100000, guid: 04dbeb9121e3d2c4aa9974285b2c545b, type: 2}
+  _agentFailedFloorMat: {fileID: 2100000, guid: 8e000a9d1a1a19a4d8ec017d09db8f95, type: 2}
+  _agentNeutralFloorMat: {fileID: 2100000, guid: d859dd218411301409526051075ce1c3, type: 2}
+  _bombPrefab: {fileID: 7814840908419862579, guid: 488504a212cee8c4284b32d658834fb2, type: 3}
