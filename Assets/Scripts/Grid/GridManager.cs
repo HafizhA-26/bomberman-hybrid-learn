@@ -14,17 +14,19 @@ namespace BombermanRL
         [SerializeField] private TilePrefabsData _tilePrefabsData;
         [SerializeField] private Transform _floorsParent;
         [SerializeField] private Transform _objectsTileParent;
+        [SerializeField] private bool _isOnTrainingAgent = true;
 
         private GameObject[,] _floors;
         private GameObject[,] _tiles;
         private TileState[,] _grid;
         private PlayerController _player;
+        private List<GridPos> _validRespawnPos = new List<GridPos>();
 
-        public Dictionary<IBombermanCharacter, GridPos> _startEntityPositions = new Dictionary<IBombermanCharacter, GridPos>();
         private readonly List<EnemyController> _enemies = new List<EnemyController>();
         private readonly Dictionary<GridPos, BombHandler> _placedBomb = new Dictionary<GridPos, BombHandler>();
         private readonly Dictionary<GridPos, IDestroyableProps> _destroyableProps = new Dictionary<GridPos, IDestroyableProps>(); 
         private readonly Dictionary<IBombermanCharacter, GridPos> _entityPositions = new Dictionary<IBombermanCharacter, GridPos>();
+
 
         private Vector3 _tileSize;
         private bool _isOnReset;
@@ -76,11 +78,15 @@ namespace BombermanRL
                 int col = i % _levelData.GridHeight;
 
                 TileType type = _levelData.LevelTiles[i];
+                GridPos tileGridPos = new GridPos(row, col);
                 _grid[row, col] = new(type);
-                if (type == TileType.Empty) continue; // Skip instantiation if empty
+                if (type == TileType.Empty)
+                {
+                    _validRespawnPos.Add(tileGridPos);
+                    continue;
+                }
 
                 GameObject tile = Instantiate(tilePrefabDict[type].PrefabObject, _objectsTileParent, true);
-                GridPos tileGridPos = new GridPos(row, col);
                 Vector3 newPos = GridToWorld(tileGridPos);
 
                 newPos += tilePrefabDict[type].OffsetSpawn;
@@ -117,6 +123,7 @@ namespace BombermanRL
                         EnemyController enemy = tile.GetComponent<EnemyController>();
                         _enemies.Add(enemy);
                         _entityPositions[enemy] = tileGridPos;
+                        enemy.OffsetMovement = tilePrefabDict[type].OffsetSpawn;
                         enemy.OnRequestMove.AddListener((Vector2 direction) => MoveEntity(enemy, _entityPositions[enemy], direction));
                         enemy.OnRequestPlaceBomb.AddListener(() => PlaceBomb(enemy, _entityPositions[enemy]));
                         enemy.OnRequestGameplayState += () => GetCurrentState(enemy, enemy.NearbyObserveRadius);
@@ -126,7 +133,6 @@ namespace BombermanRL
                 
             }
 
-            _startEntityPositions = new Dictionary<IBombermanCharacter, GridPos>(_entityPositions);
         }
 
         private void ResetGrid(bool isEnemyKilledPlayer, bool isPlayerSuicide)
@@ -151,16 +157,25 @@ namespace BombermanRL
                 item.Value.StopExplosion();
             }
 
-            foreach (KeyValuePair<IBombermanCharacter, GridPos> item in _startEntityPositions)
-                item.Key.ResetEntity(GridToWorld(item.Value), 3f);
+            // Search random valid respawn point
+            GridPos playerSpawnPos = _validRespawnPos[UnityEngine.Random.Range(0, _validRespawnPos.Count)];
+            _player.ResetEntity(GridToWorld(playerSpawnPos), 2f);
 
-            DOVirtual.DelayedCall(3f, () =>
+            GridPos enemySpawnPos = _validRespawnPos[UnityEngine.Random.Range(0, _validRespawnPos.Count)];
+            while(enemySpawnPos.Distance(playerSpawnPos) <= 2)
+            {
+                enemySpawnPos = _validRespawnPos[UnityEngine.Random.Range(0, _validRespawnPos.Count)];
+            }
+            _enemies[0].ResetEntity(GridToWorld(enemySpawnPos), 2f);
+
+            DOVirtual.DelayedCall(2f, () =>
             {
                 // Reset entity pos
-                foreach (KeyValuePair<IBombermanCharacter, GridPos> item in _startEntityPositions)
-                {
-                    _entityPositions[item.Key] = item.Value;
-                }
+                if (_entityPositions.ContainsKey(_player)) _entityPositions[_player] = playerSpawnPos;
+                else Debug.LogError("Can't find player in entity pos");
+
+                if (_entityPositions.ContainsKey(_enemies[0])) _entityPositions[_enemies[0]] = enemySpawnPos;
+                else Debug.LogError("Can't find enemy in entity pos");
 
                 foreach (KeyValuePair<GridPos, BombHandler> item in _placedBomb)
                 {
@@ -188,6 +203,7 @@ namespace BombermanRL
                         case TileType.PlayerSpawn:
                         case TileType.EnemySpawn:
                             _grid[row, col] = new(TileType.Empty);
+
                             break;
                     }
                 }
@@ -235,8 +251,7 @@ namespace BombermanRL
 
             bool isMovable = nextTile.Type == TileType.Empty &&
                 !nextTile.HasSubstate(TileSubState.OnCharacter) &&
-                !nextTile.HasSubstate(TileSubState.OnBomb) &&
-                !nextTile.HasSubstate(TileSubState.OnExplosion);
+                !nextTile.HasSubstate(TileSubState.OnBomb);
 
             return isMovable;
         }
@@ -297,11 +312,12 @@ namespace BombermanRL
 
 
                 bomb.OnBombExplode.AddListener(() => OnBombExplode(entity, explosionGridPos));
+                bomb.OnTickExplosion.AddListener(() => OnTickExplosion(entity, explosionGridPos));
                 bomb.OnExplosionFinish.AddListener(() => OnExplosionFinish(entity, explosionGridPos));
                 bomb.Initalize(explosionWorldPos);
                 _placedBomb[tilePos] = bomb;
                 entity.BombCount++;
-                Debug.Log($"[Bomb Placed] from {entity.Name} on Tile [{tilePos.row},{tilePos.col}]");
+                //Debug.Log($"[Bomb Placed] from {entity.Name} on Tile [{tilePos.row},{tilePos.col}]");
             }
         }
 
@@ -328,21 +344,30 @@ namespace BombermanRL
                     placer.DestroyProps(_destroyableProps[item]);
                 }
             }
+            
+        }
 
+        private void OnTickExplosion(IBombermanCharacter placer, List<GridPos> explosionGridPos)
+        {
             // Check bomberman characters deadly tiles 
             foreach (KeyValuePair<IBombermanCharacter, GridPos> entityPos in _entityPositions)
             {
-                if (IsDeadly(entityPos.Value))
+                if (IsDeadly(entityPos.Value) && !entityPos.Key.IsDead)
                 {
-                    entityPos.Key.Dead();
+                    entityPos.Key.Dead(placer.Name.Equals(entityPos.Key.Name));
                     placer.Kill(entityPos.Key);
 
                     bool isEnemyKilledPlayer = placer.Type == CharacterType.Bandit && entityPos.Key.Type == CharacterType.Player;
                     bool isPlayerSuicide = placer.Type == CharacterType.Player && entityPos.Key.Type == CharacterType.Player;
-                    ResetGrid(isEnemyKilledPlayer, isPlayerSuicide);
+
+                    if (isEnemyKilledPlayer || isPlayerSuicide)
+                        _enemies[0].Win();
+                    else
+                        _player.Win();
+
+                    if (_isOnTrainingAgent) ResetGrid(isEnemyKilledPlayer, isPlayerSuicide);
                 }
             }
-
         }
 
         /// <summary>
