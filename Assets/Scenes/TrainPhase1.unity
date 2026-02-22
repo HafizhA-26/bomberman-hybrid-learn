@@ -229,6 +229,7 @@ MonoBehaviour:
   _tilePrefabsData: {fileID: 11400000, guid: 8f008bd77c347b845a373adfd8f84d15, type: 2}
   _floorsParent: {fileID: 1432004466}
   _objectsTileParent: {fileID: 471090436}
+  _isOnTrainingAgent: 1
 --- !u!1 &81086406
 GameObject:
   m_ObjectHideFlags: 0
@@ -681,6 +682,7 @@ MonoBehaviour:
   _tilePrefabsData: {fileID: 11400000, guid: 8f008bd77c347b845a373adfd8f84d15, type: 2}
   _floorsParent: {fileID: 291718539}
   _objectsTileParent: {fileID: 740400813}
+  _isOnTrainingAgent: 1
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -897,6 +899,7 @@ MonoBehaviour:
   _tilePrefabsData: {fileID: 11400000, guid: 8f008bd77c347b845a373adfd8f84d15, type: 2}
   _floorsParent: {fileID: 81086410}
   _objectsTileParent: {fileID: 5168788}
+  _isOnTrainingAgent: 1
 --- !u!4 &543423160
 Transform:
   m_ObjectHideFlags: 0
@@ -960,6 +963,7 @@ MonoBehaviour:
   _tilePrefabsData: {fileID: 11400000, guid: 8f008bd77c347b845a373adfd8f84d15, type: 2}
   _floorsParent: {fileID: 1020697139}
   _objectsTileParent: {fileID: 1610956773}
+  _isOnTrainingAgent: 1
 --- !u!1 &740400812
 GameObject:
   m_ObjectHideFlags: 0
@@ -1039,6 +1043,7 @@ MonoBehaviour:
   _tilePrefabsData: {fileID: 11400000, guid: 8f008bd77c347b845a373adfd8f84d15, type: 2}
   _floorsParent: {fileID: 829575086}
   _objectsTileParent: {fileID: 1783641840}
+  _isOnTrainingAgent: 1
 --- !u!1 &829575085
 GameObject:
   m_ObjectHideFlags: 0
@@ -1396,6 +1401,7 @@ MonoBehaviour:
   _tilePrefabsData: {fileID: 11400000, guid: 8f008bd77c347b845a373adfd8f84d15, type: 2}
   _floorsParent: {fileID: 1056138946}
   _objectsTileParent: {fileID: 93999739}
+  _isOnTrainingAgent: 1
 --- !u!1 &1427684026
 GameObject:
   m_ObjectHideFlags: 0
@@ -1571,6 +1577,7 @@ MonoBehaviour:
   _tilePrefabsData: {fileID: 11400000, guid: 8f008bd77c347b845a373adfd8f84d15, type: 2}
   _floorsParent: {fileID: 296311082}
   _objectsTileParent: {fileID: 11675011}
+  _isOnTrainingAgent: 1
 --- !u!1 &1855916638
 GameObject:
   m_ObjectHideFlags: 0
@@ -1619,6 +1626,7 @@ MonoBehaviour:
   _tilePrefabsData: {fileID: 11400000, guid: 8f008bd77c347b845a373adfd8f84d15, type: 2}
   _floorsParent: {fileID: 490223329}
   _objectsTileParent: {fileID: 1049893305}
+  _isOnTrainingAgent: 1
 --- !u!1 &1894191419
 GameObject:
   m_ObjectHideFlags: 0

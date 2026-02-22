@@ -169,6 +169,7 @@ MonoBehaviour:
   _bombLimit: 1
   _useRuleBasedAction: 1
   _nearbyObserveRadius: 2
+  _isRandomizedParam: 1
 --- !u!114 &1867523951547977403 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: -4983567206543806626, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}

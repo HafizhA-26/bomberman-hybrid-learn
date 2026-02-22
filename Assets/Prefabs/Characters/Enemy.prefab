@@ -102,6 +102,6 @@ MonoBehaviour:
   _type: 2
   _AIType: 0
   _cooldown: 0.8
-  _moveDuration: 0.6
+  _moveDuration: 0.7
   _bombLimit: 1
   _nearbyObserveRadius: 2
