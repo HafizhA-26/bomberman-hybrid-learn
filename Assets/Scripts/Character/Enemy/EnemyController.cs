@@ -37,6 +37,7 @@ namespace BombermanRL.Character
         public int NearbyObserveRadius { get => _nearbyObserveRadius; }
         public int BombLimit { get => _bombLimit; set => _bombLimit = value; }
 
+        public bool IsDead => _isDead;
 
         private void Awake()
         {
@@ -143,22 +144,22 @@ namespace BombermanRL.Character
             _decisionProvider.OnPlaceBomb();
         }
 
-        public void Dead()
+        public void Dead(bool isSuicide)
         {
             if (_isDead) return;
+            _isDead = true;
 
             _decisionTween?.Kill();
             _moveTween?.Kill();
             _isWalk = false;
-            _isDead = true;
-            _decisionProvider.OnDead();
+            _decisionProvider.OnDead(isSuicide);
             _view.SetBadDeath();
 
         }
 
         public void Kill(IBombermanCharacter character)
         {
-            if (_isDead || character.Name.Equals(Name) || _isOnReset) return;
+            if (_isOnReset || character.Name.Equals(Name) || _isDead) return;
 
             Debug.Log($"{Name} Kills {character.Name}");
             _decisionProvider.OnKillSomeone(character);
@@ -166,7 +167,7 @@ namespace BombermanRL.Character
 
         public void DestroyProps(IDestroyableProps prop)
         {
-            if (_isDead || _isOnReset) return;
+            if (_isOnReset) return;
 
             Debug.Log($"{Name} Destroy {prop.Name}");
             _decisionProvider?.OnDestroyProps(prop);
@@ -184,11 +185,17 @@ namespace BombermanRL.Character
                 _isDead = false;
                 _isWalk = false;
                 BombCount = 0;
-                transform.position = resetWorldPos;
+                transform.position = resetWorldPos + OffsetMovement; ;
                 _view.SetIdle();
 
                 _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
             });
+        }
+
+        public void Win()
+        {
+            Debug.Log("Enemy Win!");
+            _decisionProvider?.OnWin();
         }
     }
 }
