@@ -14,7 +14,9 @@ namespace BombermanRL
         [SerializeField] private TilePrefabsData _tilePrefabsData;
         [SerializeField] private Transform _floorsParent;
         [SerializeField] private Transform _objectsTileParent;
+        [Header("Training Paramaters")]
         [SerializeField] private bool _isOnTrainingAgent = true;
+        [SerializeField] private int _maxTraining = 1;
 
         private GameObject[,] _floors;
         private GameObject[,] _tiles;
@@ -27,9 +29,12 @@ namespace BombermanRL
         private readonly Dictionary<GridPos, IDestroyableProps> _destroyableProps = new Dictionary<GridPos, IDestroyableProps>(); 
         private readonly Dictionary<IBombermanCharacter, GridPos> _entityPositions = new Dictionary<IBombermanCharacter, GridPos>();
 
-
         private Vector3 _tileSize;
         private bool _isOnReset;
+        private int _trainingCount = 0;
+
+        public Action OnPlayerWin;
+        public Action OnEnemyWin;
 
         private void Awake()
         {
@@ -43,6 +48,7 @@ namespace BombermanRL
         {
             CreateFloor();
             LoadLevelTile();
+            _trainingCount = 1;
         }
 
 
@@ -361,11 +367,26 @@ namespace BombermanRL
                     bool isPlayerSuicide = placer.Type == CharacterType.Player && entityPos.Key.Type == CharacterType.Player;
 
                     if (isEnemyKilledPlayer || isPlayerSuicide)
+                    {
                         _enemies[0].Win();
+                        OnEnemyWin?.Invoke();
+                    }
                     else
+                    {
                         _player.Win();
-
-                    if (_isOnTrainingAgent) ResetGrid(isEnemyKilledPlayer, isPlayerSuicide);
+                        OnPlayerWin?.Invoke();
+                    }
+                    
+                    if (_isOnTrainingAgent && _trainingCount < _maxTraining)
+                    {
+                        ResetGrid(isEnemyKilledPlayer, isPlayerSuicide);
+                        _trainingCount++;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Training Count Limit Reached");
+                        Debug.Break();
+                    }
                 }
             }
         }
