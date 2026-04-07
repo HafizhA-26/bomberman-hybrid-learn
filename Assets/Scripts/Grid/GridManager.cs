@@ -377,7 +377,7 @@ namespace BombermanRL
                         OnPlayerWin?.Invoke();
                     }
                     
-                    if (_isOnTrainingAgent && _trainingCount < _maxTraining)
+                    if (_isOnTrainingAgent && _maxTraining <= 0 || ( _maxTraining > 0 &&  _trainingCount < _maxTraining))
                     {
                         ResetGrid(isEnemyKilledPlayer, isPlayerSuicide);
                         _trainingCount++;

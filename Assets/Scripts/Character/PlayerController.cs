@@ -17,6 +17,9 @@ namespace BombermanRL.Character
         [SerializeField] private float _cooldown = 0.5f;
         [SerializeField] private float _moveDuration = 1f;
         [SerializeField] private int _bombLimit = 1;
+        [SerializeField] private float _dangerBombThreshold = 0.2f;
+        [SerializeField] private int _offensiveDistance = 3;
+
 
         [Header("Rule Based Action")]
         [SerializeField] private bool _useRuleBasedAction = false;
@@ -75,8 +78,8 @@ namespace BombermanRL.Character
 
         private void StartDecisionLoop()
         {
-            int offensiveDis = 2;
-            float dangerBombThres = 0.4f;
+            int offensiveDis = _offensiveDistance;
+            float dangerBombThres = _dangerBombThreshold;
             if (_isRandomizedParam)
             {
                 _cooldown = UnityEngine.Random.Range(0.6f, 1.4f);
