@@ -9,7 +9,6 @@ namespace BombermanRL.Character
     {
         private int _offensiveDistance = 3;
         private float _dangerBombThreshold = 0.2f;
-        //private float _foolsChance = 0.4f;
 
         public RuleBasedDecision() { }
         public RuleBasedDecision(int offensiveDistance, float dangerBombThreshold) 

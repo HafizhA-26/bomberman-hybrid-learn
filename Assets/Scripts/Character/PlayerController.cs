@@ -20,7 +20,6 @@ namespace BombermanRL.Character
         [SerializeField] private float _dangerBombThreshold = 0.2f;
         [SerializeField] private int _offensiveDistance = 3;
 
-
         [Header("Rule Based Action")]
         [SerializeField] private bool _useRuleBasedAction = false;
         [SerializeField] private int _nearbyObserveRadius = 2;

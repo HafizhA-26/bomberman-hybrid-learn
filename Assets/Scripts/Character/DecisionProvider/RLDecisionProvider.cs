@@ -1,14 +1,11 @@
 ﻿using BombermanRL.Props;
-using System.Collections.Generic;
 using Unity.MLAgents;
 using Unity.MLAgents.Policies;
-using UnityEngine;
 
 namespace BombermanRL.Character
 {
     public class RLDecisionProvider : IDecisionProvider
     {
-        private readonly float _dangerBombThreshold = 0.4f;
         private readonly int _offensiveDistance = 3;
 
         private AgentBomber _agent;
@@ -135,16 +132,6 @@ namespace BombermanRL.Character
             if (_bumpedMoveCount >= 2)
                 _agent.AddReward(-0.02f);
 
-        }
-
-        private bool IsInDanger(GameplayState state)
-        {
-            foreach (KeyValuePair<GridPos, float> kvp in state.BombTimerNorm)
-            {
-                if(state.EntityPos.Distance(kvp.Key) <= 1 && kvp.Value > _dangerBombThreshold)
-                    return true;
-            }
-            return false;
         }
 
         public void OnReset()
