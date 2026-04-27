@@ -6,7 +6,7 @@ namespace BombermanRL.Character
 {
     public class RLDecisionProvider : IDecisionProvider
     {
-        private readonly int _offensiveDistance = 3;
+        private int _offensiveDistance = 3;
 
         private AgentBomber _agent;
         private ActionType _lastAction = ActionType.Idle;
@@ -25,27 +25,11 @@ namespace BombermanRL.Character
         private int _suicideCount = 0;
         private int _winCount = 0;
 
-        //private int _minimumStepToEnd = 30;
-        //private int _currentStep = 0;
-
-        public RLDecisionProvider(AgentBomber agent, LearningType learningType) 
+        public RLDecisionProvider(AgentBomber agent, AgentParameter agentParameter) 
         {
             _agent = agent;
             _agent.OnActionDecided += OnRequestDecided;
-            BehaviorParameters behaviorParam = _agent.GetComponent<BehaviorParameters>();
-            switch (learningType)
-            {
-                case LearningType.OfflineLearning:
-                    behaviorParam.BehaviorType = BehaviorType.InferenceOnly;
-                    break;
-                case LearningType.OnlineLearning:
-                    behaviorParam.Model = null;
-                    behaviorParam.BehaviorType = BehaviorType.Default;
-                    break;
-                case LearningType.HybridLearning:
-                    behaviorParam.BehaviorType = BehaviorType.Default;
-                    break;
-            }
+            _offensiveDistance = agentParameter.OffensiveDistance;
         }
 
         public ActionType Decide(GameplayState state)

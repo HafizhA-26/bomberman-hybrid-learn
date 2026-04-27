@@ -10,7 +10,7 @@ namespace BombermanRL.Character
         string Name { get; }
         bool IsDead { get; }
         CharacterType Type { get; }
-        int BombLimit { get; set; }
+        int BombLimit { get; }
         int BombCount { get; set; }
         int NearbyObserveRadius { get; }
         Vector3 OffsetMovement { get; set; }

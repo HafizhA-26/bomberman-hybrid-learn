@@ -876,6 +876,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 348601738}
     m_Modifications:
     - target: {fileID: 2440767433990148246, guid: 0184ea2b7f84b5e408f867103eb1c9b4, type: 3}
+      propertyPath: _csvAppendixName
+      value: Evaluation
+      objectReference: {fileID: 0}
+    - target: {fileID: 2440767433990148246, guid: 0184ea2b7f84b5e408f867103eb1c9b4, type: 3}
       propertyPath: '_gridManagers.Array.data[0]'
       value: 
       objectReference: {fileID: 543423159}

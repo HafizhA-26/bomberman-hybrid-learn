@@ -13,9 +13,7 @@
     public enum AIType
     {
         RuleBased = 0,
-        OfflineOnly = 1,
-        OnlineOnly = 2,
-        HybrilRL = 3
+        MLAgent = 1,
     }
 
 }

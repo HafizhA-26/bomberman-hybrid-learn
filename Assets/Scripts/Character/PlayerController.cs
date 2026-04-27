@@ -14,16 +14,10 @@ namespace BombermanRL.Character
         [SerializeField] private CharacterController _controller;
 
         [Header("Action Parameter")]
-        [SerializeField] private float _cooldown = 0.5f;
-        [SerializeField] private float _moveDuration = 1f;
-        [SerializeField] private int _bombLimit = 1;
-        [SerializeField] private float _dangerBombThreshold = 0.2f;
-        [SerializeField] private int _offensiveDistance = 3;
+        [SerializeField] private AgentParameter _agentParameter;
 
         [Header("Rule Based Action")]
         [SerializeField] private bool _useRuleBasedAction = false;
-        [SerializeField] private int _nearbyObserveRadius = 2;
-        [SerializeField] private bool _isRandomizedParam = false;
 
         private IDecisionProvider _decisionProvider;
         private PlayerInputActions _inputAction;
@@ -39,15 +33,15 @@ namespace BombermanRL.Character
         public UnityEvent OnRequestPlaceBomb { get; set; } = new();
         public Vector3 OffsetMovement { get; set; }
         public int BombCount { get; set; }
-        public int BombLimit { get => _bombLimit; set => _bombLimit = value; }
+        public int BombLimit { get => _agentParameter.BombLimit; }
         public Func<GameplayState> OnRequestGameplayState { get; set; }
-        public int NearbyObserveRadius { get => _nearbyObserveRadius; }
+        public int NearbyObserveRadius { get => _agentParameter.NearbyObservationRadius; }
         public bool IsDead => _isDead;
 
         private void Awake()
         {
             _inputAction = new PlayerInputActions();
-            _actionCooldown = new ActionCooldown(_cooldown);
+            _actionCooldown = new ActionCooldown(_agentParameter.ActionCooldown);
             if(!_useRuleBasedAction) _inputAction.Gameplay.SetCallbacks(this);
         }
 
@@ -77,17 +71,8 @@ namespace BombermanRL.Character
 
         private void StartDecisionLoop()
         {
-            int offensiveDis = _offensiveDistance;
-            float dangerBombThres = _dangerBombThreshold;
-            if (_isRandomizedParam)
-            {
-                _cooldown = UnityEngine.Random.Range(0.6f, 1.4f);
-                _moveDuration = _cooldown - 0.1f;
-                offensiveDis = UnityEngine.Random.Range(1, 4);
-                dangerBombThres = UnityEngine.Random.Range(0.2f, 0.45f);
-            }
-            _decisionProvider = new RuleBasedDecision(offensiveDis, dangerBombThres);
-            _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
+            _decisionProvider = new RuleBasedDecision(_agentParameter);
+            _decisionTween = DOVirtual.DelayedCall(_agentParameter.ActionCooldown, DecisionCallback).SetLoops(-1);
         }
 
         private void DecisionCallback()
@@ -132,7 +117,7 @@ namespace BombermanRL.Character
 
         public void OnPlaceBomb(InputAction.CallbackContext context)
         {
-            if(_isDead || _isWalk || BombCount >= _bombLimit || !_actionCooldown.CanAction()) return;
+            if(_isDead || _isWalk || BombCount >= _agentParameter.BombLimit || !_actionCooldown.CanAction()) return;
             OnRequestPlaceBomb?.Invoke();
         }
 
@@ -149,7 +134,7 @@ namespace BombermanRL.Character
                 _isWalk = true;
                 _view.SetWalk();
                 bool tileChangedTriggered = false;
-                _moveTween = transform.DOMove(targetPos, _moveDuration)
+                _moveTween = transform.DOMove(targetPos, _agentParameter.MoveDuration)
                     .OnUpdate(() =>
                     {
                         if (!tileChangedTriggered && _moveTween.ElapsedPercentage() >= 0.3f)

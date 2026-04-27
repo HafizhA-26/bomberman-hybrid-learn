@@ -11,10 +11,10 @@ namespace BombermanRL.Character
         private float _dangerBombThreshold = 0.2f;
 
         public RuleBasedDecision() { }
-        public RuleBasedDecision(int offensiveDistance, float dangerBombThreshold) 
+        public RuleBasedDecision(AgentParameter agentParameter) 
         {
-            _offensiveDistance = offensiveDistance;
-            _dangerBombThreshold = dangerBombThreshold;
+            _offensiveDistance = agentParameter.OffensiveDistance;
+            _dangerBombThreshold = agentParameter.DangerBombThreshold;
         }
 
 

@@ -3,7 +3,6 @@ using DG.Tweening;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.TextCore.Text;
 
 namespace BombermanRL.Character
 {
@@ -15,10 +14,7 @@ namespace BombermanRL.Character
         [Header("Action Parameter")]
         [SerializeField] private CharacterType _type = CharacterType.Bandit;
         [SerializeField] private AIType _AIType = AIType.RuleBased;
-        [SerializeField] private float _cooldown = 0.5f;
-        [SerializeField] private float _moveDuration = 1f;
-        [SerializeField] private int _bombLimit = 1;
-        [SerializeField] private int _nearbyObserveRadius = 2;
+        [SerializeField] private AgentParameter _agentParameter;
 
         private IDecisionProvider _decisionProvider;
         private Tween _decisionTween;
@@ -34,8 +30,8 @@ namespace BombermanRL.Character
         public UnityEvent<Vector2> OnRequestMove { get; set; } = new();
         public UnityEvent OnRequestPlaceBomb { get; set; } = new();
         public Func<GameplayState> OnRequestGameplayState { get; set; }
-        public int NearbyObserveRadius { get => _nearbyObserveRadius; }
-        public int BombLimit { get => _bombLimit; set => _bombLimit = value; }
+        public int NearbyObserveRadius { get => _agentParameter.NearbyObservationRadius; }
+        public int BombLimit { get => _agentParameter.BombLimit; }
 
         public bool IsDead => _isDead;
 
@@ -51,18 +47,12 @@ namespace BombermanRL.Character
                 case AIType.RuleBased:
                     _decisionProvider = new RuleBasedDecision();
                     break;
-                case AIType.OfflineOnly:
-                    _decisionProvider = new RLDecisionProvider(GetComponent<AgentBomber>(), LearningType.OfflineLearning);
-                    break;
-                case AIType.OnlineOnly:
-                    _decisionProvider = new RLDecisionProvider(GetComponent<AgentBomber>(), LearningType.OnlineLearning);
-                    break;
-                case AIType.HybrilRL:
-                    _decisionProvider = new RLDecisionProvider(GetComponent<AgentBomber>(), LearningType.HybridLearning);
+                case AIType.MLAgent:
+                    _decisionProvider = new RLDecisionProvider(GetComponent<AgentBomber>(), _agentParameter);
                     break;
             }
 
-            _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
+            _decisionTween = DOVirtual.DelayedCall(_agentParameter.ActionCooldown, DecisionCallback).SetLoops(-1);
         }
 
         private void OnDestroy()
@@ -79,9 +69,7 @@ namespace BombermanRL.Character
             {
                 GameplayState currState = OnRequestGameplayState?.Invoke();
                 ActionType actionToTake = _decisionProvider.Decide(currState);
-                //Debug.Log("[Enemy] Get Decision");
-                //Debug.Log("Curr State : " + currState);
-                //Debug.Log("Action to Take : "+actionToTake);
+
                 switch (actionToTake)
                 {
                     case ActionType.Idle:
@@ -119,7 +107,7 @@ namespace BombermanRL.Character
                 _isWalk = true;
                 _view.SetWalk();
                 bool tileChangedTriggered = false;
-                _moveTween = transform.DOMove(targetPos, _moveDuration)
+                _moveTween = transform.DOMove(targetPos, _agentParameter.MoveDuration)
                     .OnUpdate(() =>
                     {
                         if(!tileChangedTriggered && _moveTween.ElapsedPercentage() >= 0.3f)
@@ -188,7 +176,7 @@ namespace BombermanRL.Character
                 transform.position = resetWorldPos + OffsetMovement; ;
                 _view.SetIdle();
 
-                _decisionTween = DOVirtual.DelayedCall(_cooldown, DecisionCallback).SetLoops(-1);
+                _decisionTween = DOVirtual.DelayedCall(_agentParameter.ActionCooldown, DecisionCallback).SetLoops(-1);
             });
         }
 
