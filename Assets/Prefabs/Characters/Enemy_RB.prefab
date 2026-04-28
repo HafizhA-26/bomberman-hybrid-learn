@@ -80,7 +80,7 @@ PrefabInstance:
       addedObject: {fileID: 1787945815814806064}
     - targetCorrespondingSourceObject: {fileID: 3672868777114816096, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7660634339710105971}
+      addedObject: {fileID: -4515761554903522238}
   m_SourcePrefab: {fileID: 100100000, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
 --- !u!1 &1280343449075969925 stripped
 GameObject:
@@ -150,7 +150,7 @@ MonoBehaviour:
   m_DefaultActionMap: Gameplay
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &7660634339710105971
+--- !u!114 &-4515761554903522238
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -159,17 +159,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1280343449075969925}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97619a4ec1cd26c4ea0589c5ccb628aa, type: 3}
+  m_Script: {fileID: 11500000, guid: 258dbf52ab7b80a43bf0cdd9f955158b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _view: {fileID: 1867523951547977403}
-  _controller: {fileID: -1413249216986960972}
-  _cooldown: 0.5
-  _moveDuration: 0.4
-  _bombLimit: 1
-  _useRuleBasedAction: 1
-  _nearbyObserveRadius: 2
-  _isRandomizedParam: 0
+  _type: 2
+  _AIType: 0
+  _agentParameter: {fileID: 11400000, guid: edb29ae4c7eda134cabe374cfe81184c, type: 2}
 --- !u!114 &1867523951547977403 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: -4983567206543806626, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}

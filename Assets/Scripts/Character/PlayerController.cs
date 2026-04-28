@@ -16,9 +16,6 @@ namespace BombermanRL.Character
         [Header("Action Parameter")]
         [SerializeField] private AgentParameter _agentParameter;
 
-        [Header("Rule Based Action")]
-        [SerializeField] private bool _useRuleBasedAction = false;
-
         private IDecisionProvider _decisionProvider;
         private PlayerInputActions _inputAction;
         private ActionCooldown _actionCooldown;
@@ -42,15 +39,6 @@ namespace BombermanRL.Character
         {
             _inputAction = new PlayerInputActions();
             _actionCooldown = new ActionCooldown(_agentParameter.ActionCooldown);
-            if(!_useRuleBasedAction) _inputAction.Gameplay.SetCallbacks(this);
-        }
-
-        private void Start()
-        {
-            if(_useRuleBasedAction)
-            {
-                StartDecisionLoop();
-            }
         }
 
         private void OnDestroy()

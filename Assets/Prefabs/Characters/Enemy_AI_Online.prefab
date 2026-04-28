@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -3790709645247450120, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
       propertyPath: _AIType
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -3790709645247450120, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
       propertyPath: _cooldown
@@ -20,6 +20,10 @@ PrefabInstance:
       propertyPath: _moveDuration
       value: 0.7
       objectReference: {fileID: 0}
+    - target: {fileID: -3790709645247450120, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
+      propertyPath: _agentParameter
+      value: 
+      objectReference: {fileID: 11400000, guid: 9f399890bc36a5b499c17a6b6f1b4500, type: 2}
     - target: {fileID: 398300744426070347, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -62,7 +66,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1066469955479436273, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
       propertyPath: m_Name
-      value: Enemy_AI
+      value: Enemy_AI_Online
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3225186581724341602, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
