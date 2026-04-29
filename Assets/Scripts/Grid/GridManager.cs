@@ -16,7 +16,6 @@ namespace BombermanRL
         [SerializeField] private Transform _objectsTileParent;
         [Header("Training Paramaters")]
         [SerializeField] private bool _isOnTrainingAgent = true;
-        [SerializeField] private int _maxTraining = 1;
 
         private GameObject[,] _floors;
         private GameObject[,] _tiles;
@@ -31,14 +30,13 @@ namespace BombermanRL
 
         private Vector3 _tileSize;
         private bool _isOnReset;
-        private int _trainingCount = 0;
 
         public Action OnPlayerWin;
         public Action OnEnemyWin;
 
         private void Awake()
         {
-            Application.targetFrameRate = 30;
+            Application.targetFrameRate = 60;
             _floors = new GameObject[_levelData.GridWidth, _levelData.GridHeight];
             _tiles = new GameObject[_levelData.GridWidth, _levelData.GridHeight];
             _grid = new TileState[_levelData.GridWidth, _levelData.GridHeight];
@@ -48,7 +46,6 @@ namespace BombermanRL
         {
             CreateFloor();
             LoadLevelTile();
-            _trainingCount = 1;
         }
 
 
@@ -363,8 +360,8 @@ namespace BombermanRL
                     entityPos.Key.Dead(placer.Name.Equals(entityPos.Key.Name));
                     placer.Kill(entityPos.Key);
 
-                    bool isEnemyKilledPlayer = placer.Type == CharacterType.Bandit && entityPos.Key.Type == CharacterType.Player;
-                    bool isPlayerSuicide = placer.Type == CharacterType.Player && entityPos.Key.Type == CharacterType.Player;
+                    bool isEnemyKilledPlayer = placer.Type == CharacterType.Bandit && entityPos.Key.Type == CharacterType.GoodMan;
+                    bool isPlayerSuicide = placer.Type == CharacterType.GoodMan && entityPos.Key.Type == CharacterType.GoodMan;
 
                     if (isEnemyKilledPlayer || isPlayerSuicide)
                     {
@@ -377,10 +374,9 @@ namespace BombermanRL
                         OnPlayerWin?.Invoke();
                     }
                     
-                    if (_isOnTrainingAgent && _maxTraining <= 0 || ( _maxTraining > 0 &&  _trainingCount < _maxTraining))
+                    if (_isOnTrainingAgent)
                     {
                         ResetGrid(isEnemyKilledPlayer, isPlayerSuicide);
-                        _trainingCount++;
                     }
                     else
                     {
@@ -470,8 +466,8 @@ namespace BombermanRL
             {
                 case CharacterType.None:
                     break;
-                case CharacterType.Player:
-                    enemyPos = _entityPositions.FirstOrDefault(item => item.Key.Type!= CharacterType.Player).Value;
+                case CharacterType.GoodMan:
+                    enemyPos = _entityPositions.FirstOrDefault(item => item.Key.Type!= CharacterType.GoodMan).Value;
                     break;
                 case CharacterType.Bandit:
                     enemyPos = _entityPositions[_player];

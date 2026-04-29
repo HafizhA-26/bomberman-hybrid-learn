@@ -63,7 +63,7 @@ namespace BombermanRL.Character
             {
                 case CharacterType.None:
                     break;
-                case CharacterType.Player:
+                case CharacterType.GoodMan:
                     _killCount++;
                     _agent.AddReward(4f);
                     

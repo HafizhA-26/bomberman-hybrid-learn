@@ -25,7 +25,7 @@ namespace BombermanRL.Character
         private bool _isWalk;
 
         public string Name => gameObject.name;
-        public CharacterType Type => CharacterType.Player;
+        public CharacterType Type => CharacterType.GoodMan;
         public UnityEvent<Vector2> OnRequestMove { get;  set; } = new();
         public UnityEvent OnRequestPlaceBomb { get; set; } = new();
         public Vector3 OffsetMovement { get; set; }
