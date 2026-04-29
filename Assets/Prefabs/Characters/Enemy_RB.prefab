@@ -22,7 +22,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3672868777114816096, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
       propertyPath: m_Name
-      value: Player_RB
+      value: Enemy_RB
       objectReference: {fileID: 0}
     - target: {fileID: 4157796752016872666, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
       propertyPath: m_LocalPosition.x
@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _view: {fileID: 1867523951547977403}
-  _type: 2
+  _type: 1
   _AIType: 0
   _agentParameter: {fileID: 11400000, guid: edb29ae4c7eda134cabe374cfe81184c, type: 2}
 --- !u!114 &1867523951547977403 stripped
