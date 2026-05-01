@@ -10,6 +10,13 @@
         PlaceBomb = 5
     }
 
+    public enum KillType
+    {
+        NormalKill,
+        FriendlyFire,
+        Suicide
+    }
+
     public enum AIType
     {
         RuleBased = 0,
