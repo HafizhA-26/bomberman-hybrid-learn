@@ -1,18 +1,16 @@
 ﻿using BombermanRL.Props;
 using Unity.MLAgents;
-using Unity.MLAgents.Policies;
 
 namespace BombermanRL.Character
 {
     public class RLDecisionProvider : IDecisionProvider
     {
-        private int _offensiveDistance = 3;
-
-        private AgentBomber _agent;
-        private ActionType _lastAction = ActionType.Idle;
+        private readonly AgentBomber _agent;
         private GameplayState _currentState;
+        private ActionType _lastAction = ActionType.Idle;
         private int _bumpedMoveCount = 0;
 
+        private readonly int _offensiveDistance = 3;
         // Stats variable
         private int _bombPlacedCount = 0;
         private int _bombPlacedNearPlayer = 0;
@@ -57,19 +55,18 @@ namespace BombermanRL.Character
             }
         }
 
-        public void OnKillSomeone(IBombermanCharacter character)
+        public void OnKillSomeone(KillType killType)
         {
-            switch (character.Type)
+            switch (killType)
             {
-                case CharacterType.None:
-                    break;
-                case CharacterType.GoodMan:
+                case KillType.NormalKill:
                     _killCount++;
                     _agent.AddReward(4f);
-                    
                     break;
-                case CharacterType.Bandit:
-                    _agent.AddReward(-0.5f); // On kill other bandit
+                case KillType.FriendlyFire:
+                    _agent.AddReward(-0.5f);
+                    break;
+                case KillType.Suicide:
                     break;
             }
         }

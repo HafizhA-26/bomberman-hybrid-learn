@@ -148,8 +148,6 @@ namespace BombermanRL.Character
               .Select(item => item.Key)
               .ToList();
 
-            //nearby = nearby.OrderBy(item => item.Distance(state.PlayerPos)).Take(3).ToList();
-
             if (nearby.Count > 0)
             {
                 int randomMove = Random.Range(0, nearby.Count);
@@ -174,7 +172,7 @@ namespace BombermanRL.Character
 
         public void OnDestroyProps(IDestroyableProps prop) { }
 
-        public void OnKillSomeone(IBombermanCharacter character) { }
+        public void OnKillSomeone(KillType character) { }
 
         public void OnDead(bool isSuicide) { }
 

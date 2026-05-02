@@ -7,35 +7,13 @@ using UnityEngine.InputSystem;
 
 namespace BombermanRL.Character
 {
-    public class AgentBomber : Agent, PlayerInputActions.IEnemyHeuristicActions
+    public class AgentBomber : Agent
     {
         private GameplayState _currentState;
-        private PlayerInputActions _inputAction;
+        private Vector2 _disceteMove;
+        private bool _discretePlaceBomb;
 
         public event Action<ActionType> OnActionDecided;
-
-        private Vector2 _moveInput;
-        private bool _placeBomb;
-
-        protected override void Awake()
-        {
-            base.Awake();
-            _inputAction = new PlayerInputActions();
-            _inputAction.EnemyHeuristic.SetCallbacks(this);
-        }
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            _inputAction.EnemyHeuristic.Enable();
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            _inputAction.EnemyHeuristic.Disable();
-        }
-
         public override void Initialize()
         {
             Application.targetFrameRate = 60;
@@ -93,33 +71,23 @@ namespace BombermanRL.Character
         public override void Heuristic(in ActionBuffers actionsOut)
         {
             ActionSegment<int> discreteActions = actionsOut.DiscreteActions;
+
             // Only take one action at the same time for heuristic
-            if (_moveInput.y > 0)
+            if (_disceteMove.y > 0)
                 discreteActions[0] = 1;
-            else if (_moveInput.y < 0)
+            else if (_disceteMove.y < 0)
                 discreteActions[0] = 2;
-            else if (_moveInput.x < 0)
+            else if (_disceteMove.x < 0)
                 discreteActions[0] = 3;
-            else if (_moveInput.x > 0)
+            else if (_disceteMove.x > 0)
                 discreteActions[0] = 4;
-            else if (_placeBomb)
+            else if (_discretePlaceBomb)
             {
                 discreteActions[0] = 5;
-                _placeBomb = false;
+                _discretePlaceBomb = false;
             }
             else
                 discreteActions[0] = 0;
-
-            int action = discreteActions[0];
-            //Debug.Log("Action Heuristic : " + action);
-            //ActionType type = (ActionType)action;
-            //OnActionDecided?.Invoke(type);
-
-        }
-
-        public override void OnEpisodeBegin()
-        {
-            
         }
 
         public void SetGameplayState(GameplayState state)
@@ -127,15 +95,10 @@ namespace BombermanRL.Character
             _currentState = state;
         }
 
-        public void OnMove(InputAction.CallbackContext context)
+        public void OnHeuristicInput(Vector2 moveInput, bool placeBomb)
         {
-            _moveInput = context.ReadValue<Vector2>();
-        }
-
-        public void OnPlaceBomb(InputAction.CallbackContext context)
-        {
-            if(context.performed)
-                _placeBomb = true;
+            _disceteMove = moveInput;
+            _discretePlaceBomb = placeBomb;
         }
     }
 
