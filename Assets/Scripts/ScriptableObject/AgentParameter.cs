@@ -11,6 +11,7 @@ namespace BombermanRL
         [SerializeField] private int _offensiveDistance = 3;
         [SerializeField] private float _dangerBombThreshold = 0.5f;
         [SerializeField] private int _bombLimit = 1;
+        [SerializeField] private int _bombExplosionRadius = 1;
         [Tooltip("[ML Agent Parameter] How far the agent will observe its surrounding. Can't be randomized")]
         [SerializeField] private int _nearbyObservationRadius = 2;
 
@@ -21,6 +22,7 @@ namespace BombermanRL
         [SerializeField] private int _minOffensiveDistance = 1;
         [SerializeField] private float _minDangerBombThreshold = 0.2f;
         [SerializeField] private int _minBombLimit = 1;
+        [SerializeField] private int _minBombRadius = 1;
 
         public float ActionCooldown { 
             get { 
@@ -55,5 +57,12 @@ namespace BombermanRL
         }
 
         public int NearbyObservationRadius { get => _nearbyObservationRadius; }
+        public int BombExplosionRadius {
+            get
+            {
+                if (!_isRandomized || _bombExplosionRadius == _minBombRadius) return _bombExplosionRadius;
+                else return Random.Range(_minBombRadius, _bombExplosionRadius);
+            }
+        }
     }
 }

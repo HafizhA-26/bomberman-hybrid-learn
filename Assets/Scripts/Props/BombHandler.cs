@@ -1,8 +1,8 @@
 using DG.Tweening;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace BombermanRL
 {
@@ -10,118 +10,136 @@ namespace BombermanRL
     {
         [Header("References")]
         [SerializeField] private GameObject _bomb;
-        [SerializeField] private GameObject _explosionCubePrefab;
         [SerializeField] private TextMeshPro _countdownText;
 
         [Header("Bomb Parameter")]
-        [SerializeField] private int _explosionRadius = 1;
         [SerializeField] private float _explodeCountdown = 3f;
-        [SerializeField] private float _explodeTime = 2f;
-        [SerializeField] private float _explodeTransition = 0.3f;
+        [SerializeField] private float _explosionTime = 2f;
+        [SerializeField] private float _explodeTransition = 0.2f;
 
         private List<GameObject> _explosions = new List<GameObject>();
         private List<Vector3> _explodePos = new List<Vector3>();
-        private List<Tween> _explosionTween = new List<Tween>();
-        private List<Tween> _finishExplosionTween = new List<Tween>();
-        private Tween _countdownTween;
+        private Sequence _explosionSeq;
         private float _currentTimer;
+        private bool _isExploded;
 
-        public readonly UnityEvent OnBombExplode = new UnityEvent();
-        public readonly UnityEvent OnTickExplosion = new UnityEvent();
-        public readonly UnityEvent OnExplosionFinish = new UnityEvent();
+        public Action OnBombExplode;
+        public Action OnTickExplosion;
+        public Action OnExplosionFinish;
 
-        public int ExplosionRadius { get => _explosionRadius; }
-
-        private void OnDestroy()
+        private void OnDisable()
         {
-            StopExplosion();
+            _explosionSeq?.Kill();
 
-            foreach (GameObject item in _explosions)
+            // Reset explosion on bomb disable
+            _explosions.ForEach(item =>
             {
-                if (item) Destroy(item);
-            }
+                item.name = "UnusedExplosion";
+                item.transform.SetParent(transform.parent);
+                Material material = item.GetComponent<MeshRenderer>().material;
+                Color baseColor = material.GetColor("_BaseColor");
+                baseColor.a = 0;
+                material.SetColor("_BaseColor", baseColor);
+                item.gameObject.SetActive(false);
+            });
 
-            OnBombExplode.RemoveAllListeners();
-            OnExplosionFinish.RemoveAllListeners();
+
+            OnBombExplode = null;
+            OnTickExplosion = null;
+            OnExplosionFinish = null;
         }
 
-        public void Initalize(List<Vector3> explodePos)
+        private void OnEnable()
         {
-            _explodePos = explodePos;
+            _currentTimer = _explodeCountdown;
+            _isExploded = false;
+        }
 
+        private void FixedUpdate()
+        {
+            if (_isExploded) OnTickExplosion?.Invoke();
+        }
+
+        public void Initalize(List<Vector3> explodePos, List<GameObject> explosionObjects)
+        {
+            if (explodePos.Count != explosionObjects.Count) return;
+
+            _explosionSeq = DOTween.Sequence();
+            _explodePos = explodePos;
+            _explosions = explosionObjects;
+            _explosions.ForEach(explosion => explosion.gameObject.SetActive(true));
+
+            // Start countdown explosion
             float countdown = _explodeCountdown;
-            _countdownTween = DOTween.To(
+            Tween countdownTween = DOTween.To(
                 () => countdown,
                 time =>
                 {
                     _currentTimer = time;
                     _countdownText.text = Mathf.CeilToInt(time).ToString();
-                }, 0, _explodeCountdown).SetDelay(0.5f);
+                }, 0, _explodeCountdown).SetDelay(0.3f);
+            _explosionSeq.Append(countdownTween);
 
-            _countdownTween.OnComplete(SpawnExplosion);
-        }
-
-
-        private void SpawnExplosion()
-        {
-            _bomb.SetActive(false);
-            _countdownText.gameObject.SetActive(false);
-            OnBombExplode?.Invoke();
-            OnTickExplosion.Invoke();
-            DOVirtual.DelayedCall(_explodeTime / 4, () => OnTickExplosion?.Invoke()).SetLoops(3);
-
-            foreach (Vector3 item in _explodePos)
+            // On Explode
+            _explosionSeq.AppendCallback(() =>
             {
-                GameObject explosionObject = Instantiate(_explosionCubePrefab, transform, true);
-                explosionObject.transform.position = item;
-                _explosions.Add(explosionObject);
-
-                // Animate fade start explosion
-                Material material = explosionObject.GetComponent<MeshRenderer>().material;
-                Tween explode = DOTween.To(() => material.GetColor("_BaseColor").a, x =>
-                {
-                    Color temp = material.GetColor("_BaseColor");
-                    temp.a = x;
-                    material.SetColor("_BaseColor", temp);
-                }, 0.6f, _explodeTransition);
-
-                _explosionTween.Add(explode);
-            }
-
-            // Delayed finish explosion
-            Tween holdExplosionTween = DOVirtual.DelayedCall(_explodeTime, () =>
-            {
-                foreach (GameObject item in _explosions)
-                {
-                    // Animate fade finish explosion
-                    Material material = item.GetComponent<MeshRenderer>().material;
-                    Tween finishExplode = DOTween.To(() => material.GetColor("_BaseColor").a, x =>
-                    {
-                        Color temp = material.GetColor("_BaseColor");
-                        temp.a = x;
-                        material.SetColor("_BaseColor", temp);
-                    }, 0f, _explodeTransition);
-
-                    _finishExplosionTween.Add(finishExplode);
-                }
-                Tween finishingTween = DOVirtual.DelayedCall(_explodeTransition, () =>
-                {
-                    OnExplosionFinish?.Invoke();
-                    Destroy(gameObject);
-                });
-
-                _finishExplosionTween.Add(finishingTween);
+                _bomb.SetActive(false);
+                _isExploded = true;
+                OnBombExplode?.Invoke();
             });
 
-            _finishExplosionTween.Add(holdExplosionTween);
-        }
+            // Show explosion fire
+            for (int i = 0; i < _explodePos.Count; i++)
+            {
+                // Setup explosion fire cube
+                Vector3 explosionPos = _explodePos[i];
+                GameObject explosionObject = _explosions[i];
+                explosionObject.transform.position = explosionPos;
+                explosionObject.name = "Explosion-" + i;
+                explosionObject.transform.parent = transform;
+                explosionObject.gameObject.SetActive(true);
 
-        public void StopExplosion()
-        {
-            _countdownTween?.Kill();
+                // Animate fade in explosion
+                if (i == 0) _explosionSeq.Append(FadeExplosionTransition(explosionObject, true));
+                else _explosionSeq.Join(FadeExplosionTransition(explosionObject, true));
+            }
+
+            // Hold explosion
+            _explosionSeq.AppendInterval(_explosionTime);
+
+            // Finish explosion
+            for (int i = 0; i < _explosions.Count; i++)
+            {
+                GameObject explosionObject = _explosions[i];
+
+                // Animate fade out explosion
+                if (i == 0) _explosionSeq.Append(FadeExplosionTransition(explosionObject, false));
+                else _explosionSeq.Join(FadeExplosionTransition(explosionObject, false));
+            }
+
+            // Invoke finishing event
+            _explosionSeq.OnComplete(() =>
+            {
+                OnExplosionFinish?.Invoke();
+                _isExploded = false;
+            });
         }
 
         public float GetCurrentTimerNorm() => Mathf.InverseLerp(_explodeCountdown, 0, _currentTimer);
+        
+        public Tween FadeExplosionTransition(GameObject explosion, bool isExplode)
+        {
+            Material material = explosion.GetComponent<MeshRenderer>().material;
+            Tween fadeTween = DOTween.To(() => material.GetColor("_BaseColor").a, x =>
+            {
+                Color temp = material.GetColor("_BaseColor");
+                temp.a = x;
+                material.SetColor("_BaseColor", temp);
+            }, isExplode ? 0.6f : 0, _explodeTransition);
+
+            return fadeTween;
+        }
+        public void PauseExplosion() => _explosionSeq?.Pause();
     }
 
 }

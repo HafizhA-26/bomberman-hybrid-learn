@@ -3,7 +3,6 @@ using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace BombermanRL.Character
 {

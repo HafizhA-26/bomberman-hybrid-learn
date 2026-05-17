@@ -10,8 +10,14 @@
             _type = defaultType;
         }
 
-        public TileType Type { get => _type; set => _type = value; }
+        public TileState(TileType defaultType, TileSubState subsState)
+        {
+            _type = defaultType;
+            _subState = subsState;
+        }
 
+        public TileType Type { get => _type; set => _type = value; }
+        public TileSubState SubState { get => _subState; }
         public bool HasSubstate(TileSubState subState) => _subState.HasFlag(subState);
         public void AddSubstate(TileSubState subState) => _subState |= subState;
         public void RemoveSubstate(TileSubState subState) => _subState &= ~subState;

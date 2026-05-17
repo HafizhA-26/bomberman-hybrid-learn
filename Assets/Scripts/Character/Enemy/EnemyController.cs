@@ -10,9 +10,9 @@ namespace BombermanRL.Character
         protected IDecisionProvider _decisionProvider;
         protected Tween _decisionTween;
 
-        private void Awake()
+        protected void Awake()
         {
-            _decisionProvider = new RuleBasedDecision();
+            InitializeAI();
         }
 
         protected void Start()
@@ -26,13 +26,17 @@ namespace BombermanRL.Character
             _decisionTween?.Kill();
         }
 
+        protected virtual void InitializeAI()
+        {
+            _decisionProvider = new RuleBasedDecision();
+        }
+        
         private void DecisionCallback()
         {
             if (_currentState == EntityState.Idle)
             {
-                GameplayState currState = OnRequestGameplayState();
+                GameplayState currState = _stateProvider.GetNearbyState(this, NearbyObservationRadius);
                 ActionType actionToTake = _decisionProvider.Decide(currState);
-
                 switch (actionToTake)
                 {
                     case ActionType.Idle:

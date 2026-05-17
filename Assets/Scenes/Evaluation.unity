@@ -650,56 +650,6 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
---- !u!1 &543423158
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 543423160}
-  - component: {fileID: 543423159}
-  m_Layer: 0
-  m_Name: GridManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &543423159
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 543423158}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c3b27341a91b0348aff18c475b17893, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _levelData: {fileID: 11400000, guid: 222eeb830eb84dd4484b5ee420aad8ac, type: 2}
-  _tilePrefabsData: {fileID: 11400000, guid: 8eb80d908f50f614f8397f5032725d90, type: 2}
-  _floorsParent: {fileID: 81086410}
-  _objectsTileParent: {fileID: 5168788}
-  _isOnTrainingAgent: 1
-  _maxTraining: 100
---- !u!4 &543423160
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 543423158}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 906550307}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &738644338
 GameObject:
   m_ObjectHideFlags: 0
@@ -837,6 +787,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 906550307}
+  - component: {fileID: 906550311}
+  - component: {fileID: 906550310}
+  - component: {fileID: 906550309}
+  - component: {fileID: 906550308}
   m_Layer: 0
   m_Name: Env1
   m_TagString: Untagged
@@ -857,11 +811,70 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 543423160}
   - {fileID: 81086410}
   - {fileID: 5168788}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &906550308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 906550306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fd600c946d1743409a0e40350c4ef7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &906550309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 906550306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19465abf7c6d4b34b9a1c6389d4f476d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _levelData: {fileID: 11400000, guid: 222eeb830eb84dd4484b5ee420aad8ac, type: 2}
+  _tilePrefabsData: {fileID: 11400000, guid: 613135f75c7693e4b950ff8f366eb48e, type: 2}
+  _envParent: {fileID: 906550307}
+  _floorsParent: {fileID: 81086410}
+  _objectsTileParent: {fileID: 5168788}
+--- !u!114 &906550310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 906550306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 439b827234688224a8cb81ca74d31642, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _validRespawnDistance: 3
+--- !u!114 &906550311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 906550306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bfb6f820433f964490f24e6c182aee3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _levelBuilder: {fileID: 906550309}
+  _gridStateManager: {fileID: 906550310}
+  _bombManager: {fileID: 906550308}
+  _isOnTrainingAgent: 0
+  _trainingAgentType: 2
+  _resetDelay: 2
 --- !u!224 &1678032449 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4166462739246082569, guid: 0184ea2b7f84b5e408f867103eb1c9b4, type: 3}
@@ -882,7 +895,7 @@ PrefabInstance:
     - target: {fileID: 2440767433990148246, guid: 0184ea2b7f84b5e408f867103eb1c9b4, type: 3}
       propertyPath: '_gridManagers.Array.data[0]'
       value: 
-      objectReference: {fileID: 543423159}
+      objectReference: {fileID: 0}
     - target: {fileID: 4166462739246082569, guid: 0184ea2b7f84b5e408f867103eb1c9b4, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

@@ -1,10 +1,9 @@
-using BombermanRL.Character;
 using BombermanRL.Props;
 using DG.Tweening;
 using System;
 using UnityEngine;
 
-namespace BombermanRL
+namespace BombermanRL.Character
 {
     public class BombermanEntity : MonoBehaviour
     {
@@ -16,32 +15,37 @@ namespace BombermanRL
         [SerializeField] protected AgentParameter _agentParameter;
 
         [Header("Data")]
-        [SerializeField] protected CharacterType _characterType;
+        [SerializeField] private CharacterType _characterType;
 
         protected ActionCooldown _actionCooldown;
         protected Tween _moveTween;
+        protected IGameplayStateProvider _stateProvider;
         protected EntityState _currentState;
 
         public string Name { get => gameObject.name; }
         public EntityState State { get { return _currentState; } }
         public int BombLimit { get => _agentParameter.BombLimit; }
         public int BombCount { get; set; }
+        public int BombExplodeRadius { get => _agentParameter.BombExplosionRadius; }
         public int NearbyObservationRadius { get => _agentParameter.NearbyObservationRadius; }
-        public Vector3 OffSetMovement { get; set; }
+        public Vector3 OffsetMovement { get; set; }
+        public CharacterType CharacterType { get => _characterType; }
+
         public event Action<Vector2> RequestMove;
         public event Action RequestPlaceBomb;
-        public event Func<GameplayState> RequestGameplayState;
 
         private void OnDestroy()
         {
             RequestMove = null;
             RequestPlaceBomb = null;
-            RequestGameplayState = null;
         }
 
         protected virtual void OnRequestMove(Vector2 moveDirection) => RequestMove?.Invoke(moveDirection);
         protected virtual void OnRequestPlaceBomb() => RequestPlaceBomb?.Invoke();
-        protected virtual GameplayState OnRequestGameplayState() => RequestGameplayState?.Invoke();
+        public virtual void Initialize(IGameplayStateProvider provider)
+        {
+            _stateProvider = provider;
+        }
         public virtual void Move(Vector3 targetPos, bool canMove, Action onTileChanged)
         {
             Vector3 direction = targetPos - transform.position;
@@ -122,7 +126,7 @@ namespace BombermanRL
         protected virtual void ResetEntity(Vector3 resetWorldPos)
         {
             BombCount = 0;
-            transform.position = resetWorldPos + OffSetMovement;
+            transform.position = resetWorldPos + OffsetMovement;
             _currentState = EntityState.Idle;
             _view.SetIdle();
         }

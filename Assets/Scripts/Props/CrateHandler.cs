@@ -17,7 +17,6 @@ namespace BombermanRL
         public bool IsDestroyed => _isDestroyed;
         public TileType PropType => _tileType;
 
-
         private void Awake()
         {
             _crateTransform = GetComponent<Transform>();

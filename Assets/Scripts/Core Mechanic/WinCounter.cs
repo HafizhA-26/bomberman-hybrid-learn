@@ -1,3 +1,4 @@
+using BombermanRL.Grid;
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
@@ -14,7 +15,7 @@ namespace BombermanRL
         [SerializeField] private TextMeshProUGUI _roundCountText;
 
         [Header("Object References")]
-        [SerializeField] private List<GridManager> _gridManagers;
+        [SerializeField] private List<MatchDirector> _gridManagers;
 
         [Header("Logging Settings")]
         [SerializeField] private int _logInterval = 100;
@@ -33,7 +34,7 @@ namespace BombermanRL
 
         private void Awake()
         {
-            foreach (GridManager item in _gridManagers)
+            foreach (MatchDirector item in _gridManagers)
             {
                 item.OnPlayerWin += OnPlayerWin;
                 item.OnEnemyWin += OnEnemyWin;
@@ -51,7 +52,7 @@ namespace BombermanRL
 
         private void OnDestroy()
         {
-            foreach (GridManager item in _gridManagers)
+            foreach (MatchDirector item in _gridManagers)
             {
                 item.OnPlayerWin -= OnPlayerWin;
                 item.OnEnemyWin -= OnEnemyWin;

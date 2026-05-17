@@ -10,16 +10,6 @@ namespace BombermanRL.Character
         private PlayerInputActions _inputAction;
         private AgentBomber _mlAgent;
 
-        private void Awake()
-        {
-            _AIType = AIType.MLAgent;
-            _mlAgent = GetComponent<AgentBomber>();
-            _inputAction = new PlayerInputActions();
-            if(_enableHeuristicAction) _inputAction.EnemyHeuristic.SetCallbacks(this);
-
-            _decisionProvider = new RLDecisionProvider(_mlAgent, _agentParameter);
-        }
-
         private void OnEnable()
         {
             if (_enableHeuristicAction) _inputAction.EnemyHeuristic.Enable();
@@ -28,6 +18,16 @@ namespace BombermanRL.Character
         private void OnDisable()
         {
             if (_enableHeuristicAction) _inputAction.EnemyHeuristic.Disable();
+        }
+
+        protected override void InitializeAI()
+        {
+            _AIType = AIType.MLAgent;
+            _mlAgent = GetComponent<AgentBomber>();
+            _inputAction = new PlayerInputActions();
+            if (_enableHeuristicAction) _inputAction.EnemyHeuristic.SetCallbacks(this);
+
+            _decisionProvider = new RLDecisionProvider(_mlAgent, _agentParameter);
         }
 
         public void OnMove(InputAction.CallbackContext context)
