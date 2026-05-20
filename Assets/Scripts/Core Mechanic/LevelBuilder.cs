@@ -31,6 +31,8 @@ namespace BombermanRL.Grid
                     _tilePrefabsData.AgentNeutralFloorMat,
                     _tilePrefabsData.AgentFailedFloorMat
                 };
+
+            Debug.Log("TileSize: "+TileSize);
         }
 
         private void OnDrawGizmosSelected()
@@ -96,7 +98,7 @@ namespace BombermanRL.Grid
                 for (int j = 0; j < floors.GetLength(1); j++)
                 {
                     GameObject floor = Instantiate(_tilePrefabsData.FloorPrefab, _floorsParent, true);
-                    Vector3 newPos = new Vector3(TileSize.x * j + transform.parent.position.x, TileSize.y * 0.5f, TileSize.z * i * -1 + transform.parent.position.z);
+                    Vector3 newPos = new Vector3(TileSize.x * j + transform.position.x, TileSize.y * 0.5f, TileSize.z * i * -1 + transform.position.z);
                     floor.transform.position = newPos;
                     floor.name = $"Floor[{i}-{j}]";
                     floors[i, j] = floor;
@@ -126,6 +128,7 @@ namespace BombermanRL.Grid
 
                 // Spawn tile based on prefab
                 GameObject tile = Instantiate(tilePrefabDict[type].PrefabObject, _objectsTileParent, true);
+                gridObjects[row, col] = tile;
 
                 // Re-position tile based offset spawn
                 Vector3 newPos = GridToWorld(tileGridPos);

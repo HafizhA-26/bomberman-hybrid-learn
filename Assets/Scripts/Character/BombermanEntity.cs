@@ -31,17 +31,11 @@ namespace BombermanRL.Character
         public Vector3 OffsetMovement { get; set; }
         public CharacterType CharacterType { get => _characterType; }
 
-        public event Action<Vector2> RequestMove;
-        public event Action RequestPlaceBomb;
+        public event Action<BombermanEntity, Vector2> RequestMove;
+        public event Action<BombermanEntity> RequestPlaceBomb;
 
-        private void OnDestroy()
-        {
-            RequestMove = null;
-            RequestPlaceBomb = null;
-        }
-
-        protected virtual void OnRequestMove(Vector2 moveDirection) => RequestMove?.Invoke(moveDirection);
-        protected virtual void OnRequestPlaceBomb() => RequestPlaceBomb?.Invoke();
+        protected virtual void OnRequestMove(Vector2 moveDirection) => RequestMove?.Invoke(this, moveDirection);
+        protected virtual void OnRequestPlaceBomb() => RequestPlaceBomb?.Invoke(this);
         public virtual void Initialize(IGameplayStateProvider provider)
         {
             _stateProvider = provider;
@@ -63,7 +57,7 @@ namespace BombermanRL.Character
                 _moveTween = transform.DOMove(targetPos, _agentParameter.MoveDuration)
                     .OnUpdate(() =>
                     {
-                        if (!tileChangedTriggered && _moveTween.ElapsedPercentage() >= 0.3f)
+                        if (!tileChangedTriggered && _moveTween.ElapsedPercentage() >= 0.4f)
                         {
                             tileChangedTriggered = true;
                             onTileChanged?.Invoke();
@@ -71,7 +65,11 @@ namespace BombermanRL.Character
                     })
                     .OnComplete(() =>
                     {
-                        if(_currentState != EntityState.Dead) _currentState = EntityState.Idle;
+                        if(_currentState != EntityState.Dead)
+                        {
+                            _currentState = EntityState.Idle;
+                            _view.SetIdle();
+                        }
                     });
             }
         }

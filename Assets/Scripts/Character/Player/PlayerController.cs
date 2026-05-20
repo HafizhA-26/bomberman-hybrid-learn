@@ -11,6 +11,7 @@ namespace BombermanRL.Character
         {
             _inputAction = new PlayerInputActions();
             _actionCooldown = new ActionCooldown(_agentParameter.ActionCooldown);
+            _inputAction.Gameplay.SetCallbacks(this);
         }
 
         private void OnEnable()
@@ -25,9 +26,10 @@ namespace BombermanRL.Character
 
         public void OnMove(InputAction.CallbackContext context)
         {
+            Vector2 moveInput = context.ReadValue<Vector2>();
+            Debug.Log(moveInput);
             if (_currentState != EntityState.Idle && !_actionCooldown.CanAction()) return;
 
-            Vector2 moveInput = context.ReadValue<Vector2>();
             OnRequestMove(moveInput);
         }
 

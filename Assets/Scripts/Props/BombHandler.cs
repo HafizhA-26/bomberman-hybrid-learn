@@ -29,20 +29,8 @@ namespace BombermanRL
 
         private void OnDisable()
         {
+            _isExploded = false;
             _explosionSeq?.Kill();
-
-            // Reset explosion on bomb disable
-            _explosions.ForEach(item =>
-            {
-                item.name = "UnusedExplosion";
-                item.transform.SetParent(transform.parent);
-                Material material = item.GetComponent<MeshRenderer>().material;
-                Color baseColor = material.GetColor("_BaseColor");
-                baseColor.a = 0;
-                material.SetColor("_BaseColor", baseColor);
-                item.gameObject.SetActive(false);
-            });
-
 
             OnBombExplode = null;
             OnTickExplosion = null;
@@ -53,6 +41,9 @@ namespace BombermanRL
         {
             _currentTimer = _explodeCountdown;
             _isExploded = false;
+            _bomb.SetActive(true);
+            _countdownText.gameObject.SetActive(true);
+            _countdownText.text = _explodeCountdown.ToString();
         }
 
         private void FixedUpdate()
@@ -62,7 +53,11 @@ namespace BombermanRL
 
         public void Initalize(List<Vector3> explodePos, List<GameObject> explosionObjects)
         {
-            if (explodePos.Count != explosionObjects.Count) return;
+            if (explodePos.Count != explosionObjects.Count)
+            {
+                Debug.LogWarning("Explode positions and explosion counts doesn't sync");
+                return;
+            }
 
             _explosionSeq = DOTween.Sequence();
             _explodePos = explodePos;
@@ -84,6 +79,7 @@ namespace BombermanRL
             _explosionSeq.AppendCallback(() =>
             {
                 _bomb.SetActive(false);
+                _countdownText.gameObject.SetActive(false);
                 _isExploded = true;
                 OnBombExplode?.Invoke();
             });
@@ -120,8 +116,18 @@ namespace BombermanRL
             // Invoke finishing event
             _explosionSeq.OnComplete(() =>
             {
+                // Reset explosion on bomb disable
+                _explosions.ForEach(item =>
+                {
+                    item.name = "UnusedExplosion";
+                    item.transform.SetParent(transform.parent);
+                    Material material = item.GetComponent<MeshRenderer>().material;
+                    Color baseColor = material.GetColor("_BaseColor");
+                    baseColor.a = 0;
+                    material.SetColor("_BaseColor", baseColor);
+                    item.gameObject.SetActive(false);
+                });
                 OnExplosionFinish?.Invoke();
-                _isExploded = false;
             });
         }
 

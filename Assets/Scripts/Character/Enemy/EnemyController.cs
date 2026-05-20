@@ -28,7 +28,7 @@ namespace BombermanRL.Character
 
         protected virtual void InitializeAI()
         {
-            _decisionProvider = new RuleBasedDecision();
+            _decisionProvider = new RuleBasedDecision(_agentParameter);
         }
         
         private void DecisionCallback()
@@ -37,6 +37,10 @@ namespace BombermanRL.Character
             {
                 GameplayState currState = _stateProvider.GetNearbyState(this, NearbyObservationRadius);
                 ActionType actionToTake = _decisionProvider.Decide(currState);
+
+                //Debug.Log("Current Nearby State: " + currState.ToString());
+                //Debug.Log("Action Take: "+actionToTake);
+
                 switch (actionToTake)
                 {
                     case ActionType.Idle:
@@ -83,19 +87,25 @@ namespace BombermanRL.Character
         public override void StartReset(Vector3 resetWorldPos, float resetDelay)
         {
             _decisionTween?.Kill();
-            _decisionProvider.OnReset();
             base.StartReset(resetWorldPos, resetDelay);
         }
 
         protected override void ResetEntity(Vector3 resetWorldPos)
         {
             base.ResetEntity(resetWorldPos);
+            _decisionProvider.OnReset();
             _decisionTween = DOVirtual.DelayedCall(_agentParameter.ActionCooldown, DecisionCallback).SetLoops(-1);
         }
 
         public override void Win()
         {
             _decisionProvider?.OnWin();
+        }
+
+        public override void Dead(bool isSuicide)
+        {
+            _decisionTween?.Kill();
+            base.Dead(isSuicide);
         }
     }
 }

@@ -37,6 +37,22 @@ namespace BombermanRL.Grid
             }
         }
 
+        private void OnDestroy()
+        {
+            foreach (KeyValuePair<CharacterType, List<BombermanEntity>> entities in _entityTypeGroup)
+            {
+                foreach (BombermanEntity entity in entities.Value)
+                {
+                    entity.RequestMove -= MoveEntity;
+                    entity.RequestPlaceBomb -= PlaceBomb;
+                }
+            }
+
+            _bombManager.OnBombExplode -= OnBombExplode;
+            _bombManager.OnTickExplosion -= CheckExplosionVictim;
+            _bombManager.OnExplosionFinish -= OnExplosionFinish;
+        }
+
         private void Start()
         {
             _floors = _levelBuilder.CreateFloor();
@@ -71,11 +87,12 @@ namespace BombermanRL.Grid
 
                     if(state.Type == TileType.PlayerSpawn || state.Type == TileType.EnemySpawn)
                     {
+                        Debug.Log("Tile: " + tile.gameObject.name);
                         BombermanEntity entity = tile.GetComponent<BombermanEntity>();
 
                         entity.Initialize(_gridStateManager);
-                        entity.RequestMove += (direction) => MoveEntity(entity, direction);
-                        entity.RequestPlaceBomb += () => PlaceBomb(entity);
+                        entity.RequestMove += MoveEntity;
+                        entity.RequestPlaceBomb += PlaceBomb;
 
                         _entityTypeGroup[entity.CharacterType].Add(entity);
                     }

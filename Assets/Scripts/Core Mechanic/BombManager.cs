@@ -46,9 +46,9 @@ namespace BombermanRL.Grid
             // Setup bomb & start countdown
             if (bombObject.TryGetComponent(out BombHandler bomb))
             {
-                bomb.OnBombExplode += () => OnBombExplode?.Invoke(placer, bombingGridPos);
-                bomb.OnTickExplosion += () => OnTickExplosion?.Invoke(placer, bombingGridPos);
-                bomb.OnExplosionFinish += () => OnExplosionFinish?.Invoke(placer, bombingGridPos);
+                bomb.OnBombExplode += () => ExplodeBomb(placer, bombingGridPos);
+                bomb.OnTickExplosion += () => TickExplosion(placer, bombingGridPos);
+                bomb.OnExplosionFinish += () => FinishExplosion(bomb, placer, bombingGridPos);
                 bomb.Initalize(bombingWorldPos, explosions);
             }
 
@@ -62,7 +62,8 @@ namespace BombermanRL.Grid
             if(bomb == null)
             {
                 GameObject bombObject = Instantiate(_bombPrefab, _tileParent);
-                _bombPool.Add(bomb.GetComponent<BombHandler>());
+                bomb = bombObject.GetComponent<BombHandler>();
+                _bombPool.Add(bomb);
             }
 
             return bomb;
@@ -72,14 +73,24 @@ namespace BombermanRL.Grid
         {
             List<GameObject> explosions;
             explosions = _explosionPool.Where(item => !item.activeInHierarchy).Take(explosionCount).ToList();
-            for (int i = 0; i < explosionCount - explosions.Count; i++)
+            int availExplosionCount = explosions.Count;
+            for (int i = 0; i < explosionCount - availExplosionCount; i++)
             {
                 GameObject newExplosion = Instantiate(_explosionPrefab, _tileParent);
                 explosions.Add(newExplosion);
                 _explosionPool.Add(newExplosion);
             }
+            Debug.Log($"To explode {explosionCount} | explosion spawn {explosions.Count}");
 
             return explosions;
+        }
+
+        private void ExplodeBomb(BombermanEntity placer, List<GridPos> bombingGridPos) => OnBombExplode?.Invoke(placer, bombingGridPos);
+        private void TickExplosion(BombermanEntity placer, List<GridPos> bombingGridPos) => OnTickExplosion?.Invoke(placer, bombingGridPos);
+        private void FinishExplosion(BombHandler bomb, BombermanEntity placer, List<GridPos> bombingGridPos)
+        {
+            OnExplosionFinish?.Invoke(placer, bombingGridPos);
+            bomb.gameObject.SetActive(false);
         }
 
         public void PauseExplosions()
