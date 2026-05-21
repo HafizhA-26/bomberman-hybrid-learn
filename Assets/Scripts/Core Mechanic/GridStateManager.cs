@@ -15,8 +15,8 @@ namespace BombermanRL.Grid
         private readonly Dictionary<GridPos, BombHandler> _placedBomb = new Dictionary<GridPos, BombHandler>();
         private readonly Dictionary<BombermanEntity, GridPos> _entityPositions = new();
         private readonly Dictionary<GridPos, IDestroyableProps> _destroyableProps = new Dictionary<GridPos, IDestroyableProps>();
+        private readonly List<GridPos> _validRespawnPos = new List<GridPos>();
         private TileState[,] _defaultGrid;
-        private List<GridPos> _validRespawnPos = new List<GridPos>();
         private GameObject[,] _tileObjects;
         private TileState[,] _grid;
         private Vector3 _parentPos;

@@ -978,7 +978,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6972408298877227755, guid: 0184ea2b7f84b5e408f867103eb1c9b4, type: 3}
       propertyPath: m_Name
-      value: WinCounter
+      value: WinCounter_2P
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

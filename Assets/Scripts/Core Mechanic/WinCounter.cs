@@ -1,6 +1,9 @@
+using BombermanRL.Character;
 using BombermanRL.Grid;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using TMPro;
 using Unity.MLAgents;
 using UnityEngine;
@@ -9,10 +12,17 @@ namespace BombermanRL
 {
     public class WinCounter : MonoBehaviour
     {
+        [Serializable]
+        private struct CharacterCountText
+        {
+            public string CharacterName;
+            public CharacterType CharacterType;
+            public TextMeshProUGUI Text;
+        }
+
         [Header("UI Components References")]
-        [SerializeField] private TextMeshProUGUI _playerWinCountText;
-        [SerializeField] private TextMeshProUGUI _enemyWinCountText;
         [SerializeField] private TextMeshProUGUI _roundCountText;
+        [SerializeField] private List<CharacterCountText> _charactersWinText;
 
         [Header("Object References")]
         [SerializeField] private List<MatchDirector> _gridManagers;
@@ -22,13 +32,12 @@ namespace BombermanRL
         [SerializeField] private bool _logToCsv = true;
         [SerializeField] private string _csvAppendixName = "OnlineOnly";
 
-        private int _roundCount;
-        private int _playerWinCount;
-        private int _enemyWinCount;
+        private Dictionary<CharacterType, CharacterCountText> _characterTextDict = new();
+        private Dictionary<CharacterType, int> _characterWinCount = new();
+        private Dictionary<CharacterType, int> _characterBatchWin = new();
 
+        private int _roundCount;
         private int _batchRoundCount;
-        private int _batchPlayerWinCount;
-        private int _batchEnemyWinCount;
 
         private string _csvFilePath;
 
@@ -36,16 +45,24 @@ namespace BombermanRL
         {
             foreach (MatchDirector item in _gridManagers)
             {
-                item.OnPlayerWin += OnPlayerWin;
-                item.OnEnemyWin += OnEnemyWin;
+                item.OnCharacterWin += OnCharacterWin;
+            }
+
+            string csvColumns = "";
+            _characterTextDict = _charactersWinText.ToDictionary(item => item.CharacterType);
+            foreach(CharacterCountText item in  _charactersWinText)
+            {
+                _characterWinCount[item.CharacterType] = 0;
+                _characterBatchWin[item.CharacterType] = 0;
+                csvColumns += $"{item.CharacterType},";
             }
 
             if(_logToCsv)
             {
-                _csvFilePath = Path.Combine(Application.dataPath, $"OnlineTraining_WinRateLog_{_csvAppendixName}.csv");
+                _csvFilePath = Path.Combine(Application.dataPath, $"Training_WinRateLog_{_csvAppendixName}.csv");
                 if(!File.Exists(_csvFilePath))
                 {
-                    File.WriteAllText(_csvFilePath, "TotalEpisodes,Agent Winrate,Player Winrate\n");
+                    File.WriteAllText(_csvFilePath, $"TotalEpisodes,{csvColumns}\n");
                 }
             }
         }
@@ -54,64 +71,46 @@ namespace BombermanRL
         {
             foreach (MatchDirector item in _gridManagers)
             {
-                item.OnPlayerWin -= OnPlayerWin;
-                item.OnEnemyWin -= OnEnemyWin;
+                item.OnCharacterWin -= OnCharacterWin;
             }
         }
 
-        private void OnPlayerWin()
+        public void OnCharacterWin(CharacterType type)
         {
-            _playerWinCount++;
+            if (!_characterTextDict.ContainsKey(type)) return;
+
+            _characterWinCount[type]++;
+            _characterBatchWin[type]++;
             _roundCount++;
-            _batchPlayerWinCount++;
             _batchRoundCount++;
 
-            UpdateCounterText();
-            CheckAndLog();
-        }
-
-        private void OnEnemyWin()
-        {
-            _enemyWinCount++;
-            _roundCount++;
-            _batchEnemyWinCount++;
-            _batchRoundCount++;
-
-            UpdateCounterText();
-            CheckAndLog();
-        }
-
-        private void UpdateCounterText()
-        {
-            _playerWinCountText.text = $"{_playerWinCount}";
-            _enemyWinCountText.text = $"{_enemyWinCount}";
+            _characterTextDict[type].Text.text = $"{_characterWinCount[type]}";
             _roundCountText.text = $"{_roundCount}";
+            CheckAndLog();
         }
 
         private void CheckAndLog()
         {
             if(_batchRoundCount >= _logInterval)
             {
-                float agentWinRate = (float)_batchEnemyWinCount / _logInterval;
-                float playerWinRate = (float)_batchPlayerWinCount / _logInterval;
+                string logWinRate = "";
+                string statsWinrate = "";
 
-                if(Academy.Instance.IsCommunicatorOn)
+                foreach (KeyValuePair<CharacterType, int> item in _characterBatchWin)
                 {
-                    Academy.Instance.StatsRecorder.Add("OnlineStats/Agent_WinRate", agentWinRate);
-                    Academy.Instance.StatsRecorder.Add("OnlineStats/RuleBased_WinRate", playerWinRate);
+                    float charaWinrate = (float)item.Value / _logInterval;
+                    if (Academy.Instance.IsCommunicatorOn)
+                        Academy.Instance.StatsRecorder.Add($"Stats/{item.Key}_WinRate", charaWinrate);
+                    logWinRate += $"{item.Key} : {charaWinrate:P1} |";
+                    statsWinrate += $"{charaWinrate},";
                 }
 
-                Debug.Log($"[Batch {_roundCount}] Win Rate -> Agent: {agentWinRate:P1} | Player: {playerWinRate:P1}");
-
-                if(_logToCsv)
+                Debug.Log($"[Batch {_roundCount}] Win Rate -> {logWinRate}");
+                if (_logToCsv)
                 {
-                    string logLine = $"{_roundCount},{agentWinRate},{playerWinRate}\n";
+                    string logLine = $"{_roundCount},{statsWinrate}\n";
                     File.AppendAllText(_csvFilePath, logLine);
                 }
-
-                _batchRoundCount = 0;
-                _batchEnemyWinCount = 0;
-                _batchPlayerWinCount = 0;
             }
         }
 

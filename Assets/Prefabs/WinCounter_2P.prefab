@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5368910360310627544}
   - component: {fileID: 8114980855996155106}
   m_Layer: 5
-  m_Name: PlayerCountText
+  m_Name: GoodManCounterText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 5713203702013295211}
   - component: {fileID: 8278644902295484875}
   m_Layer: 5
-  m_Name: PlayerIcon
+  m_Name: GoodManIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -223,7 +223,7 @@ GameObject:
   - component: {fileID: 6076518246332133128}
   - component: {fileID: 2536172852077278656}
   m_Layer: 5
-  m_Name: PlayerCounter
+  m_Name: GoodManCounter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -299,7 +299,7 @@ GameObject:
   - component: {fileID: 7161876329649839899}
   - component: {fileID: 308388102377639074}
   m_Layer: 5
-  m_Name: EnemyIcon
+  m_Name: BanditIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -633,6 +633,9 @@ MonoBehaviour:
   _playerWinCountText: {fileID: 8114980855996155106}
   _enemyWinCountText: {fileID: 1411734841444428078}
   _roundCountText: {fileID: 6157106976307932174}
+  _charactersWinText:
+    CharacterType: 0
+    Text: {fileID: 0}
   _gridManagers:
   - {fileID: 0}
   _logInterval: 100
@@ -650,7 +653,7 @@ GameObject:
   - component: {fileID: 7360666511650220614}
   - component: {fileID: 4593579614300580018}
   m_Layer: 5
-  m_Name: PlayerName
+  m_Name: GoodManName
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -786,7 +789,7 @@ GameObject:
   - component: {fileID: 2090616681126093585}
   - component: {fileID: 1411734841444428078}
   m_Layer: 5
-  m_Name: EnemyCountText
+  m_Name: BanditCountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -922,7 +925,7 @@ GameObject:
   - component: {fileID: 855673605646680160}
   - component: {fileID: 7014086614602812327}
   m_Layer: 5
-  m_Name: EnemyCounter
+  m_Name: BanditCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1134,7 +1137,7 @@ GameObject:
   - component: {fileID: 6882417744663229266}
   - component: {fileID: 1950160672352227863}
   m_Layer: 5
-  m_Name: EnemyName
+  m_Name: BanditName
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
