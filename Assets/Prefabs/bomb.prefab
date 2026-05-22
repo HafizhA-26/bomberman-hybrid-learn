@@ -294,11 +294,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bomb: {fileID: 8524400996937856388}
-  _explosionCubePrefab: {fileID: 1177653672455958071, guid: fd71123daa8cfd447a178ae421e83c35, type: 3}
   _countdownText: {fileID: 6959629698371481137}
-  _explosionRadius: 1
   _explodeCountdown: 3
-  _explodeTime: 1
+  _explosionTime: 1.5
   _explodeTransition: 0.3
 --- !u!1 &8524400996937856388 stripped
 GameObject:

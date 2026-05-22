@@ -630,17 +630,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d17b33f4ae81f5e4abb8946cc79d4f7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerWinCountText: {fileID: 8114980855996155106}
-  _enemyWinCountText: {fileID: 1411734841444428078}
   _roundCountText: {fileID: 6157106976307932174}
   _charactersWinText:
-    CharacterType: 0
-    Text: {fileID: 0}
-  _gridManagers:
-  - {fileID: 0}
+  - CharacterName: '-'
+    CharacterType: 1
+    Text: {fileID: 8114980855996155106}
+  - CharacterName: '-'
+    CharacterType: 2
+    Text: {fileID: 1411734841444428078}
+  _matchDirector: []
   _logInterval: 100
   _logToCsv: 1
-  _csvAppendixName: OnlineOnly
+  _csvAppendixName: Training
 --- !u!1 &7252602818405924453
 GameObject:
   m_ObjectHideFlags: 0
@@ -1159,7 +1160,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 53, y: -370}
+  m_AnchoredPosition: {x: -324, y: -370}
   m_SizeDelta: {x: 600, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6882417744663229266
@@ -1224,7 +1225,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 42
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 4
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0

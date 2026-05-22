@@ -25,7 +25,7 @@ namespace BombermanRL
         [SerializeField] private List<CharacterCountText> _charactersWinText;
 
         [Header("Object References")]
-        [SerializeField] private List<MatchDirector> _gridManagers;
+        [SerializeField] private List<MatchDirector> _matchDirector;
 
         [Header("Logging Settings")]
         [SerializeField] private int _logInterval = 100;
@@ -43,7 +43,7 @@ namespace BombermanRL
 
         private void Awake()
         {
-            foreach (MatchDirector item in _gridManagers)
+            foreach (MatchDirector item in _matchDirector)
             {
                 item.OnCharacterWin += OnCharacterWin;
             }
@@ -69,7 +69,7 @@ namespace BombermanRL
 
         private void OnDestroy()
         {
-            foreach (MatchDirector item in _gridManagers)
+            foreach (MatchDirector item in _matchDirector)
             {
                 item.OnCharacterWin -= OnCharacterWin;
             }

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c10415b7561f9234a8760ac358ec4193, type: 3}
-  m_Name: Env_1-3
+  m_Name: Env_1-Variant3
   m_EditorClassIdentifier: 
   _gridWidth: 7
   _gridHeight: 7
