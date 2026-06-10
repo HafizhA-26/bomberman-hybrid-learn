@@ -1,5 +1,6 @@
 ﻿namespace BombermanRL.Character
 {
+    [System.Flags]
     public enum CharacterType
     {
         None = 0,

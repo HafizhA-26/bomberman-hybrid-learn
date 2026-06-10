@@ -32,5 +32,5 @@ MonoBehaviour:
   _agentSuccessFloorMat: {fileID: 2100000, guid: 04dbeb9121e3d2c4aa9974285b2c545b, type: 2}
   _agentFailedFloorMat: {fileID: 2100000, guid: 8e000a9d1a1a19a4d8ec017d09db8f95, type: 2}
   _agentNeutralFloorMat: {fileID: 2100000, guid: d859dd218411301409526051075ce1c3, type: 2}
-  _bombPrefab: {fileID: 7814840908419862579, guid: 488504a212cee8c4284b32d658834fb2, type: 3}
+  _bombPrefab: {fileID: 4348244363799843890, guid: 488504a212cee8c4284b32d658834fb2, type: 3}
   _explosionPrefab: {fileID: 1177653672455958071, guid: fd71123daa8cfd447a178ae421e83c35, type: 3}
