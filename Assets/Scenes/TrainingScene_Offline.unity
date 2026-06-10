@@ -1336,7 +1336,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 522370434519202112, guid: 0184ea2b7f84b5e408f867103eb1c9b4, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -335
+      value: -191
       objectReference: {fileID: 0}
     - target: {fileID: 2440767433990148246, guid: 0184ea2b7f84b5e408f867103eb1c9b4, type: 3}
       propertyPath: _matchDirector.Array.size
