@@ -377,7 +377,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.6003971, y: 0.005465356, z: 0.005365908, w: 0.79966533}
-  m_LocalPosition: {x: 1.5, y: 3.792, z: -3}
+  m_LocalPosition: {x: 1.75, y: 5.3, z: -3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -872,6 +872,10 @@ MonoBehaviour:
   _levelBuilder: {fileID: 906550309}
   _gridStateManager: {fileID: 906550310}
   _bombManager: {fileID: 906550308}
+  _cameraTransform: {fileID: 330585546}
+  _shakeDuration: 1
+  _shakeStrength: 0.4
+  _shakeVibrato: 5
   _isOnTrainingAgent: 0
   _trainingAgentType: 2
   _resetDelay: 2

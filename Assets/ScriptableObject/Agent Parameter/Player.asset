@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98da47794a4f0ae42b035e90b313401b, type: 3}
   m_Name: Player
   m_EditorClassIdentifier: 
-  _actionCooldown: 0.6
-  _moveDuration: 0.5
+  _actionCooldown: 0.5
+  _moveDuration: 0.4
   _offensiveDistance: 3
   _dangerBombThreshold: 0.4
   _bombLimit: 1

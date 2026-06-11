@@ -13,6 +13,11 @@ namespace BombermanRL.Grid
         [SerializeField] private LevelBuilder _levelBuilder;
         [SerializeField] private GridStateManager _gridStateManager;
         [SerializeField] private BombManager _bombManager;
+        [Header("Shake Camera Effects")]
+        [SerializeField] private Transform _cameraTransform;
+        [SerializeField] private float _shakeDuration = 0.5f;
+        [SerializeField] private float _shakeStrength = 1f;
+        [SerializeField] private int _shakeVibrato = 1;
         [Header("Training Paramaters")]
         [SerializeField] private bool _isOnTrainingAgent = true;
         [SerializeField] private CharacterType _trainingAgentType = CharacterType.Bandit;
@@ -141,11 +146,14 @@ namespace BombermanRL.Grid
 
         private void CheckExplosionVictim(BombermanEntity placer, List<GridPos> explosionGridPos)
         {
+            bool deadVictimExists = false;
             foreach (GridPos tilePos in explosionGridPos)
             {
                 BombermanEntity victim = _gridStateManager.GetCharacterAt(tilePos);
                 if(victim != null && victim.State != EntityState.Dead)
                 {
+                    deadVictimExists = true;
+
                     // Check kill type on someone died
                     KillType killType = KillType.NormalKill;
                     if (victim == placer) killType = KillType.Suicide;
@@ -160,6 +168,7 @@ namespace BombermanRL.Grid
                     if (_isOnTrainingAgent) ResetGrid(placer.CharacterType, killType);
                 }
             }
+            if(deadVictimExists) _cameraTransform.DOShakeRotation(_shakeDuration, _shakeStrength, _shakeVibrato, 90, true, ShakeRandomnessMode.Full);
         }
 
         private void CheckWinCondition()
