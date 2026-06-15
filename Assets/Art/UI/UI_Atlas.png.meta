@@ -123,7 +123,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: UI_Atlas_0
+      name: W_Icon
       rect:
         serializedVersion: 2
         x: 16
@@ -145,7 +145,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_1
+      name: A_Icon
       rect:
         serializedVersion: 2
         x: 97
@@ -167,7 +167,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_2
+      name: S_Icon
       rect:
         serializedVersion: 2
         x: 179
@@ -189,7 +189,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_3
+      name: D_Icon
       rect:
         serializedVersion: 2
         x: 261
@@ -211,7 +211,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_4
+      name: BorderedArrow
       rect:
         serializedVersion: 2
         x: 339
@@ -233,7 +233,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_5
+      name: SolidArrow
       rect:
         serializedVersion: 2
         x: 521
@@ -255,7 +255,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_6
+      name: CircleBorder
       rect:
         serializedVersion: 2
         x: 715
@@ -299,7 +299,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_8
+      name: CircleSolid
       rect:
         serializedVersion: 2
         x: 12
@@ -321,7 +321,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_9
+      name: BombBlack
       rect:
         serializedVersion: 2
         x: 281
@@ -343,7 +343,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_13
+      name: MusicOff
       rect:
         serializedVersion: 2
         x: 594
@@ -365,7 +365,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_10
+      name: BombWhite
       rect:
         serializedVersion: 2
         x: 438
@@ -387,7 +387,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_11
+      name: WhiteThrobber
       rect:
         serializedVersion: 2
         x: 4
@@ -409,10 +409,10 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_12
+      name: MusicOn
       rect:
         serializedVersion: 2
-        x: 759
+        x: 758
         y: 621
         width: 142
         height: 147
@@ -431,10 +431,10 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_14
+      name: SFXOn
       rect:
         serializedVersion: 2
-        x: 758
+        x: 757
         y: 455
         width: 142
         height: 148
@@ -453,7 +453,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_15
+      name: SFXOff
       rect:
         serializedVersion: 2
         x: 595
@@ -475,7 +475,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_16
+      name: CircleBorderTransparent
       rect:
         serializedVersion: 2
         x: 657
@@ -505,8 +505,8 @@ TextureImporter:
         width: 279
         height: 94
       alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 15, y: 19, z: 15, w: 13}
       customData: 
       outline: []
       physicsShape: []
@@ -527,8 +527,8 @@ TextureImporter:
         width: 280
         height: 94
       alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 13, y: 13, z: 12, w: 13}
       customData: 
       outline: []
       physicsShape: []
@@ -554,25 +554,25 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      UI_Atlas_0: -1976859755
-      UI_Atlas_1: 896791634
-      UI_Atlas_10: 2056996092
-      UI_Atlas_11: 448165439
-      UI_Atlas_12: 531071996
-      UI_Atlas_13: 1939814416
-      UI_Atlas_14: -858385813
-      UI_Atlas_15: -881150676
-      UI_Atlas_16: 1024674614
+      A_Icon: 896791634
+      BombBlack: -1528974509
+      BombWhite: 2056996092
+      BorderedArrow: 140217363
+      CircleBorder: -440837725
+      CircleBorderTransparent: 1024674614
+      CircleSolid: -953164424
+      D_Icon: 1666705852
+      MusicOff: 1939814416
+      MusicOn: 531071996
+      SFXOff: -881150676
+      SFXOn: -858385813
+      S_Icon: -1933507996
+      SolidArrow: -572603797
       UI_Atlas_17: -1453909793
       UI_Atlas_18: 1375162596
-      UI_Atlas_2: -1933507996
-      UI_Atlas_3: 1666705852
-      UI_Atlas_4: 140217363
-      UI_Atlas_5: -572603797
-      UI_Atlas_6: -440837725
       UI_Atlas_7: 1662062723
-      UI_Atlas_8: -953164424
-      UI_Atlas_9: -1528974509
+      W_Icon: -1976859755
+      WhiteThrobber: 448165439
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
