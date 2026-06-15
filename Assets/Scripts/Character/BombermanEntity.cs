@@ -45,7 +45,7 @@ namespace BombermanRL.Character
 
         protected void OnDestroy()
         {
-            GameInstance.Instance.AudioHandler.OnSFXMute -= OnMuteSFX;
+            if(GameInstance.Instance) GameInstance.Instance.AudioHandler.OnSFXMute -= OnMuteSFX;
         }
 
         protected virtual void OnRequestMove(Vector2 moveDirection) => RequestMove?.Invoke(this, moveDirection);
