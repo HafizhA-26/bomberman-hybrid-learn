@@ -166,7 +166,7 @@ MonoBehaviour:
   _controller: {fileID: -1413249216986960972}
   _agentParameter: {fileID: 11400000, guid: edb29ae4c7eda134cabe374cfe81184c, type: 2}
   _characterType: 1
-  _walkSFX: {fileID: 8300000, guid: d919052eaf7ca5e4cbdfe0d958eb8302, type: 3}
+  _walkSFX: {fileID: 8300000, guid: c54a80cf653cdbc438e071919da3bf92, type: 3}
 --- !u!114 &1867523951547977403 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: -4983567206543806626, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}

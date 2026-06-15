@@ -102,4 +102,4 @@ MonoBehaviour:
   _controller: {fileID: 0}
   _agentParameter: {fileID: 11400000, guid: ecf3ae7af018b964291149c10ac62198, type: 2}
   _characterType: 2
-  _walkSFX: {fileID: 8300000, guid: d919052eaf7ca5e4cbdfe0d958eb8302, type: 3}
+  _walkSFX: {fileID: 8300000, guid: c54a80cf653cdbc438e071919da3bf92, type: 3}
