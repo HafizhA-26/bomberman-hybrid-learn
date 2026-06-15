@@ -354,6 +354,4 @@ MonoBehaviour:
   _sfxAudioSource: {fileID: 7640226611972941196}
   _bgmSounds:
   - {fileID: 8300000, guid: 92460f287cc691e4492bb42a2de8e6aa, type: 3}
-  _sfxSounds:
-  - {fileID: 8300000, guid: d919052eaf7ca5e4cbdfe0d958eb8302, type: 3}
-  - {fileID: 8300000, guid: 41672445664ec8d46bd6024546ab5627, type: 3}
+  _sfxSounds: []

@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace BombermanRL
 {
+    [RequireComponent(typeof(AudioSource))]
     public class BombHandler : MonoBehaviour
     {
         [Header("References")]
@@ -20,12 +21,24 @@ namespace BombermanRL
         private List<GameObject> _explosions = new List<GameObject>();
         private List<Vector3> _explodePos = new List<Vector3>();
         private Sequence _explosionSeq;
+        private AudioSource _bombAudioSource;
         private float _currentTimer;
         private bool _isExploded;
 
         public Action OnBombExplode;
         public Action OnTickExplosion;
         public Action OnExplosionFinish;
+
+        private void Awake()
+        {
+            _bombAudioSource = GetComponent<AudioSource>();
+            GameInstance.Instance.AudioHandler.OnSFXMute += OnSFXMute;
+        }
+
+        private void OnDestroy()
+        {
+            GameInstance.Instance.AudioHandler.OnSFXMute -= OnSFXMute;
+        }
 
         private void OnDisable()
         {
@@ -81,6 +94,7 @@ namespace BombermanRL
                 _bomb.SetActive(false);
                 _countdownText.gameObject.SetActive(false);
                 _isExploded = true;
+                _bombAudioSource.Play();
                 OnBombExplode?.Invoke();
             });
 
@@ -146,6 +160,8 @@ namespace BombermanRL
             return fadeTween;
         }
         public void PauseExplosion() => _explosionSeq?.Pause();
+
+        private void OnSFXMute(bool mute) => _bombAudioSource.mute = mute;
     }
 
 }

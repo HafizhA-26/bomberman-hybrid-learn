@@ -10,8 +10,9 @@ namespace BombermanRL.Character
         protected IDecisionProvider _decisionProvider;
         protected Tween _decisionTween;
 
-        protected void Awake()
+        protected new void Awake()
         {
+            base.Awake();
             InitializeAI();
         }
 
@@ -20,8 +21,9 @@ namespace BombermanRL.Character
             _decisionTween = DOVirtual.DelayedCall(_agentParameter.ActionCooldown, DecisionCallback).SetLoops(-1);
         }
 
-        protected void OnDestroy()
+        protected new void OnDestroy()
         {
+            base.OnDestroy();
             _decisionProvider?.OnDestroy();
             _decisionTween?.Kill();
         }

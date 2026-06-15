@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace BombermanRL.Character
 {
+    [RequireComponent(typeof(AudioSource))]
     public class BombermanEntity : MonoBehaviour
     {
         [Header("References")]
@@ -16,7 +17,9 @@ namespace BombermanRL.Character
 
         [Header("Data")]
         [SerializeField] private CharacterType _characterType;
+        [SerializeField] private AudioClip _walkSFX;
 
+        protected AudioSource _charaAudioSource;
         protected ActionCooldown _actionCooldown;
         protected Tween _moveTween;
         protected IGameplayStateProvider _stateProvider;
@@ -33,6 +36,17 @@ namespace BombermanRL.Character
 
         public event Action<BombermanEntity, Vector2> RequestMove;
         public event Action<BombermanEntity> RequestPlaceBomb;
+
+        protected void Awake()
+        {
+            _charaAudioSource = GetComponent<AudioSource>();
+            GameInstance.Instance.AudioHandler.OnSFXMute += OnMuteSFX;
+        }
+
+        protected void OnDestroy()
+        {
+            GameInstance.Instance.AudioHandler.OnSFXMute -= OnMuteSFX;
+        }
 
         protected virtual void OnRequestMove(Vector2 moveDirection) => RequestMove?.Invoke(this, moveDirection);
         protected virtual void OnRequestPlaceBomb() => RequestPlaceBomb?.Invoke(this);
@@ -53,6 +67,7 @@ namespace BombermanRL.Character
             {
                 _currentState = EntityState.Walking;
                 _view.SetWalk();
+                PlayWalkSFX();
                 bool tileChangedTriggered = false;
                 _moveTween = transform.DOMove(targetPos, _agentParameter.MoveDuration)
                     .OnUpdate(() =>
@@ -65,6 +80,7 @@ namespace BombermanRL.Character
                     })
                     .OnComplete(() =>
                     {
+                        _charaAudioSource.Stop();
                         if(_currentState != EntityState.Dead)
                         {
                             _currentState = EntityState.Idle;
@@ -127,6 +143,16 @@ namespace BombermanRL.Character
             transform.position = resetWorldPos + OffsetMovement;
             _currentState = EntityState.Idle;
             _view.SetIdle();
+        }
+
+        protected virtual void OnMuteSFX(bool mute) => _charaAudioSource.mute = mute;
+
+        protected virtual void PlayWalkSFX()
+        {
+            if (_charaAudioSource == null) Debug.Log("Audio Source Null");
+            _charaAudioSource.clip = _walkSFX;
+            _charaAudioSource.loop = true;
+            _charaAudioSource.Play();
         }
     }
 

@@ -46,7 +46,7 @@ namespace BombermanRL
                 Destroy(gameObject);
         }
 
-        private void OnApplicationQuit()
+        private static void OnApplicationQuit()
         {
             _onShuttingDown = true;
         }

@@ -7,8 +7,9 @@ namespace BombermanRL.Character
     {
         private PlayerInputActions _inputAction;
 
-        private void Awake()
+        protected new void Awake()
         {
+            base.Awake();
             _inputAction = new PlayerInputActions();
             _actionCooldown = new ActionCooldown(_agentParameter.ActionCooldown);
             _inputAction.Gameplay.SetCallbacks(this);
@@ -27,7 +28,6 @@ namespace BombermanRL.Character
         public void OnMove(InputAction.CallbackContext context)
         {
             Vector2 moveInput = context.ReadValue<Vector2>();
-            Debug.Log(moveInput);
             if (_currentState != EntityState.Idle && !_actionCooldown.CanAction()) return;
 
             OnRequestMove(moveInput);
