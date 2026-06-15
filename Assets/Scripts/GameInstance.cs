@@ -1,10 +1,15 @@
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace BombermanRL
 {
     public class GameInstance : MonoBehaviour
     {
         [SerializeField] private AudioHandler _audioHandler;
+        [SerializeField] private LoadingHandler _loadingHandler;
+        [Space(15)]
+        [SerializeField] private TextMeshProUGUI _versionText;
 
         private static bool _onShuttingDown = false;
         private static GameInstance _instance;
@@ -46,6 +51,16 @@ namespace BombermanRL
                 Destroy(gameObject);
         }
 
+        private void Start()
+        {
+            _audioHandler.PlayBGM("BGM_Main");
+
+            _versionText.text = "version " + Application.version;
+
+            string firstScene = MainSceneInitiator.FirstLoadedScenePath;
+            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(firstScene);
+        }
+
         private static void OnApplicationQuit()
         {
             _onShuttingDown = true;
@@ -54,6 +69,17 @@ namespace BombermanRL
         private void OnDestroy()
         {
             if (_instance == this) _onShuttingDown = true;
+        }
+
+        /// <summary>
+        /// Show loading panel over all other objects
+        /// </summary>
+        /// <param name="show">True to show, False to close</param>
+        /// <param name="minLoadingTime">Minimum loading time (seconds) to prevent blinking loading experience</param>
+        public void ShowLoading(bool show, float minLoadingTime = 0)
+        {
+            if (show) _loadingHandler.ShowLoadingPanel(minLoadingTime);
+            else _loadingHandler.HideLoadingPanel();
         }
     }
 
