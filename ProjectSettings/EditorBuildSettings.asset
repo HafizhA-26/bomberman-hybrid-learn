@@ -8,8 +8,14 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/TrainingScene_Offline.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 0
+    path: Assets/Scenes/TrainingScene_Online.unity
+    guid: 7f98100d20c286846b29d289a9d735c0
   - enabled: 1
     path: Assets/Scenes/Evaluation.unity
     guid: d5a88133d95ec4746b85e9bb6c944ea7
+  - enabled: 1
+    path: Assets/Scenes/EnterScene.unity
+    guid: 6cd69be5aa70a534db1db48b1bca7722
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
