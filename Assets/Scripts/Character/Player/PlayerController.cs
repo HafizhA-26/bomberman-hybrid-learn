@@ -6,6 +6,7 @@ namespace BombermanRL.Character
     public class PlayerController : BombermanEntity, PlayerInputActions.IGameplayActions
     {
         private PlayerInputActions _inputAction;
+        private Vector2 _currentMoveInput;
 
         protected new void Awake()
         {
@@ -28,15 +29,24 @@ namespace BombermanRL.Character
         public void OnMove(InputAction.CallbackContext context)
         {
             Vector2 moveInput = context.ReadValue<Vector2>();
-            if (_currentState != EntityState.Idle && !_actionCooldown.CanAction()) return;
-
-            OnRequestMove(moveInput);
+            float x = Mathf.Round(moveInput.x);
+            float y = Mathf.Abs(x) < 0.5 ? Mathf.Round(moveInput.y) : 0;
+            _currentMoveInput = new Vector2(x, y);
         }
 
         public void OnPlaceBomb(InputAction.CallbackContext context)
         {
             if(_currentState != EntityState.Idle || BombCount >= _agentParameter.BombLimit || !_actionCooldown.CanAction()) return;
             OnRequestPlaceBomb();
+        }
+
+        private void Update()
+        {
+            if(_currentMoveInput != Vector2.zero)
+            {
+                if (_currentState != EntityState.Idle || !_actionCooldown.CanAction()) return;
+                OnRequestMove(_currentMoveInput);
+            }
         }
     }
 }

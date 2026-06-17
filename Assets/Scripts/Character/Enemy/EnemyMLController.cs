@@ -10,6 +10,12 @@ namespace BombermanRL.Character
         private PlayerInputActions _inputAction;
         private AgentBomber _mlAgent;
 
+        protected new void Awake()
+        {
+            base.Awake();
+            _actionCooldown = new ActionCooldown(_agentParameter.ActionCooldown);
+        }
+
         private void OnEnable()
         {
             if (_enableHeuristicAction) _inputAction.EnemyHeuristic.Enable();
@@ -32,7 +38,7 @@ namespace BombermanRL.Character
 
         public void OnMove(InputAction.CallbackContext context)
         {
-            if (_currentState != EntityState.Idle && !_actionCooldown.CanAction()) return;
+            if (_currentState != EntityState.Idle || !_actionCooldown.CanAction()) return;
             _mlAgent.OnHeuristicInput(context.ReadValue<Vector2>(), false);
         }
 
