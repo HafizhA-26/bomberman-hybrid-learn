@@ -1,5 +1,6 @@
 using BombermanRL.Character;
 using BombermanRL.Props;
+using BombermanRL.UI;
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace BombermanRL.Grid
         [SerializeField] private LevelBuilder _levelBuilder;
         [SerializeField] private GridStateManager _gridStateManager;
         [SerializeField] private BombManager _bombManager;
+        [SerializeField] private UIManager _uiManager;
         [Header("Shake Camera Effects")]
         [SerializeField] private Transform _cameraTransform;
         [SerializeField] private float _shakeDuration = 0.5f;
@@ -23,7 +25,8 @@ namespace BombermanRL.Grid
         [SerializeField] private CharacterType _trainingAgentType = CharacterType.Bandit;
         [SerializeField] private float _resetDelay = 2f;
 
-        private readonly Dictionary<CharacterType, List<BombermanEntity>> _entityTypeGroup = new Dictionary<CharacterType, List<BombermanEntity>>(); 
+        private readonly Dictionary<CharacterType, List<BombermanEntity>> _entityTypeGroup = new Dictionary<CharacterType, List<BombermanEntity>>();
+        private PlayerController _player;
         private GameObject[,] _floors;
         private bool _isOnReset;
 
@@ -72,6 +75,8 @@ namespace BombermanRL.Grid
             _bombManager.OnBombExplode += OnBombExplode;
             _bombManager.OnTickExplosion += CheckExplosionVictim;
             _bombManager.OnExplosionFinish += OnExplosionFinish;
+
+            _uiManager.Initialize(_player);
             
         }
 
@@ -92,8 +97,8 @@ namespace BombermanRL.Grid
 
                     if(state.Type == TileType.PlayerSpawn || state.Type == TileType.EnemySpawn)
                     {
-                        Debug.Log("Tile: " + tile.gameObject.name);
                         BombermanEntity entity = tile.GetComponent<BombermanEntity>();
+                        if(state.Type == TileType.PlayerSpawn) _player = (PlayerController) entity;
 
                         entity.Initialize(_gridStateManager);
                         entity.RequestMove += MoveEntity;
@@ -124,7 +129,7 @@ namespace BombermanRL.Grid
             (List<GridPos> bombingGridPos, List<Vector3> bombingWorldPos) = _gridStateManager.OnPlaceBomb(entity);
             BombHandler newBomb = _bombManager.SpawnBomb(entity, bombingGridPos, bombingWorldPos);
             _gridStateManager.RegisterActiveBomb(newBomb, bombingGridPos[0]);
-            entity.BombCount++;
+            entity.BombCount--;
         }
 
         private void OnBombExplode(BombermanEntity placer, List<GridPos> explosionGridPos)
@@ -192,7 +197,7 @@ namespace BombermanRL.Grid
         private void OnExplosionFinish(BombermanEntity entity, List<GridPos> explosionGridPos)
         {
             _gridStateManager.OnExplosionFinish(explosionGridPos);
-            entity.BombCount--;
+            entity.BombCount++;
         }
 
         private void ResetGrid(CharacterType placerType, KillType killType)

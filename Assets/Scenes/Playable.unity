@@ -325,6 +325,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 88878959}
+  - component: {fileID: 88878960}
   m_Layer: 5
   m_Name: ControlGroup
   m_TagString: Untagged
@@ -353,6 +354,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &88878960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 88878958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39c73464b5e15ef418626db2ea364ad5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _mobileUI: {fileID: 1040058730}
+  _desktopUI: {fileID: 1894914867}
 --- !u!1 &140995870
 GameObject:
   m_ObjectHideFlags: 0
@@ -1462,6 +1477,7 @@ MonoBehaviour:
   _levelBuilder: {fileID: 906550309}
   _gridStateManager: {fileID: 906550310}
   _bombManager: {fileID: 906550308}
+  _uiManager: {fileID: 88878960}
   _cameraTransform: {fileID: 330585546}
   _shakeDuration: 1
   _shakeStrength: 0.4
@@ -1553,6 +1569,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1040058729}
+  - component: {fileID: 1040058730}
   m_Layer: 5
   m_Name: MobileGroup
   m_TagString: Untagged
@@ -1581,6 +1598,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1040058730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1040058728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd696fa9bb2af5942bdae7bb16e2fa3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _virtualJoystick: {fileID: 656412598}
+  _bombButton: {fileID: 51511935}
+  _bombIcon: {fileID: 1807469859}
 --- !u!1 &1074412792
 GameObject:
   m_ObjectHideFlags: 0
@@ -1862,7 +1894,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1296011530}
-  - component: {fileID: 1296011531}
   - component: {fileID: 1296011533}
   - component: {fileID: 1296011532}
   m_Layer: 5
@@ -1892,41 +1923,6 @@ RectTransform:
   m_AnchoredPosition: {x: 280, y: 259}
   m_SizeDelta: {x: 300, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1296011531
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1296011529}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9d677f1681015749b15c436eec6d880, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_MovementRange: 30
-  m_DynamicOriginRange: 100
-  m_ControlPath: <Gamepad>/dpad
-  m_Behaviour: 0
-  m_UseIsolatedInputActions: 0
-  m_PointerDownAction:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 5649603f-43fd-4ac9-a82b-9d60d1bbb2ba
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  m_PointerMoveAction:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 9157e5ac-997f-4d1b-a399-315b8441d14f
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
 --- !u!114 &1296011532
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2481,6 +2477,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1894914866}
+  - component: {fileID: 1894914867}
   m_Layer: 5
   m_Name: PC Gorup
   m_TagString: Untagged
@@ -2509,6 +2506,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1894914867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1894914865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 470eba14e9ba4584dbcc8505090fb428, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _controlHintGroup: {fileID: 885313473}
+  _bombCountContainer: {fileID: 140995872}
+  _bombCountText: {fileID: 1074412794}
 --- !u!1001 &3715535715994773052
 PrefabInstance:
   m_ObjectHideFlags: 0

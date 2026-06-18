@@ -68,7 +68,7 @@ namespace BombermanRL.Character
 
         private void PlaceBomb()
         {
-            if (BombCount >= BombLimit) return;
+            if (BombCount <= 0) return;
 
             OnRequestPlaceBomb();
             _decisionProvider.OnPlaceBomb();

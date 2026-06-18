@@ -44,7 +44,7 @@ namespace BombermanRL.Character
 
         public void OnPlaceBomb(InputAction.CallbackContext context)
         {
-            if (_currentState != EntityState.Idle || BombCount >= _agentParameter.BombLimit || !_actionCooldown.CanAction()) return;
+            if (_currentState != EntityState.Idle || BombCount <= 0 || !_actionCooldown.CanAction()) return;
             if (context.performed)
                 _mlAgent.OnHeuristicInput(Vector2.zero, true);
         }

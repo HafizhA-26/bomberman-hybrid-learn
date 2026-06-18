@@ -28,7 +28,15 @@ namespace BombermanRL.Character
         public string Name { get => gameObject.name; }
         public EntityState State { get { return _currentState; } }
         public int BombLimit { get => _agentParameter.BombLimit; }
-        public int BombCount { get; set; }
+
+        private int _bombCount;
+        public int BombCount { 
+            get => _bombCount; 
+            set { 
+                _bombCount = value;
+                OnBombCountChanged?.Invoke(value);
+            } 
+        }
         public int BombExplodeRadius { get => _agentParameter.BombExplosionRadius; }
         public int NearbyObservationRadius { get => _agentParameter.NearbyObservationRadius; }
         public Vector3 OffsetMovement { get; set; }
@@ -36,11 +44,14 @@ namespace BombermanRL.Character
 
         public event Action<BombermanEntity, Vector2> RequestMove;
         public event Action<BombermanEntity> RequestPlaceBomb;
+        public event Action<int> OnBombCountChanged;
 
         protected void Awake()
         {
             _charaAudioSource = GetComponent<AudioSource>();
             GameInstance.Instance.AudioHandler.OnSFXMute += OnMuteSFX;
+
+            _bombCount = _agentParameter.BombLimit;
         }
 
         protected void OnDestroy()
@@ -139,7 +150,7 @@ namespace BombermanRL.Character
 
         protected virtual void ResetEntity(Vector3 resetWorldPos)
         {
-            BombCount = 0;
+            _bombCount = _agentParameter.BombLimit;
             transform.position = resetWorldPos + OffsetMovement;
             _currentState = EntityState.Idle;
             _view.SetIdle();
