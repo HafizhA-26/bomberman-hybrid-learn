@@ -27,13 +27,17 @@ namespace BombermanRL
 
                 if(_instance == null)
                 {
-                    _instance = FindAnyObjectByType<GameInstance>();
-                    if(_instance == null)
+                    GameObject prefab = Resources.Load<GameObject>("GameInstance");
+                    if(prefab != null)
                     {
-                        GameObject newInstance = new GameObject();
-                        _instance = newInstance.AddComponent<GameInstance>();
+                        GameObject newInstance = Instantiate(prefab);
+                        _instance = newInstance.GetComponent<GameInstance>();
                         _instance.name = "GameInstance [Singleton]";
                         DontDestroyOnLoad(newInstance);
+                    }
+                    else
+                    {
+                        Debug.Log("Failed to create game instance");
                     }
                 }
                 return _instance;
