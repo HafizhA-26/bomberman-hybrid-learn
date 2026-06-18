@@ -1,6 +1,7 @@
 using BombermanRL.Character;
 using BombermanRL.Grid;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +9,7 @@ using TMPro;
 using Unity.MLAgents;
 using UnityEngine;
 
-namespace BombermanRL
+namespace BombermanRL.UI
 {
     public class WinCounter : MonoBehaviour
     {
@@ -23,9 +24,13 @@ namespace BombermanRL
         [Header("UI Components References")]
         [SerializeField] private TextMeshProUGUI _roundCountText;
         [SerializeField] private List<CharacterCountText> _charactersWinText;
+        [SerializeField] private TextMeshProUGUI _playTimeText;
 
         [Header("Object References")]
         [SerializeField] private List<MatchDirector> _matchDirector;
+
+        [Header("Timer Settings")]
+        [SerializeField] private int _maxPlayTimeSeconds = 6039; // same as 99:99
 
         [Header("Logging Settings")]
         [SerializeField] private int _logInterval = 100;
@@ -36,8 +41,11 @@ namespace BombermanRL
         private Dictionary<CharacterType, int> _characterWinCount = new();
         private Dictionary<CharacterType, int> _characterBatchWin = new();
 
+        private Coroutine _timeCounter;
+        private int _timeElapsed = 0;
         private int _roundCount;
         private int _batchRoundCount;
+        private bool _isMatchEnded = true;
 
         private string _csvFilePath;
 
@@ -45,6 +53,7 @@ namespace BombermanRL
         {
             foreach (MatchDirector item in _matchDirector)
             {
+                item.OnMatchStart += CheckMatchTimer;
                 item.OnCharacterWin += OnCharacterWin;
             }
 
@@ -71,6 +80,7 @@ namespace BombermanRL
         {
             foreach (MatchDirector item in _matchDirector)
             {
+                item.OnMatchStart -= CheckMatchTimer;
                 item.OnCharacterWin -= OnCharacterWin;
             }
         }
@@ -78,6 +88,7 @@ namespace BombermanRL
         public void OnCharacterWin(CharacterType type)
         {
             if (!_characterTextDict.ContainsKey(type)) return;
+            _isMatchEnded = true;
 
             _characterWinCount[type]++;
             _characterBatchWin[type]++;
@@ -114,6 +125,29 @@ namespace BombermanRL
             }
         }
 
+        private void CheckMatchTimer()
+        {
+            if (_timeCounter == null)
+            {
+                _isMatchEnded = false;
+                _timeElapsed = 5990;
+                _timeCounter = StartCoroutine(StartMatchTimer());
+            }
+        }
+
+        private IEnumerator StartMatchTimer()
+        {
+            while(!_isMatchEnded || _timeElapsed <= _maxPlayTimeSeconds)
+            {
+                yield return new WaitForSeconds(1f);
+                _timeElapsed++;
+                int minutes = _timeElapsed / 60;
+                int seconds = _timeElapsed % 60;
+                string formattedTime = string.Format("{0:00}:{1:00}", minutes, seconds);
+                _playTimeText.text = formattedTime;
+                if(_timeElapsed >= _maxPlayTimeSeconds) _playTimeText.text = "NO:OB";
+            }
+        }
     }
 
 }
