@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -59,6 +60,7 @@ namespace BombermanRL
 
             string firstScene = MainSceneInitiator.FirstLoadedScenePath;
             AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(firstScene);
+            ShowLoading(true, 0.3f);
         }
 
         private static void OnApplicationQuit()
