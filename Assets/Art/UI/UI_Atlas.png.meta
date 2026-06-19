@@ -277,7 +277,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_7
+      name: SpaceIcon
       rect:
         serializedVersion: 2
         x: 16
@@ -497,13 +497,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_17
+      name: SolidButton
       rect:
         serializedVersion: 2
-        x: 282
-        y: 497
-        width: 279
-        height: 94
+        x: 284
+        y: 522
+        width: 101
+        height: 104
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 15, y: 19, z: 15, w: 13}
@@ -519,13 +519,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UI_Atlas_18
+      name: BlackBorderedTransparent
       rect:
         serializedVersion: 2
-        x: 282
-        y: 387
-        width: 280
-        height: 94
+        x: 281
+        y: 372
+        width: 109
+        height: 107
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 13, y: 13, z: 12, w: 13}
@@ -536,6 +536,116 @@ TextureImporter:
       bones: []
       spriteID: 1f5f287ac69330c40b330b02da030fd9
       internalID: 1375162596
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: MLAgentButton
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 114
+        width: 220
+        height: 220
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3a95e842b9c303943a8985923cddb674
+      internalID: 871864192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UI_Atlas_1
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 943
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 53765c97e8a244d478a2a00e39106811
+      internalID: 1847561655
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RuleBasedButton
+      rect:
+        serializedVersion: 2
+        x: 235
+        y: 114
+        width: 220
+        height: 220
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e3d1994091afc264d8c9c9ef45b425a7
+      internalID: 1362677618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SolidButtonWhite
+      rect:
+        serializedVersion: 2
+        x: 424
+        y: 521
+        width: 101
+        height: 104
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 15, y: 19, z: 15, w: 13}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4cb793533121a7d4cad893e89259abd8
+      internalID: 1410238466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WhiteBorderedTransparent
+      rect:
+        serializedVersion: 2
+        x: 421
+        y: 371
+        width: 109
+        height: 107
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 13, y: 13, z: 12, w: 13}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b79e63126ce785e4abc245119a6a1d76
+      internalID: -1824432454
       vertices: []
       indices: 
       edges: []
@@ -555,6 +665,7 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       A_Icon: 896791634
+      BlackBorderedTransparent: 1375162596
       BombBlack: -1528974509
       BombWhite: 2056996092
       BorderedArrow: 140217363
@@ -562,16 +673,20 @@ TextureImporter:
       CircleBorderTransparent: 1024674614
       CircleSolid: -953164424
       D_Icon: 1666705852
+      MLAgentButton: 871864192
       MusicOff: 1939814416
       MusicOn: 531071996
+      RuleBasedButton: 1362677618
       SFXOff: -881150676
       SFXOn: -858385813
       S_Icon: -1933507996
       SolidArrow: -572603797
-      UI_Atlas_17: -1453909793
-      UI_Atlas_18: 1375162596
-      UI_Atlas_7: 1662062723
+      SolidButton: -1453909793
+      SolidButtonWhite: 1410238466
+      SpaceIcon: 1662062723
+      UI_Atlas_1: 1847561655
       W_Icon: -1976859755
+      WhiteBorderedTransparent: -1824432454
       WhiteThrobber: 448165439
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
