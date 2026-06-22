@@ -2236,7 +2236,7 @@ GameObject:
   - component: {fileID: 781479414}
   - component: {fileID: 781479413}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2671,7 +2671,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _levelData: {fileID: 11400000, guid: 222eeb830eb84dd4484b5ee420aad8ac, type: 2}
-  _tilePrefabsData: {fileID: 11400000, guid: 613135f75c7693e4b950ff8f366eb48e, type: 2}
   _envParent: {fileID: 906550307}
   _floorsParent: {fileID: 81086410}
   _objectsTileParent: {fileID: 5168788}
