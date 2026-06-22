@@ -24,8 +24,15 @@ namespace BombermanRL.Character
         protected Tween _moveTween;
         protected IGameplayStateProvider _stateProvider;
         protected EntityState _currentState;
+        protected string _characterName;
 
-        public string Name { get => gameObject.name; }
+        public string Name { 
+            get
+            {
+                if (_characterName == null) return gameObject.name;
+                else return _characterName;
+            }
+        }
         public EntityState State { get { return _currentState; } }
         public int BombLimit { get => _agentParameter.BombLimit; }
 
@@ -61,6 +68,7 @@ namespace BombermanRL.Character
 
         protected virtual void OnRequestMove(Vector2 moveDirection) => RequestMove?.Invoke(this, moveDirection);
         protected virtual void OnRequestPlaceBomb() => RequestPlaceBomb?.Invoke(this);
+        public virtual void SetEntityName(string characterName) => _characterName = characterName;
         public virtual void Initialize(IGameplayStateProvider provider)
         {
             _stateProvider = provider;

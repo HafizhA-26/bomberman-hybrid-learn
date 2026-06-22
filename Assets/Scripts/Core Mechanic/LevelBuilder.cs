@@ -8,28 +8,29 @@ namespace BombermanRL.Grid
     {
         [Header("Level Generator Parameter")]
         [SerializeField] private LevelTilemapData _levelData;
-        [SerializeField] private TilePrefabsData _tilePrefabsData;
         [SerializeField] private Transform _envParent;
         [SerializeField] private Transform _floorsParent;
         [SerializeField] private Transform _objectsTileParent;
+        [Space(10)]
 
+
+        private TilePrefabsData _prefabData;
         private List<Material> _floorMaterials;
-
         public List<Material> FloorMaterials { get => _floorMaterials; }
-        public GameObject BombPrefab { get => _tilePrefabsData.BombPrefab; }
-        public GameObject ExplosionPrefab { get => _tilePrefabsData.ExplosionPrefab; }
+        public GameObject BombPrefab { get => _prefabData.BombPrefab; }
+        public GameObject ExplosionPrefab { get => _prefabData.ExplosionPrefab; }
         public Transform ObjectsTileParent { get => _objectsTileParent; }
-        public Vector3 TileSize { get => _tilePrefabsData.FloorPrefab.transform.lossyScale; }
+        public Vector3 TileSize { get => _prefabData.FloorPrefab.transform.lossyScale; }
         public Vector3 ParentPos { get => _envParent.position; }
 
         private void Awake()
         {
             _floorMaterials = new List<Material>()
                 {
-                    _tilePrefabsData.FloorPrefab.GetComponent<MeshRenderer>().sharedMaterial,
-                    _tilePrefabsData.AgentSuccessFloorMat,
-                    _tilePrefabsData.AgentNeutralFloorMat,
-                    _tilePrefabsData.AgentFailedFloorMat
+                    _prefabData.FloorPrefab.GetComponent<MeshRenderer>().sharedMaterial,
+                    _prefabData.AgentSuccessFloorMat,
+                    _prefabData.AgentNeutralFloorMat,
+                    _prefabData.AgentFailedFloorMat
                 };
 
             Debug.Log("TileSize: "+TileSize);
@@ -38,7 +39,7 @@ namespace BombermanRL.Grid
         private void OnDrawGizmosSelected()
         {
             if(_levelData == null 
-                || _tilePrefabsData == null 
+                || _prefabData == null 
                 || _floorsParent == null) return;
 
             // Start Draw Floors Preview
@@ -87,7 +88,7 @@ namespace BombermanRL.Grid
 
         public GameObject[,] CreateFloor()
         {
-            if (_floorsParent == null || _tilePrefabsData == null)
+            if (_floorsParent == null || _prefabData == null)
                 return null;
 
             GameObject[,] floors = new GameObject[_levelData.GridWidth, _levelData.GridHeight];
@@ -97,7 +98,7 @@ namespace BombermanRL.Grid
             {
                 for (int j = 0; j < floors.GetLength(1); j++)
                 {
-                    GameObject floor = Instantiate(_tilePrefabsData.FloorPrefab, _floorsParent, true);
+                    GameObject floor = Instantiate(_prefabData.FloorPrefab, _floorsParent, true);
                     Vector3 newPos = new Vector3(TileSize.x * j + transform.position.x, TileSize.y * 0.5f, TileSize.z * i * -1 + transform.position.z);
                     floor.transform.position = newPos;
                     floor.name = $"Floor[{i}-{j}]";
@@ -112,7 +113,7 @@ namespace BombermanRL.Grid
         {
             GameObject[,] gridObjects = new GameObject[_levelData.GridWidth, _levelData.GridHeight];
             TileState[,] gridState = new TileState[_levelData.GridWidth, _levelData.GridHeight];
-            Dictionary<TileType, TilePrefabsData.TilePrefab> tilePrefabDict = _tilePrefabsData.TilePrefabDict;
+            Dictionary<TileType, TilePrefabsData.TilePrefab> tilePrefabDict = _prefabData.TilePrefabDict;
             int enemyCount = 0;
 
             for (int i = 0; i < _levelData.LevelTiles.Count; i++)

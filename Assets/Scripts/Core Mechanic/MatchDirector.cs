@@ -30,12 +30,11 @@ namespace BombermanRL.Grid
         private GameObject[,] _floors;
         private bool _isOnReset;
 
-        public event Action OnMatchStart;
-        public event Action<CharacterType> OnCharacterWin;
-
         private void Awake()
         {
             Application.targetFrameRate = 60;
+
+            _uiManager.OnStartGame += StartMatch;
 
             foreach (CharacterType type in Enum.GetValues(typeof(CharacterType)))
             {
@@ -55,19 +54,15 @@ namespace BombermanRL.Grid
                 }
             }
 
+            _uiManager.OnStartGame -= StartMatch;
             _bombManager.OnBombExplode -= OnBombExplode;
             _bombManager.OnTickExplosion -= CheckExplosionVictim;
             _bombManager.OnExplosionFinish -= OnExplosionFinish;
         }
 
-        private void Start()
-        {
-            _floors = _levelBuilder.CreateFloor();
-            StartMatch();
-        }
-
         public void StartMatch()
         {
+            _floors = _levelBuilder.CreateFloor();
             (GameObject[,] tiles, TileState[,] grid) = _levelBuilder.LoadLevelTile();
 
             InitializeEntities(tiles, grid);
@@ -80,9 +75,7 @@ namespace BombermanRL.Grid
             _bombManager.OnTickExplosion += CheckExplosionVictim;
             _bombManager.OnExplosionFinish += OnExplosionFinish;
 
-            _uiManager.Initialize(_player);
-
-            OnMatchStart?.Invoke();
+            _uiManager.SetupPlayerListener(_player);
         }
 
         private void InitializeEntities(GameObject[,] tiles, TileState[,] tileStates)
@@ -195,7 +188,7 @@ namespace BombermanRL.Grid
             if(winnerType.Count == 1)
             {
                 _entityTypeGroup[winnerType[0]].ForEach(entity => entity.Win());
-                OnCharacterWin?.Invoke(winnerType[0]);
+                _uiManager.OnCharacterWin(winnerType[0]);
             }
         }
 

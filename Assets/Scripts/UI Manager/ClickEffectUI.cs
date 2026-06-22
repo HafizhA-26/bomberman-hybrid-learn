@@ -1,34 +1,11 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace BombermanRL.UI
 {
-    public class ClickEffectUI : MonoBehaviour
+    public class ClickEffectUI : MonoBehaviour, IPointerDownHandler
     {
-        private Button _button;
-        private Toggle _toggle;
-
-        private void Awake()
-        {
-            if (TryGetComponent<Button>(out _button))
-                _button.onClick.AddListener(ClickSFX);
-
-            if (TryGetComponent<Toggle>(out _toggle))
-                _toggle.onValueChanged.AddListener(ToggleSFX);
-        }
-
-        private void OnDestroy()
-        {
-            if(_button != null) _button.onClick.RemoveListener(ClickSFX);
-            if(_toggle != null) _toggle.onValueChanged.RemoveListener(ToggleSFX);
-        }
-
-        private void ClickSFX()
-        {
-            GameInstance.Instance.AudioHandler.PlaySFX("SFX_ButtonClick", true);
-        }
-
-        private void ToggleSFX(bool isOn)
+        public void OnPointerDown(PointerEventData eventData)
         {
             GameInstance.Instance.AudioHandler.PlaySFX("SFX_ButtonClick", true);
         }

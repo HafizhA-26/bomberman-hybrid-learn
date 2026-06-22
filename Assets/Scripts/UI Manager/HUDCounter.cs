@@ -1,5 +1,4 @@
 using BombermanRL.Character;
-using BombermanRL.Grid;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,26 +10,24 @@ using UnityEngine;
 
 namespace BombermanRL.UI
 {
-    public class WinCounter : MonoBehaviour
+    public class HUDCounter : MonoBehaviour
     {
         [Serializable]
         private struct CharacterCountText
         {
             public string CharacterName;
             public CharacterType CharacterType;
-            public TextMeshProUGUI Text;
+            public TextMeshProUGUI NameText;
+            public TextMeshProUGUI ScoreText;
         }
 
         [Header("UI Components References")]
         [SerializeField] private TextMeshProUGUI _roundCountText;
-        [SerializeField] private List<CharacterCountText> _charactersWinText;
         [SerializeField] private TextMeshProUGUI _playTimeText;
-
-        [Header("Object References")]
-        [SerializeField] private List<MatchDirector> _matchDirector;
+        [SerializeField] private List<CharacterCountText> _charactersWinText;
 
         [Header("Timer Settings")]
-        [SerializeField] private int _maxPlayTimeSeconds = 6039; // same as 99:99
+        [SerializeField] private int _maxPlayTimeSeconds = 5999; // same as 99:99
 
         [Header("Logging Settings")]
         [SerializeField] private int _logInterval = 100;
@@ -51,12 +48,6 @@ namespace BombermanRL.UI
 
         private void Awake()
         {
-            foreach (MatchDirector item in _matchDirector)
-            {
-                item.OnMatchStart += CheckMatchTimer;
-                item.OnCharacterWin += OnCharacterWin;
-            }
-
             string csvColumns = "";
             _characterTextDict = _charactersWinText.ToDictionary(item => item.CharacterType);
             foreach(CharacterCountText item in  _charactersWinText)
@@ -64,6 +55,8 @@ namespace BombermanRL.UI
                 _characterWinCount[item.CharacterType] = 0;
                 _characterBatchWin[item.CharacterType] = 0;
                 csvColumns += $"{item.CharacterType},";
+
+                item.NameText.text = item.CharacterName;
             }
 
             if(_logToCsv)
@@ -73,15 +66,6 @@ namespace BombermanRL.UI
                 {
                     File.WriteAllText(_csvFilePath, $"TotalEpisodes,{csvColumns}\n");
                 }
-            }
-        }
-
-        private void OnDestroy()
-        {
-            foreach (MatchDirector item in _matchDirector)
-            {
-                item.OnMatchStart -= CheckMatchTimer;
-                item.OnCharacterWin -= OnCharacterWin;
             }
         }
 
@@ -95,7 +79,7 @@ namespace BombermanRL.UI
             _roundCount++;
             _batchRoundCount++;
 
-            _characterTextDict[type].Text.text = $"{_characterWinCount[type]}";
+            _characterTextDict[type].ScoreText.text = $"{_characterWinCount[type]}";
             _roundCountText.text = $"{_roundCount}";
             CheckAndLog();
         }
@@ -125,7 +109,7 @@ namespace BombermanRL.UI
             }
         }
 
-        private void CheckMatchTimer()
+        public void CheckMatchTimer()
         {
             if (_timeCounter == null)
             {
@@ -133,6 +117,17 @@ namespace BombermanRL.UI
                 _timeElapsed = 5990;
                 _timeCounter = StartCoroutine(StartMatchTimer());
             }
+        }
+
+        public void SetCustomEntityName(CharacterType type, string characterName)
+        {
+            if(!_characterTextDict.ContainsKey(type))
+            {
+                Debug.Log("Character data counter doesn't exists");
+                return;
+            }
+
+            _characterTextDict[type].NameText.text = characterName;
         }
 
         private IEnumerator StartMatchTimer()

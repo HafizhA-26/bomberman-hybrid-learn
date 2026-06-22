@@ -13,6 +13,8 @@ namespace BombermanRL.UI
     [RequireComponent(typeof(TMP_InputField))]
     public class InputNameValidator : MonoBehaviour
     {
+        [SerializeField] private TextMeshProUGUI _invalidText;
+
         [Header("Config")]
         [SerializeField] private TextAsset _bannedWordData;
         [SerializeField] private int _maxLength = 8;
@@ -21,39 +23,37 @@ namespace BombermanRL.UI
 
         private TMP_InputField _input;
         private HashSet<string> bannedSet;
-        private HashSet<string> takenUsernameSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private Regex _alphaNumRegex;
         private Coroutine debounceRoutine;
-        private string _invalidMessage;
         public ValidationResult Result { get; private set; }
-        public event Action<bool, string> OnValidateUsername;
+        public TMP_InputField Input { get => _input; }
 
         [Serializable]
         private class BannedWrapper { public string[] words; }
         [Serializable]
         public enum ValidationResult { Ok, Empty, TooLong, InvalidChars, BannedWord, UsedUsername }
-
-
         private void Awake()
         {
             _input = GetComponent<TMP_InputField>();
             _alphaNumRegex = new Regex("^[A-Za-z0-9]+$", RegexOptions.Compiled);
+            _invalidText.gameObject.SetActive(false);
+            Result = Validate("");
 
             LoadBannedWords();
-            if(_enabledCheckValueChanged) _input.onValueChanged.AddListener(OnInputNameChanged);
             _input.onEndEdit.AddListener(OnEndEdit);
+            if(_enabledCheckValueChanged) _input.onValueChanged.AddListener(OnInputNameChanged);
         }
 
         private void OnDestroy()
         {
-            if (_enabledCheckValueChanged) _input.onValueChanged.RemoveListener(OnInputNameChanged);
             _input.onEndEdit.RemoveListener(OnEndEdit);
+            if (_enabledCheckValueChanged) _input.onValueChanged.RemoveListener(OnInputNameChanged);
         }
 
-        private void OnEndEdit(string text) 
+        public void OnEndEdit(string text) 
         {
             Result = Validate(text);
-            OnValidateUsername?.Invoke(Result == ValidationResult.Ok, _invalidMessage);
+            _invalidText.gameObject.SetActive(Result != ValidationResult.Ok);
         }
 
         private void OnInputNameChanged(string text)
@@ -66,23 +66,6 @@ namespace BombermanRL.UI
         {
             yield return new WaitForSecondsRealtime(_inputDebounce);
             Result = Validate(_input.text, true);
-        }
-
-        public void LoadTakenUsernames(string[] usernames)
-        {
-            try
-            {
-                foreach (var u in usernames)
-                {
-                    if (string.IsNullOrEmpty(u)) continue;
-                    takenUsernameSet.Add(Normalize(u));
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e);
-                Debug.LogError($"Failed to parse banned word data: {e.Message}");
-            }
         }
 
         /// <summary>
@@ -131,19 +114,19 @@ namespace BombermanRL.UI
             // Validation length check
             if(value.Length == 0)
             {
-                if (!silent) _invalidMessage = "Name cannot be empty";
+                if (!silent) _invalidText.text = "Name cannot be empty";
                 return ValidationResult.Empty;
             }
             if(value.Length > _maxLength)
             {
-                if (!silent) _invalidMessage = $"Name exceed {_maxLength} character";
+                if (!silent) _invalidText.text = $"Name exceed {_maxLength} character";
                 return ValidationResult.TooLong;
             }
 
             // Alphanumeric check
             if (!_alphaNumRegex.IsMatch(value))
             {
-                if (!silent) _invalidMessage = "Name has Invalid Characters";
+                if (!silent) _invalidText.text = "Name has Invalid Characters";
                 return ValidationResult.InvalidChars;
             }
 
@@ -151,7 +134,7 @@ namespace BombermanRL.UI
             string normed = Normalize(value);
             if(bannedSet.Contains(normed))
             {
-                if (!silent) _invalidMessage = "Inappropriate Name";
+                if (!silent) _invalidText.text = "Inappropriate Name";
                 return ValidationResult.BannedWord;
             }
 
@@ -160,16 +143,9 @@ namespace BombermanRL.UI
             {
                 if (banned.Length >= 2 && normed.Contains(banned))
                 {
-                    if(!silent) _invalidMessage = "Inappropriate Name";
+                    if(!silent) _invalidText.text = "Inappropriate Name";
                     return ValidationResult.BannedWord;
                 }
-            }
-
-            // Banned already taken username [EXACT MATCH]
-            if (takenUsernameSet.Contains(normed))
-            {
-                if (!silent) _invalidMessage = "Username already taken";
-                return ValidationResult.UsedUsername;
             }
 
             return ValidationResult.Ok;
@@ -202,6 +178,11 @@ namespace BombermanRL.UI
             return sb2.ToString();
         }
 
-
+        public void SetUsernameTakenState()
+        {
+            Result = ValidationResult.UsedUsername;
+            _invalidText.gameObject.SetActive(true);
+            _invalidText.text = "Username Already Taken";
+        }
     }
 }

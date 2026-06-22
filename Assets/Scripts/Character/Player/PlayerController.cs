@@ -36,7 +36,6 @@ namespace BombermanRL.Character
 
         public void OnPlaceBomb(InputAction.CallbackContext context)
         {
-            Debug.Log("BombCount: "+ BombCount);
             if(_currentState != EntityState.Idle || BombCount <= 0 || !_actionCooldown.CanAction()) return;
             OnRequestPlaceBomb();
         }
