@@ -34,7 +34,7 @@ namespace BombermanRL.Grid
         {
             Application.targetFrameRate = 60;
 
-            _uiManager.OnStartGame += StartMatch;
+            _uiManager.OnStartMatch += StartMatch;
 
             foreach (CharacterType type in Enum.GetValues(typeof(CharacterType)))
             {
@@ -54,7 +54,7 @@ namespace BombermanRL.Grid
                 }
             }
 
-            _uiManager.OnStartGame -= StartMatch;
+            _uiManager.OnStartMatch -= StartMatch;
             _bombManager.OnBombExplode -= OnBombExplode;
             _bombManager.OnTickExplosion -= CheckExplosionVictim;
             _bombManager.OnExplosionFinish -= OnExplosionFinish;

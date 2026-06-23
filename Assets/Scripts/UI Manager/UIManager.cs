@@ -15,11 +15,12 @@ namespace BombermanRL.UI
         [SerializeField] private StarterUI _starterUI;
 
         private PlayerController _player;
-        private EnemyType _enemyType;
+        private PlayMode _enemyType;
         private string _playerName;
         private int _deviceType; // 0: Desktop, 1: Android, 2: iOS
 
-        public event Action OnStartGame;
+        public event Action<string, PlayMode> OnStartTriggered;
+        public event Action OnStartMatch;
 
         private void Awake()
         {
@@ -33,7 +34,15 @@ namespace BombermanRL.UI
 #else
                 _deviceType = 0;
 #endif
+                if(_deviceType == 0 ) _desktopUI.gameObject.SetActive(true);
+                else _mobileUI.gameObject.SetActive(true);
             }
+        }
+
+        private void Start()
+        {
+            // Directly start game if on training mode
+            if (!_playableMode) OnStartMatch?.Invoke();
         }
         private void OnDestroy()
         {
@@ -46,19 +55,27 @@ namespace BombermanRL.UI
 
         public void Initialize(string savedUsername)
         {
-            // Directly start game if on training mode
-            if(!_playableMode) OnStartGame?.Invoke();
-            _starterUI.Initialize(savedUsername);
+            if(_playableMode) _starterUI.Initialize(savedUsername);
         }
 
-        private void OnGameStartTriggered(string playerName, EnemyType chosenEnemyType)
+        private void OnGameStartTriggered(string playerName, PlayMode chosenEnemyType)
         {
-            //TODO: Add integration to save data before playing
             _playerName = playerName;
             _enemyType = chosenEnemyType;
-            _winCounter.CheckMatchTimer();
+            OnStartTriggered?.Invoke(_playerName, _enemyType);
+        }
+
+        public void OnTakenUsername()
+        {
+            GameInstance.Instance.AudioHandler.PlaySFX("SFX_Invalid", true);
+            _starterUI.TakenUsername();
+        }
+
+        public void StartMatch()
+        {
             _starterUI.gameObject.SetActive(false);
-            OnStartGame?.Invoke();
+            _winCounter.CheckMatchTimer();
+            OnStartMatch?.Invoke();
         }
 
         public void SetupPlayerListener(PlayerController player)

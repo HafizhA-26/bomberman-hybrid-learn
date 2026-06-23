@@ -12,16 +12,24 @@ namespace BombermanRL.UI
         [SerializeField] private Toggle _ruleBasedToggle;
         [SerializeField] private Toggle _mlAgentToggle;
         [SerializeField] private TextMeshProUGUI _changeNameTitle;
+        [SerializeField] private TextMeshProUGUI _invalidNameText;
         [SerializeField] private InputNameValidator _inputName;
         [SerializeField] private Button _startButton;
 
-        private EnemyType _chosenEnemyType = EnemyType.None;
+        private PlayMode _chosenEnemyType = PlayMode.None;
 
-        public Action<string, EnemyType> OnStartTriggered;
+        public Action<string, PlayMode> OnStartTriggered;
 
         private void Awake()
         {
             _startButton.onClick.AddListener(OnStartClicked);
+        }
+
+        private void OnEnable()
+        {
+            _startButton.interactable = true;
+            _invalidEnemyText.gameObject.SetActive(false);
+            _invalidNameText.gameObject.SetActive(false);
         }
 
         private void OnDestroy()
@@ -41,17 +49,23 @@ namespace BombermanRL.UI
         private void OnStartClicked()
         {
             // Start panel input validator
-            if (_ruleBasedToggle.isOn) _chosenEnemyType = EnemyType.RuleBasedAgent;
-            else if (_mlAgentToggle.isOn) _chosenEnemyType = EnemyType.MlAgent;
+            if (_ruleBasedToggle.isOn) _chosenEnemyType = PlayMode.ManualRuleBased;
+            else if (_mlAgentToggle.isOn) _chosenEnemyType = PlayMode.ManualMLAgent;
 
-            bool isEnemyValid = _chosenEnemyType != EnemyType.None;
+            bool isEnemyValid = _chosenEnemyType != PlayMode.None;
             bool isNameValid = _inputName.Result == InputNameValidator.ValidationResult.Ok;
             _invalidEnemyText.gameObject.SetActive(!isEnemyValid);
+            _invalidNameText.gameObject.SetActive(!isNameValid);
 
             // Start game only if input valid
             if(isEnemyValid && isNameValid)
             {
+                _startButton.interactable = false;
                 OnStartTriggered?.Invoke(_inputName.Input.text, _chosenEnemyType);
+            }
+            else
+            {
+                GameInstance.Instance.AudioHandler.PlaySFX("SFX_Invalid", true);
             }
         }
 

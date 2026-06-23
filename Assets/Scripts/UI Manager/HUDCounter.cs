@@ -114,7 +114,6 @@ namespace BombermanRL.UI
             if (_timeCounter == null)
             {
                 _isMatchEnded = false;
-                _timeElapsed = 5990;
                 _timeCounter = StartCoroutine(StartMatchTimer());
             }
         }

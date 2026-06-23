@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f868a9c09d45ccc4480ee891d8263294, type: 3}
-  m_Name: TilePrefabsData_Online
+  m_Name: TilePrefabsData
   m_EditorClassIdentifier: 
   _tilePrefabs:
   - TileType: 0
@@ -22,12 +22,6 @@ MonoBehaviour:
   - TileType: 2
     PrefabObject: {fileID: 83528806007082849, guid: 258c1648a2742af40847a1e39ee41454, type: 3}
     OffsetSpawn: {x: 0, y: 0, z: 0}
-  - TileType: 3
-    PrefabObject: {fileID: 1280343449075969925, guid: bd5eedf361dd54c4ca00276dae78c7fb, type: 3}
-    OffsetSpawn: {x: 0, y: -0.3, z: 0}
-  - TileType: 4
-    PrefabObject: {fileID: 1760600524691412346, guid: 27596807851a4d84d98296b4f21d7f16, type: 3}
-    OffsetSpawn: {x: 0, y: -0.3, z: 0}
   _floorPrefab: {fileID: 2358753831339107784, guid: e6c4fa4ec44ac144a942752775dff800, type: 3}
   _agentSuccessFloorMat: {fileID: 2100000, guid: 04dbeb9121e3d2c4aa9974285b2c545b, type: 2}
   _agentFailedFloorMat: {fileID: 2100000, guid: 8e000a9d1a1a19a4d8ec017d09db8f95, type: 2}

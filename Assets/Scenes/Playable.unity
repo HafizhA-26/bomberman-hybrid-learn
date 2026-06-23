@@ -2255,6 +2255,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _uiManager: {fileID: 348601742}
+  _ruleBasedGameConfig: {fileID: 11400000, guid: 53d0090218fbc2746ae66231a70076a3, type: 2}
+  _mlAgentGameConfig: {fileID: 11400000, guid: 8e72dde28e08b324683b919c2e59f18f, type: 2}
 --- !u!4 &781479414
 Transform:
   m_ObjectHideFlags: 0
@@ -2674,6 +2676,8 @@ MonoBehaviour:
   _envParent: {fileID: 906550307}
   _floorsParent: {fileID: 81086410}
   _objectsTileParent: {fileID: 5168788}
+  _tilePrefabsData: {fileID: 11400000, guid: 613135f75c7693e4b950ff8f366eb48e, type: 2}
+  _defaultGameMode: {fileID: 11400000, guid: 53d0090218fbc2746ae66231a70076a3, type: 2}
 --- !u!114 &906550310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4039,7 +4043,7 @@ MonoBehaviour:
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.6666667}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -4878,7 +4882,8 @@ MonoBehaviour:
   _invalidEnemyText: {fileID: 987072223}
   _ruleBasedToggle: {fileID: 357439968}
   _mlAgentToggle: {fileID: 755359564}
-  _changeNameTitle: {fileID: 0}
+  _changeNameTitle: {fileID: 854112481}
+  _invalidNameText: {fileID: 182321234}
   _inputName: {fileID: 516079805}
   _startButton: {fileID: 1569613316}
 --- !u!1001 &3715535715994773052

@@ -8,16 +8,20 @@ namespace BombermanRL
         [DllImport("__Internal")]
         public static extern int DetectPlatform();
 
-        public static string GetEnemyStaticName(EnemyType type)
+        public static string GetEnemyStaticName(PlayMode type)
         {
             switch (type)
             {
-                case EnemyType.None:
+                case PlayMode.None:
                     return "-";
-                case EnemyType.RuleBasedAgent:
+                case PlayMode.ManualRuleBased:
                     return "Rule-Based Agent";
-                case EnemyType.MlAgent:
+                case PlayMode.ManualMLAgent:
                     return "ML Agent";
+                case PlayMode.OfflineTraining:
+                    return "Offline ML Agent";
+                case PlayMode.OnlineTraining:
+                    return "Online ML Agent";
             }
             return "-";
         }

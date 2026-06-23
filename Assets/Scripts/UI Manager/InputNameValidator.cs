@@ -36,7 +36,6 @@ namespace BombermanRL.UI
         {
             _input = GetComponent<TMP_InputField>();
             _alphaNumRegex = new Regex("^[A-Za-z0-9]+$", RegexOptions.Compiled);
-            _invalidText.gameObject.SetActive(false);
             Result = Validate("");
 
             LoadBannedWords();
@@ -53,7 +52,6 @@ namespace BombermanRL.UI
         public void OnEndEdit(string text) 
         {
             Result = Validate(text);
-            _invalidText.gameObject.SetActive(Result != ValidationResult.Ok);
         }
 
         private void OnInputNameChanged(string text)

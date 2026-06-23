@@ -13,6 +13,7 @@ namespace BombermanRL.Grid
         [SerializeField] private Transform _objectsTileParent;
         [Space(10)]
         [SerializeField] private TilePrefabsData _tilePrefabsData;
+        [SerializeField] private GameModeConfig _defaultGameMode;
 
         private List<Material> _floorMaterials;
         public List<Material> FloorMaterials { get => _floorMaterials; }
@@ -32,7 +33,6 @@ namespace BombermanRL.Grid
                     _tilePrefabsData.AgentFailedFloorMat
                 };
 
-            Debug.Log("TileSize: "+TileSize);
         }
 
         private void OnDrawGizmosSelected()
@@ -110,6 +110,10 @@ namespace BombermanRL.Grid
 
         public (GameObject[,], TileState[,]) LoadLevelTile()
         {
+            // Check for override game mode from game instance [Override if in playable scene]
+            if (GameInstance.Instance.OverrideGameConfig != null)
+                _defaultGameMode = GameInstance.Instance.OverrideGameConfig;
+
             GameObject[,] gridObjects = new GameObject[_levelData.GridWidth, _levelData.GridHeight];
             TileState[,] gridState = new TileState[_levelData.GridWidth, _levelData.GridHeight];
             Dictionary<TileType, TilePrefabsData.TilePrefab> tilePrefabDict = _tilePrefabsData.TilePrefabDict;
@@ -126,32 +130,36 @@ namespace BombermanRL.Grid
 
                 if (type == TileType.Empty) continue;
 
-                // Spawn tile based on prefab
-                GameObject tile = Instantiate(tilePrefabDict[type].PrefabObject, _objectsTileParent, true);
-                gridObjects[row, col] = tile;
-
-                // Re-position tile based offset spawn
+                GameObject tile = null;
                 Vector3 newPos = GridToWorld(tileGridPos);
-                newPos += tilePrefabDict[type].OffsetSpawn;
-                tile.transform.position = newPos;
 
-                // Change game object name after spawn
+                // Set offset and instantiate gameplay objects
                 switch (type)
                 {
                     case TileType.Wall:
                     case TileType.Crate:
+                        tile = Instantiate(tilePrefabDict[type].PrefabObject, _objectsTileParent, true);
+                        newPos += tilePrefabDict[type].OffsetSpawn;
                         tile.name = $"{type.ToString()}[{row}-{col}]";
                         break;
                     case TileType.PlayerSpawn:
+                        tile = Instantiate(_defaultGameMode.PlayerPrefab, _objectsTileParent, true);
                         tile.name = "Player";
-                        tile.GetComponent<BombermanEntity>().OffsetMovement = tilePrefabDict[type].OffsetSpawn;
+                        newPos += _defaultGameMode.PlayerOffset;
+                        tile.GetComponent<BombermanEntity>().OffsetMovement = _defaultGameMode.PlayerOffset;
                         break;
                     case TileType.EnemySpawn:
+                        tile = Instantiate(_defaultGameMode.EnemyPrefab, _objectsTileParent, true);
                         tile.name = $"Enemy-{enemyCount}";
-                        tile.GetComponent<BombermanEntity>().OffsetMovement = tilePrefabDict[type].OffsetSpawn;
+                        newPos += _defaultGameMode.EnemyOffset;
+                        tile.GetComponent<BombermanEntity>().OffsetMovement = _defaultGameMode.EnemyOffset;
                         enemyCount++;
                         break;
                 }
+
+                // Set final objects and position
+                gridObjects[row, col] = tile;
+                tile.transform.position = newPos;
             }
 
             return (gridObjects, gridState);
