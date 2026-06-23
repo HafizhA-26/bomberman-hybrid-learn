@@ -52,6 +52,8 @@ MonoBehaviour:
   _explodeCountdown: 3
   _explosionTime: 1.5
   _explodeTransition: 0.2
+  _dropBombSFX: {fileID: 8300000, guid: ec3b009542180b74eb0f46bb7a82a616, type: 3}
+  _explosionSFX: {fileID: 8300000, guid: 41672445664ec8d46bd6024546ab5627, type: 3}
 --- !u!82 &570820200531243030
 AudioSource:
   m_ObjectHideFlags: 0

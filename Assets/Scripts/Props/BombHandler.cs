@@ -18,6 +18,10 @@ namespace BombermanRL
         [SerializeField] private float _explosionTime = 2f;
         [SerializeField] private float _explodeTransition = 0.2f;
 
+        [Header("SFX Data")]
+        [SerializeField] private AudioClip _dropBombSFX;
+        [SerializeField] private AudioClip _explosionSFX;
+
         private List<GameObject> _explosions = new List<GameObject>();
         private List<Vector3> _explodePos = new List<Vector3>();
         private Sequence _explosionSeq;
@@ -72,6 +76,7 @@ namespace BombermanRL
                 return;
             }
 
+            _bombAudioSource.PlayOneShot(_dropBombSFX);
             _explosionSeq = DOTween.Sequence();
             _explodePos = explodePos;
             _explosions = explosionObjects;
@@ -94,7 +99,7 @@ namespace BombermanRL
                 _bomb.SetActive(false);
                 _countdownText.gameObject.SetActive(false);
                 _isExploded = true;
-                _bombAudioSource.Play();
+                _bombAudioSource.PlayOneShot(_explosionSFX);
                 OnBombExplode?.Invoke();
             });
 
