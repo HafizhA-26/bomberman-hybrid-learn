@@ -26,6 +26,7 @@ namespace BombermanRL.Grid
         [SerializeField] private float _resetDelay = 2f;
 
         private readonly Dictionary<CharacterType, List<BombermanEntity>> _entityTypeGroup = new Dictionary<CharacterType, List<BombermanEntity>>();
+        private List<EnemyController> _enemies = new();
         private PlayerController _player;
         private GameObject[,] _floors;
         private bool _isOnReset;
@@ -60,10 +61,12 @@ namespace BombermanRL.Grid
             _bombManager.OnExplosionFinish -= OnExplosionFinish;
         }
 
-        public void StartMatch()
+        public async void StartMatch()
         {
-            _floors = _levelBuilder.CreateFloor();
-            (GameObject[,] tiles, TileState[,] grid) = _levelBuilder.LoadLevelTile();
+            GameInstance.Instance.ShowLoading(true, 0.3f);
+
+            _floors = await _levelBuilder.CreateFloor();
+            (GameObject[,] tiles, TileState[,] grid) = await _levelBuilder.LoadLevelTile();
 
             InitializeEntities(tiles, grid);
 
@@ -76,6 +79,10 @@ namespace BombermanRL.Grid
             _bombManager.OnExplosionFinish += OnExplosionFinish;
 
             _uiManager.SetupPlayerListener(_player);
+
+            _enemies.ForEach(e => e.StartAI());
+
+            GameInstance.Instance.ShowLoading(false);
         }
 
         private void InitializeEntities(GameObject[,] tiles, TileState[,] tileStates)
@@ -96,9 +103,11 @@ namespace BombermanRL.Grid
                     if(state.Type == TileType.PlayerSpawn || state.Type == TileType.EnemySpawn)
                     {
                         BombermanEntity entity = tile.GetComponent<BombermanEntity>();
-                        if(state.Type == TileType.PlayerSpawn) _player = (PlayerController) entity;
 
-                        entity.Initialize(_gridStateManager);
+                        if(entity is PlayerController player) _player = player;
+                        else if(entity is EnemyController enemy) _enemies.Add(enemy);
+
+                            entity.Initialize(_gridStateManager);
                         entity.RequestMove += MoveEntity;
                         entity.RequestPlaceBomb += PlaceBomb;
 

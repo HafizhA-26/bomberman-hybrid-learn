@@ -81,11 +81,14 @@ namespace BombermanRL.UI
 
         public void SetupPlayerListener(PlayerController player)
         {
-            _player = player;
-            _player.OnBombCountChanged += OnBombCountUpdated;
-            _player.SetEntityName(_playerName);
-            _winCounter.SetCustomEntityName(_player.CharacterType, _player.Name);
-            _winCounter.SetCustomEntityName(CharacterType.Bandit, Util.GetEnemyStaticName(_enemyType));
+            if(_playableMode)
+            {
+                _player = player;
+                _player.OnBombCountChanged += OnBombCountUpdated;
+                _player.SetEntityName(_playerName);
+                _winCounter.SetCustomEntityName(_player.CharacterType, _player.Name);
+                _winCounter.SetCustomEntityName(CharacterType.Bandit, Util.GetEnemyStaticName(_enemyType));
+            }
         }
 
 

@@ -85,11 +85,12 @@ namespace BombermanRL.Grid
             }
         }
 
-        public GameObject[,] CreateFloor()
+        public async Awaitable<GameObject[,]> CreateFloor()
         {
             if (_floorsParent == null || _tilePrefabsData == null)
                 return null;
 
+            int count = 0;
             GameObject[,] floors = new GameObject[_levelData.GridWidth, _levelData.GridHeight];
 
             // Populate all floor gameobjects
@@ -102,13 +103,17 @@ namespace BombermanRL.Grid
                     floor.transform.position = newPos;
                     floor.name = $"Floor[{i}-{j}]";
                     floors[i, j] = floor;
+
+                    count++;
+
+                    if(count % 20 == 0) await Awaitable.NextFrameAsync();
                 }
             }
 
             return floors;
         }
 
-        public (GameObject[,], TileState[,]) LoadLevelTile()
+        public async Awaitable<(GameObject[,], TileState[,])> LoadLevelTile()
         {
             // Check for override game mode from game instance [Override if in playable scene]
             if (GameInstance.Instance.OverrideGameConfig != null)
@@ -118,6 +123,7 @@ namespace BombermanRL.Grid
             TileState[,] gridState = new TileState[_levelData.GridWidth, _levelData.GridHeight];
             Dictionary<TileType, TilePrefabsData.TilePrefab> tilePrefabDict = _tilePrefabsData.TilePrefabDict;
             int enemyCount = 0;
+            int count = 0;
 
             for (int i = 0; i < _levelData.LevelTiles.Count; i++)
             {
@@ -160,6 +166,10 @@ namespace BombermanRL.Grid
                 // Set final objects and position
                 gridObjects[row, col] = tile;
                 tile.transform.position = newPos;
+
+                count++;
+
+                if(count % 3 == 0) await Awaitable.NextFrameAsync();
             }
 
             return (gridObjects, gridState);

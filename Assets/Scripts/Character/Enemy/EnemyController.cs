@@ -16,11 +16,6 @@ namespace BombermanRL.Character
             InitializeAI();
         }
 
-        protected void Start()
-        {
-            _decisionTween = DOVirtual.DelayedCall(_agentParameter.ActionCooldown, DecisionCallback).SetLoops(-1);
-        }
-
         protected new void OnDestroy()
         {
             base.OnDestroy();
@@ -31,6 +26,11 @@ namespace BombermanRL.Character
         protected virtual void InitializeAI()
         {
             _decisionProvider = new RuleBasedDecision(_agentParameter);
+        }
+
+        public virtual void StartAI()
+        {
+            _decisionTween = DOVirtual.DelayedCall(_agentParameter.ActionCooldown, DecisionCallback).SetLoops(-1);
         }
         
         private void DecisionCallback()
