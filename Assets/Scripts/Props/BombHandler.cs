@@ -37,6 +37,8 @@ namespace BombermanRL
         {
             _bombAudioSource = GetComponent<AudioSource>();
             GameInstance.Instance.AudioHandler.OnSFXMute += OnSFXMute;
+
+            _bombAudioSource.mute = GameInstance.Instance.AudioHandler.IsMuteSFX;
         }
 
         private void OnDestroy()

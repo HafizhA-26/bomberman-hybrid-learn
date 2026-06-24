@@ -20,6 +20,7 @@ namespace BombermanRL.UI
         private int _deviceType; // 0: Desktop, 1: Android, 2: iOS
 
         public event Action<string, PlayMode> OnStartTriggered;
+        public event Action<int> OnSessionFinished;
         public event Action OnStartMatch;
 
         private void Awake()
@@ -107,6 +108,7 @@ namespace BombermanRL.UI
         public void OnCharacterWin(CharacterType type)
         {
             _winCounter.OnCharacterWin(type);
+            // TODO: Add result screen and integration data
         }
         
     }

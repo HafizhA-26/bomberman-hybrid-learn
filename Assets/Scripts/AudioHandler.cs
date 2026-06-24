@@ -20,6 +20,9 @@ namespace BombermanRL
         private readonly Dictionary<string, AudioClip> _bgmDict = new Dictionary<string, AudioClip>();
         private readonly Dictionary<string, AudioClip> _sfxDict = new Dictionary<string, AudioClip>();
 
+        public bool IsMuteBGM { get => _isMuteBGM; }
+        public bool IsMuteSFX { get => _isMuteSFX; }
+
         public event Action<bool> OnBGMMute;
         public event Action<bool> OnSFXMute;
 
@@ -34,6 +37,9 @@ namespace BombermanRL
             {
                 _sfxDict[item.name] = item;
             }
+
+            _isMuteBGM = PlayerPrefs.GetInt("MuteBGM", 0) == 1;
+            _isMuteSFX = PlayerPrefs.GetInt("MuteSFX", 0) == 1;
         }
 
         public void PlayBGM(string name)
@@ -60,6 +66,17 @@ namespace BombermanRL
                 _sfxAudioSource.clip = _sfxDict[name];
                 _sfxAudioSource.Play();
             }
+        }
+
+        public bool ToggleMuteBGM()
+        {
+            MuteBGM(!_isMuteBGM);
+            return _isMuteBGM;
+        }
+        public bool ToggleMuteSFX()
+        {
+            MuteSFX(!_isMuteSFX);
+            return _isMuteSFX;
         }
 
         public void MuteBGM(bool mute)
