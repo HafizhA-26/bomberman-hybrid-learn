@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GamePlayMode: 2
   PlayerPrefab: {fileID: 7073353713238942121, guid: a4d7804f4b1ce2c47b92a7fc058c2eba, type: 3}
-  EnemyPrefab: {fileID: 1760600524691412346, guid: 27596807851a4d84d98296b4f21d7f16, type: 3}
+  EnemyPrefab: {fileID: 1760600524691412346, guid: 8a5cc61ef1a0d014d88d8839d41107a0, type: 3}
   PlayerOffset: {x: 0, y: -0.3, z: 0}
   EnemyOffset: {x: 0, y: -0.3, z: 0}
