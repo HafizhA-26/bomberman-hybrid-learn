@@ -64,7 +64,7 @@ namespace BombermanRL
 
             string firstScene = MainSceneInitiator.FirstLoadedScenePath;
             AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(firstScene);
-            ShowLoading(true, 0.3f);
+            ShowLoading(true, 0.3f, true);
         }
 
         private static void OnApplicationQuit()
@@ -82,9 +82,10 @@ namespace BombermanRL
         /// </summary>
         /// <param name="show">True to show, False to close</param>
         /// <param name="minLoadingTime">Minimum loading time (seconds) to prevent blinking loading experience</param>
-        public void ShowLoading(bool show, float minLoadingTime = 0)
+        /// <param name="isOpaque">Use fully opaque loading panel?</param>
+        public void ShowLoading(bool show, float minLoadingTime = 0, bool isOpaque = false)
         {
-            if (show) _loadingHandler.ShowLoadingPanel(minLoadingTime);
+            if (show) _loadingHandler.ShowLoadingPanel(minLoadingTime, isOpaque);
             else _loadingHandler.HideLoadingPanel();
         }
     }
