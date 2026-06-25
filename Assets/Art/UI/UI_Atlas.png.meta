@@ -650,6 +650,50 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: WhiteBorder
+      rect:
+        serializedVersion: 2
+        x: 470
+        y: 255
+        width: 109
+        height: 107
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 13, y: 13, z: 12, w: 13}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 18a6eefc192da534f97dc0183cae0b7c
+      internalID: 1732022932
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BlackPanel
+      rect:
+        serializedVersion: 2
+        x: 474
+        y: 140
+        width: 99
+        height: 99
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 13, y: 13, z: 12, w: 13}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 224c5cde18a97554b99a1528d549f39a
+      internalID: 856369609
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -666,6 +710,7 @@ TextureImporter:
     nameFileIdTable:
       A_Icon: 896791634
       BlackBorderedTransparent: 1375162596
+      BlackPanel: 856369609
       BombBlack: -1528974509
       BombWhite: 2056996092
       BorderedArrow: 140217363
@@ -686,6 +731,7 @@ TextureImporter:
       SpaceIcon: 1662062723
       UI_Atlas_1: 1847561655
       W_Icon: -1976859755
+      WhiteBorder: 1732022932
       WhiteBorderedTransparent: -1824432454
       WhiteThrobber: 448165439
   mipmapLimitGroupName: 
