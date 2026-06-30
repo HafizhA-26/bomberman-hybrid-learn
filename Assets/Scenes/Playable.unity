@@ -1808,6 +1808,7 @@ MonoBehaviour:
   _mobileUI: {fileID: 1040058730}
   _desktopUI: {fileID: 1894914867}
   _starterUI: {fileID: 1965094220}
+  _resultUI: {fileID: 805958158}
 --- !u!1 &357439966
 GameObject:
   m_ObjectHideFlags: 0
@@ -3347,7 +3348,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &805958154
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3437,7 +3438,7 @@ MonoBehaviour:
   _timeText: {fileID: 490819797}
   _actionCountText: {fileID: 164624629}
   _rankGroupTransform: {fileID: 457871541}
-  _retryButton: {fileID: 0}
+  _retryButton: {fileID: 240647021}
   _currentRankCard: {fileID: 3339320272882474532, guid: 83aa063a4bb9c914f8b3389d83defd8f, type: 3}
   _normalRankCard: {fileID: 1232143659467286336, guid: e3cdfb22b187bae4ab48864b14ee4dc8, type: 3}
   _ellipsisRankCard: {fileID: 5112602184129459500, guid: c50b93cf893152644bc0223ed444a7e5, type: 3}
@@ -6927,7 +6928,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1965094217
 RectTransform:
   m_ObjectHideFlags: 0

@@ -127,6 +127,7 @@ namespace BombermanRL.Grid
             Action onTileChanged = CanMove ? _gridStateManager.OnEntityMove(entity, gridPos) : null;
 
             entity.Move(worldPos, CanMove, onTileChanged);
+            entity.ExecutedActionCount++;
         }
 
         private void PlaceBomb(BombermanEntity entity)
@@ -137,6 +138,7 @@ namespace BombermanRL.Grid
             BombHandler newBomb = _bombManager.SpawnBomb(entity, bombingGridPos, bombingWorldPos);
             _gridStateManager.RegisterActiveBomb(newBomb, bombingGridPos[0]);
             entity.BombCount--;
+            entity.ExecutedActionCount++;
         }
 
         private void OnBombExplode(BombermanEntity placer, List<GridPos> explosionGridPos)

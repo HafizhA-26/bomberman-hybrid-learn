@@ -25,6 +25,7 @@ namespace BombermanRL.Character
         protected IGameplayStateProvider _stateProvider;
         protected EntityState _currentState;
         protected string _characterName;
+        private int _executedActionCount;
 
         public string Name { 
             get
@@ -44,6 +45,7 @@ namespace BombermanRL.Character
                 OnBombCountChanged?.Invoke(value);
             } 
         }
+        public int ExecutedActionCount { get => _executedActionCount; set => _executedActionCount = value; }
         public int BombExplodeRadius { get => _agentParameter.BombExplosionRadius; }
         public int NearbyObservationRadius { get => _agentParameter.NearbyObservationRadius; }
         public Vector3 OffsetMovement { get; set; }
@@ -84,6 +86,7 @@ namespace BombermanRL.Character
             // Check if entity able to move to the target tile
             if(canMove)
             {
+                _executedActionCount++;
                 _currentState = EntityState.Walking;
                 _view.SetWalk();
                 PlayWalkSFX();
@@ -112,6 +115,7 @@ namespace BombermanRL.Character
         public virtual void Dead(bool isSuicide)
         {
             if(_currentState == EntityState.Dead) return;
+            _charaAudioSource.Stop();
             _currentState = EntityState.Dead;
 
             _moveTween?.Kill();
@@ -149,6 +153,7 @@ namespace BombermanRL.Character
         public virtual void StartReset(Vector3 resetWorldPos, float resetDelay)
         {
             _currentState = EntityState.Resetting;
+            _executedActionCount = 0;
 
             DOVirtual.DelayedCall(resetDelay, () =>
             {

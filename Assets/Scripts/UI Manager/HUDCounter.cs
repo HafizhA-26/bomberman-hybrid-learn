@@ -74,9 +74,15 @@ namespace BombermanRL.UI
             _timeElapsed += Time.deltaTime;
         }
 
-        public void OnCharacterWin(CharacterType type)
+
+        /// <summary>
+        /// Update UI on a character or group of character win
+        /// </summary>
+        /// <param name="type">Character Type</param>
+        /// <returns>Elapsed Time since character win</returns>
+        public float OnCharacterWin(CharacterType type)
         {
-            if (!_characterTextDict.ContainsKey(type)) return;
+            if (!_characterTextDict.ContainsKey(type)) return -1;
             _isMatchEnded = true;
 
             _characterWinCount[type]++;
@@ -87,6 +93,7 @@ namespace BombermanRL.UI
             _characterTextDict[type].ScoreText.text = $"{_characterWinCount[type]}";
             _roundCountText.text = $"{_roundCount}";
             CheckAndLog();
+            return _timeElapsed;
         }
 
         private void CheckAndLog()
@@ -130,7 +137,7 @@ namespace BombermanRL.UI
             _timeCounter = null;
         }
 
-        public void SetCustomEntityName(CharacterType type, string characterName)
+        public void SetCustomEntity(CharacterType type, string characterName, int score)
         {
             if(!_characterTextDict.ContainsKey(type))
             {
@@ -139,6 +146,7 @@ namespace BombermanRL.UI
             }
 
             _characterTextDict[type].NameText.text = characterName;
+            _characterTextDict[type].ScoreText.text = score.ToString();
         }
 
         private IEnumerator StartMatchTimer()
