@@ -39,7 +39,7 @@ namespace BombermanRL.UI
         private Dictionary<CharacterType, int> _characterBatchWin = new();
 
         private Coroutine _timeCounter;
-        private int _timeElapsed = 0;
+        private float _timeElapsed = 0;
         private int _roundCount;
         private int _batchRoundCount;
         private bool _isMatchEnded = true;
@@ -67,6 +67,11 @@ namespace BombermanRL.UI
                     File.WriteAllText(_csvFilePath, $"TotalEpisodes,{csvColumns}\n");
                 }
             }
+        }
+
+        private void Update()
+        {
+            _timeElapsed += Time.deltaTime;
         }
 
         public void OnCharacterWin(CharacterType type)
@@ -118,6 +123,13 @@ namespace BombermanRL.UI
             }
         }
 
+        public void EndMatchTimer()
+        {
+            _isMatchEnded = true;
+            StopCoroutine(_timeCounter);
+            _timeCounter = null;
+        }
+
         public void SetCustomEntityName(CharacterType type, string characterName)
         {
             if(!_characterTextDict.ContainsKey(type))
@@ -131,13 +143,10 @@ namespace BombermanRL.UI
 
         private IEnumerator StartMatchTimer()
         {
-            while(!_isMatchEnded || _timeElapsed <= _maxPlayTimeSeconds)
+            while(!_isMatchEnded && _timeElapsed <= _maxPlayTimeSeconds)
             {
                 yield return new WaitForSeconds(1f);
-                _timeElapsed++;
-                int minutes = _timeElapsed / 60;
-                int seconds = _timeElapsed % 60;
-                string formattedTime = string.Format("{0:00}:{1:00}", minutes, seconds);
+                string formattedTime = Util.GetTimeFormatGameplay(_timeElapsed);
                 _playTimeText.text = formattedTime;
                 if(_timeElapsed >= _maxPlayTimeSeconds) _playTimeText.text = "NO:OB";
             }

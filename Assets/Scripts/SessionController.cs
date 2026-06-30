@@ -39,6 +39,7 @@ namespace BombermanRL
         {
             _savedUsername = playerName;
             PlayerPrefs.SetString("Username", _savedUsername);
+            GameInstance.Instance.PlayerName = _savedUsername;
 
             Debug.Log($"Player Name: {playerName} | Chosen Game Mode: {playMode}");
 

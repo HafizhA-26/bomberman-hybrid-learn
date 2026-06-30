@@ -45,6 +45,7 @@ namespace BombermanRL
 
         public AudioHandler AudioHandler { get => _audioHandler; }
         public GameModeConfig OverrideGameConfig { get; set; }
+        public string PlayerName { get; set; }
 
         private void Awake()
         {
