@@ -85,6 +85,12 @@ namespace BombermanRL.Character
 
             return fadeTween;
         }
+
+        public void PauseAnimation(bool pause)
+        {
+            if (pause) _characterAnimator.speed = 0f;
+            else _characterAnimator.speed = 1f;
+        }
     }
 
 }

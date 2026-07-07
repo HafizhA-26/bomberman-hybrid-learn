@@ -14,6 +14,7 @@ namespace BombermanRL.Grid
 
         private readonly Dictionary<GridPos, BombHandler> _placedBomb = new Dictionary<GridPos, BombHandler>();
         private readonly Dictionary<BombermanEntity, GridPos> _entityPositions = new();
+        private readonly Dictionary<BombermanEntity, GridPos> _entityOriginalPos = new();
         private readonly Dictionary<GridPos, IDestroyableProps> _destroyableProps = new Dictionary<GridPos, IDestroyableProps>();
         private readonly List<GridPos> _validRespawnPos = new List<GridPos>();
         private TileState[,] _defaultGrid;
@@ -58,6 +59,7 @@ namespace BombermanRL.Grid
                         case TileType.PlayerSpawn:
                         case TileType.EnemySpawn:
                             _entityPositions[tile.GetComponent<BombermanEntity>()] = pos;
+                            _entityOriginalPos[tile.GetComponent<BombermanEntity>()] = pos;
                             tileStates[i, j] = new TileState(TileType.Empty, TileSubState.OnCharacter);
                             break;
                     }
@@ -67,6 +69,8 @@ namespace BombermanRL.Grid
                 }
             }
         }
+        public (GridPos?, Vector3?) GetCharacterOriginPos(BombermanEntity entity) 
+            => _entityOriginalPos.ContainsKey(entity) ? (_entityOriginalPos[entity], GridToWorld(_entityOriginalPos[entity])) : (null, null);
         public GridPos? GetCharacterGridPos(BombermanEntity entity) => _entityPositions.ContainsKey(entity) ? _entityPositions[entity] : null;
         public Vector3 GetCharacterWoldPos(BombermanEntity entity) => GridToWorld(_entityPositions[entity]);
         public BombermanEntity GetCharacterAt(GridPos tilePos)
@@ -127,6 +131,28 @@ namespace BombermanRL.Grid
                 originPos.Add((item.Value, GridToWorld(item.Key)));
             }
             return originPos;
+        }
+
+        public void ResetGridPropStates()
+        {
+            foreach (KeyValuePair<GridPos, IDestroyableProps> item in _destroyableProps)
+            {
+                _grid[item.Key.row, item.Key.col].RemoveSubstate(TileSubState.OnDestroyedCrate);
+                _grid[item.Key.row, item.Key.col].Type = item.Value.PropType;
+            }
+        }
+
+        /// <summary>
+        /// Directly adjust grid state after entity teleported
+        /// </summary>
+        /// <param name="entity">Target bomberman entity</param>
+        /// <param name="targetPos">Teleported grud position</param>
+        public void OnEntityTeleported(BombermanEntity entity, GridPos targetPos)
+        {
+            GridPos originalPos = _entityPositions[entity];
+            _grid[targetPos.row, targetPos.col].AddSubstate(TileSubState.OnCharacter);
+            _grid[originalPos.row, originalPos.col].RemoveSubstate(TileSubState.OnCharacter);
+            _entityPositions[entity] = targetPos;
         }
 
         public Action OnEntityMove(BombermanEntity entity, GridPos targetPos)

@@ -45,7 +45,13 @@ namespace BombermanRL.Character
                 OnBombCountChanged?.Invoke(value);
             } 
         }
-        public int ExecutedActionCount { get => _executedActionCount; set => _executedActionCount = value; }
+        public int ExecutedActionCount { 
+            get => _executedActionCount; 
+            set
+            {
+                _executedActionCount = value;
+            }
+        }
         public int BombExplodeRadius { get => _agentParameter.BombExplosionRadius; }
         public int NearbyObservationRadius { get => _agentParameter.NearbyObservationRadius; }
         public Vector3 OffsetMovement { get; set; }
@@ -86,7 +92,7 @@ namespace BombermanRL.Character
             // Check if entity able to move to the target tile
             if(canMove)
             {
-                _executedActionCount++;
+                ExecutedActionCount++;
                 _currentState = EntityState.Walking;
                 _view.SetWalk();
                 PlayWalkSFX();
@@ -177,6 +183,11 @@ namespace BombermanRL.Character
             _charaAudioSource.clip = _walkSFX;
             _charaAudioSource.loop = true;
             _charaAudioSource.Play();
+        }
+
+        public virtual void PauseCharacter(bool pause)
+        {
+            Debug.Log($"Character {Name} is paused? {pause}");
         }
     }
 

@@ -16,6 +16,7 @@ namespace BombermanRL.Grid
         [SerializeField] private GameModeConfig _defaultGameMode;
 
         private List<Material> _floorMaterials;
+        private Dictionary<PlayMode, GameObject> _enemyPool;
         public List<Material> FloorMaterials { get => _floorMaterials; }
         public GameObject BombPrefab { get => _tilePrefabsData.BombPrefab; }
         public GameObject ExplosionPrefab { get => _tilePrefabsData.ExplosionPrefab; }

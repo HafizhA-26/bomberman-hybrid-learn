@@ -2,6 +2,7 @@ using BombermanRL.Character;
 using BombermanRL.Props;
 using BombermanRL.UI;
 using DG.Tweening;
+using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace BombermanRL.Grid
         [SerializeField] private float _resetDelay = 2f;
 
         private readonly Dictionary<CharacterType, List<BombermanEntity>> _entityTypeGroup = new Dictionary<CharacterType, List<BombermanEntity>>();
-        private List<EnemyController> _enemies = new();
+        private readonly List<EnemyController> _enemies = new();
         private PlayerController _player;
         private GameObject[,] _floors;
         private bool _isOnReset;
@@ -107,7 +108,7 @@ namespace BombermanRL.Grid
                         if(entity is PlayerController player) _player = player;
                         else if(entity is EnemyController enemy) _enemies.Add(enemy);
 
-                            entity.Initialize(_gridStateManager);
+                        entity.Initialize(_gridStateManager);
                         entity.RequestMove += MoveEntity;
                         entity.RequestPlaceBomb += PlaceBomb;
 
@@ -127,7 +128,6 @@ namespace BombermanRL.Grid
             Action onTileChanged = CanMove ? _gridStateManager.OnEntityMove(entity, gridPos) : null;
 
             entity.Move(worldPos, CanMove, onTileChanged);
-            entity.ExecutedActionCount++;
         }
 
         private void PlaceBomb(BombermanEntity entity)
@@ -177,15 +177,21 @@ namespace BombermanRL.Grid
                     victim.Dead(killType == KillType.Suicide);
                     placer.Kill(killType);
 
-                    CheckWinCondition();
+                    CharacterType winnerType = CheckWinCondition();
 
-                    if (_isOnTrainingAgent) ResetGrid(placer.CharacterType, killType);
+                    // Ensure only reset if one type group alive
+                    if (winnerType != CharacterType.None)
+                    {
+                        // Auto reset grid if in training gameplay
+                        if (_isOnTrainingAgent) ResetGrid(placer.CharacterType, killType);
+                        else EndPlayableSession(winnerType);
+                    }
                 }
             }
             if(deadVictimExists) _cameraTransform.DOShakeRotation(_shakeDuration, _shakeStrength, _shakeVibrato, 90, true, ShakeRandomnessMode.Full);
         }
 
-        private void CheckWinCondition()
+        private CharacterType CheckWinCondition()
         {
             // Check current alive character group
             List<CharacterType> winnerType = new List<CharacterType>();
@@ -199,8 +205,10 @@ namespace BombermanRL.Grid
             if(winnerType.Count == 1)
             {
                 _entityTypeGroup[winnerType[0]].ForEach(entity => entity.Win());
-                _uiManager.OnCharacterWin(winnerType[0]);
+                return winnerType[0];
             }
+
+            return CharacterType.None;
         }
 
         private void OnExplosionFinish(BombermanEntity entity, List<GridPos> explosionGridPos)
@@ -242,8 +250,10 @@ namespace BombermanRL.Grid
                         Debug.LogWarning("Can't find valid pos for respawning : "+entity.Name);
                         Debug.Break();
                     }
+
                     newEntityPos.Add(newPos.Value);
                     entity.StartReset(worldPos, _resetDelay);
+                    _gridStateManager.OnEntityTeleported(entity, newPos.Value);
                 }
             }
 
@@ -265,6 +275,22 @@ namespace BombermanRL.Grid
 
                 _isOnReset = false;
             });
+        }
+
+
+        private void EndPlayableSession(CharacterType winnerSession)
+        {
+            _bombManager.PauseExplosions();
+            foreach (KeyValuePair<CharacterType, List<BombermanEntity>> group in _entityTypeGroup)
+            {
+                foreach (BombermanEntity entity in group.Value)
+                {
+                    entity.PauseCharacter(true);
+                }
+            }
+            _uiManager.OnCharacterWin(winnerSession);
+
+            _isOnReset = true;
         }
 
     }

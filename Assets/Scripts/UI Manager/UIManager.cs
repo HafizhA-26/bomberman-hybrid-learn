@@ -7,7 +7,7 @@ namespace BombermanRL.UI
 {
     public class UIManager : MonoBehaviour
     {
-        [SerializeField] private bool _playableMode = false;
+        [SerializeField] private bool _trainingMode = false;
 
         [Header("References")]
         [SerializeField] private HUDCounter _winCounter;
@@ -26,7 +26,7 @@ namespace BombermanRL.UI
 
         private void Awake()
         {
-            if(_playableMode)
+            if(!_trainingMode)
             {
                 _starterUI.OnStartTriggered += OnGameStartTriggered;
 
@@ -44,12 +44,12 @@ namespace BombermanRL.UI
         private void Start()
         {
             // Directly start game if on training mode
-            if (!_playableMode) OnStartMatch?.Invoke();
+            if (_trainingMode) OnStartMatch?.Invoke();
             else _starterUI.gameObject.SetActive(true);
         }
         private void OnDestroy()
         {
-            if(_playableMode)
+            if(!_trainingMode)
             {
                 _starterUI.OnStartTriggered -= OnGameStartTriggered;
                 if (_player) _player.OnBombCountChanged -= OnBombCountUpdated;
@@ -58,7 +58,7 @@ namespace BombermanRL.UI
 
         public void Initialize(string savedUsername)
         {
-            if (_playableMode) _starterUI.Initialize(savedUsername);
+            if (!_trainingMode) _starterUI.Initialize(savedUsername);
         }
 
         private void OnGameStartTriggered(string playerName, PlayMode chosenEnemyType)
@@ -83,7 +83,7 @@ namespace BombermanRL.UI
 
         public void SetupPlayerListener(PlayerController player)
         {
-            if(_playableMode)
+            if(!_trainingMode)
             {
                 _player = player;
                 _player.OnBombCountChanged += OnBombCountUpdated;
@@ -113,21 +113,21 @@ namespace BombermanRL.UI
             }
         }
 
-        public void OnCharacterWin(CharacterType type)
+        public async void OnCharacterWin(CharacterType type)
         {
             float matchTime = _winCounter.OnCharacterWin(type);
 
             // TODO: integration data
             List<LeaderboardModel> dummyData = new List<LeaderboardModel>
             {
-                new(1, "Player1", 10, 300.055f, false, DateTime.Now, DateTime.Now),
-                new(2, _playerName, _player.ExecutedActionCount, matchTime, false, DateTime.Now, DateTime.Now),
+                new(1, _playerName, _player.ExecutedActionCount, matchTime, false, DateTime.Now, DateTime.Now),
+                new(2, "Player1", 10, 300.055f, false, DateTime.Now, DateTime.Now),
                 new(3, "Player1", 10, 400.055f, false, DateTime.Now, DateTime.Now),
                 new(4, "Player1", 10, 500.055f, false, DateTime.Now, DateTime.Now),
                 new(5, "Player1", 10, 600.055f, false, DateTime.Now, DateTime.Now),
             };
             _resultUI.SetupRankCards(dummyData);
-            _resultUI.ShowResultPanel();
+            await _resultUI.ShowResultPanel();
         }
         
     }

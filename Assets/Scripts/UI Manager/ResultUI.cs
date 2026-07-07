@@ -1,9 +1,9 @@
 ﻿using BombermanRL.UI.Leaderboard;
 using DG.Tweening;
-using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace BombermanRL.UI
@@ -20,14 +20,11 @@ namespace BombermanRL.UI
         [SerializeField] private RectTransform _rankGroupTransform;
         [SerializeField] private Button _retryButton;
         [Header("Data")]
-        [SerializeField] private GameObject _currentRankCard;
-        [SerializeField] private GameObject _normalRankCard;
-        [SerializeField] private GameObject _ellipsisRankCard;
+        [SerializeField] private GameObject _leaderboardCardPrefab;
 
         private LeaderboardCard _playerCard;
+        private GameObject _ellipsisCard;
         private readonly List<LeaderboardCard> _instantiatedCards = new List<LeaderboardCard>();
-
-        public event Action OnRetryTriggered;
 
         private void Awake()
         {
@@ -38,46 +35,54 @@ namespace BombermanRL.UI
             _retryButton.onClick.RemoveListener(OnRetryClicked);
         }
 
+        private void ResetAnimComponents()
+        {
+            _resultPanel.alpha = 0f;
+            _rankText.color = new Color32(255, 255, 255, 0);
+            _retryButton.image.color = new Color32(255, 255, 255, 0);
+        }
+
         public void SetupRankCards(List<LeaderboardModel> data)
         {
-            _instantiatedCards.Clear();
-
             string currentUsername = GameInstance.Instance.PlayerName;
             LeaderboardCard leaderboardCard = null;
 
             // Populate leaderboard card
-            foreach (LeaderboardModel model in data)
+            for (int i = 0; i < data.Count; i++)
             {
                 GameObject card = null;
                 bool isCurrentPlayer = false;
+                LeaderboardModel model = data[i];
+
                 if (model.Username.Equals(currentUsername))
-                {
                     isCurrentPlayer = true;
-                    card = Instantiate(_currentRankCard, _rankGroupTransform);
-                    _playerCard = card.GetComponent<LeaderboardCard>();
-                }
-                else
+
+                // Populate missing cards
+                if (_instantiatedCards.Count <= i)
                 {
-                    card = Instantiate(_normalRankCard, _rankGroupTransform);
+                    card = Instantiate(_leaderboardCardPrefab, _rankGroupTransform);
+                    _instantiatedCards.Add(card.GetComponent<LeaderboardCard>());
                 }
+
                 leaderboardCard = card.GetComponent<LeaderboardCard>();
                 leaderboardCard.SetCard(model, isCurrentPlayer);
-                _instantiatedCards.Add(leaderboardCard);
+                if (isCurrentPlayer) _playerCard = leaderboardCard;
             }
 
             // Add ellipsis card at last if current player rank > 10 and not in last rank
-            if(data.Count > 10 && !data[^1].IsLastRank)
+            if (data.Count > 10 && !data[^1].IsLastRank && _ellipsisCard == null)
             {
-                GameObject ellipsisCard = Instantiate(_ellipsisRankCard, _rankGroupTransform);
-                leaderboardCard = ellipsisCard.GetComponent<LeaderboardCard>();
-                leaderboardCard.SetCard(null, false);
-                _instantiatedCards.Add(leaderboardCard);
+                _ellipsisCard = Instantiate(_leaderboardCardPrefab, _rankGroupTransform);
+                leaderboardCard = _ellipsisCard.GetComponent<LeaderboardCard>();
+                leaderboardCard.SetEllipsisCard();
             }
 
+            ResetAnimComponents();
+            _resultPanel.gameObject.SetActive(true);
             Canvas.ForceUpdateCanvases();
         }
 
-        public void ShowResultPanel()
+        public async Awaitable ShowResultPanel()
         {
             if(_playerCard == null)
             {
@@ -85,21 +90,18 @@ namespace BombermanRL.UI
                 return;
             }
 
+            await Awaitable.EndOfFrameAsync();
+
             float elapsedTime = 0;
             int actionCount = 0;
-
+            
             // Setup before transition sequence 
-            _resultPanel.alpha = 0f;
-            _rankText.color = new Color32(255, 255, 255, 0);
-            _retryButton.image.color = new Color32(255, 255, 255, 0);
-            _rankGroupTransform.anchoredPosition = new Vector2(_rankGroupTransform.anchoredPosition.x, -1000);
             float targetScrollY = -_playerCard.transform.localPosition.y;
+            _rankGroupTransform.anchoredPosition = new Vector2(_rankGroupTransform.anchoredPosition.x, -1000);
 
             _chosenEnemyText.text = Util.GetEnemyStaticName(GameInstance.Instance.OverrideGameConfig.GamePlayMode);
             _usernameText.text = GameInstance.Instance.PlayerName;
             _rankText.text = $"#{_playerCard.RankData.Rank}";
-
-            _resultPanel.gameObject.SetActive(true);
 
             // Show result panel transition sequence
             Sequence showSeq = DOTween.Sequence();
@@ -124,8 +126,7 @@ namespace BombermanRL.UI
 
         private void OnRetryClicked()
         {
-            _resultPanel.gameObject.SetActive(false);
-            OnRetryTriggered?.Invoke();
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 }

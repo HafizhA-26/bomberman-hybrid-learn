@@ -48,5 +48,12 @@ namespace BombermanRL.Character
                 OnRequestMove(_currentMoveInput);
             }
         }
+
+        public override void PauseCharacter(bool pause)
+        {
+            base.PauseCharacter(pause);
+            if (pause) _inputAction.Gameplay.Disable();
+            else _inputAction.Gameplay.Enable();
+        }
     }
 }

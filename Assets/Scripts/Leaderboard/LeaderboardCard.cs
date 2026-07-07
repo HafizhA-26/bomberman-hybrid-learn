@@ -1,15 +1,22 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BombermanRL.UI.Leaderboard
 {
+    [RequireComponent(typeof(Image))]
+    [RequireComponent(typeof(CanvasGroup))]
     public class LeaderboardCard : MonoBehaviour
     {
         [Header("UI References")]
         [SerializeField] private TMP_Text _rankText;
         [SerializeField] private TMP_Text _usernameText;
+        [SerializeField] private TMP_Text _playerUsernameText;
         [SerializeField] private TMP_Text _timeMoveText;
         [SerializeField] private TMP_Text _etcText;
+        [Header("Data")]
+        [SerializeField] private Sprite _normalCardSprite;
+        [SerializeField] private Sprite _playerCardSprite;
 
         private LeaderboardModel _rankData;
 
@@ -17,29 +24,48 @@ namespace BombermanRL.UI.Leaderboard
 
         public void SetCard(LeaderboardModel data, bool isCurrentPlayer)
         {
-            // Set ellipsis card if data null
-            if(data == null)
+            Image img = GetComponent<Image>();
+            CanvasGroup cg = GetComponent<CanvasGroup>();
+            _rankData = data;
+
+            // Setup player card or normal card
+            if(isCurrentPlayer)
             {
-                _rankText.gameObject.SetActive(false);
-                _usernameText.gameObject.SetActive(false);
+                cg.alpha = 1f;
+                img.sprite = _playerCardSprite;
                 _timeMoveText.gameObject.SetActive(false);
-                _etcText.gameObject.SetActive(true);
+                _usernameText.gameObject.SetActive(false);
+                _playerUsernameText.gameObject.SetActive(true);
+                _rankText.color = new Color32(41, 41, 41, 255);
             }
             else
             {
-                _rankData = data;
-                _rankText.gameObject.SetActive(true);
+                cg.alpha = 0.3f;
+                img.sprite = _normalCardSprite;
+                _timeMoveText.gameObject.SetActive(true);
                 _usernameText.gameObject.SetActive(true);
-                _timeMoveText.gameObject.SetActive(!isCurrentPlayer);
-                _etcText.gameObject.SetActive(false);
+                _playerUsernameText.gameObject.SetActive(false);
+                _rankText.color = Color.white;
             }
 
             // Setup card UI text
             _rankText.text = $"#{data.Rank}";
             _usernameText.text = $"{data.Username}";
+            _playerUsernameText.text = $"{data.Username}";
+
             string resultTime = Util.GetTimeFormatResult(data.PlayTime);
             int actionCount = data.ActionCount;
             _timeMoveText.text = $"{resultTime} | {actionCount}";
+        }
+
+        public void SetEllipsisCard()
+        {
+            CanvasGroup cg = GetComponent<CanvasGroup>();
+            cg.alpha = 0.1f;
+            _rankText.gameObject.SetActive(false);
+            _usernameText.gameObject.SetActive(false);
+            _timeMoveText.gameObject.SetActive(false);
+            _etcText.gameObject.SetActive(true);
         }
     }
 

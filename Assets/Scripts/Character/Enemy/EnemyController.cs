@@ -109,5 +109,12 @@ namespace BombermanRL.Character
             _decisionTween?.Kill();
             base.Dead(isSuicide);
         }
+
+        public override void PauseCharacter(bool pause)
+        {
+            base.PauseCharacter(pause);
+            if (pause) _decisionTween.Pause();
+            else _decisionTween?.Play();
+        }
     }
 }

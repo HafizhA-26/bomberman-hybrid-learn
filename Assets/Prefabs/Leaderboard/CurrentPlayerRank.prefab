@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1232143659467286336, guid: e3cdfb22b187bae4ab48864b14ee4dc8, type: 3}
       propertyPath: m_Name
-      value: CurrentPlayerRank Variant
+      value: CurrentPlayerRank
       objectReference: {fileID: 0}
     - target: {fileID: 1589343942234346146, guid: e3cdfb22b187bae4ab48864b14ee4dc8, type: 3}
       propertyPath: m_IsActive
@@ -47,6 +47,10 @@ PrefabInstance:
     - target: {fileID: 5566678054007784065, guid: e3cdfb22b187bae4ab48864b14ee4dc8, type: 3}
       propertyPath: m_SizeDelta.y
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 5566678054007784065, guid: e3cdfb22b187bae4ab48864b14ee4dc8, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 5566678054007784065, guid: e3cdfb22b187bae4ab48864b14ee4dc8, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -134,6 +138,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6921228282442856407, guid: e3cdfb22b187bae4ab48864b14ee4dc8, type: 3}
       propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -1824432454, guid: 6834740c59514f34c900b58dbd69e941, type: 3}
+    - target: {fileID: 8439216382464833755, guid: e3cdfb22b187bae4ab48864b14ee4dc8, type: 3}
+      propertyPath: _normalCardSprite
+      value: 
+      objectReference: {fileID: 1732022932, guid: 6834740c59514f34c900b58dbd69e941, type: 3}
+    - target: {fileID: 8439216382464833755, guid: e3cdfb22b187bae4ab48864b14ee4dc8, type: 3}
+      propertyPath: _playerCardSprite
       value: 
       objectReference: {fileID: -1824432454, guid: 6834740c59514f34c900b58dbd69e941, type: 3}
     - target: {fileID: 8716634465680966353, guid: e3cdfb22b187bae4ab48864b14ee4dc8, type: 3}
