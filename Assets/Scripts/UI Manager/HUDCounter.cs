@@ -24,6 +24,7 @@ namespace BombermanRL.UI
         [Header("UI Components References")]
         [SerializeField] private TextMeshProUGUI _roundCountText;
         [SerializeField] private TextMeshProUGUI _playTimeText;
+        [SerializeField] private RectTransform _timeContainer;
         [SerializeField] private List<CharacterCountText> _charactersWinText;
 
         [Header("Timer Settings")]
@@ -135,6 +136,7 @@ namespace BombermanRL.UI
             _isMatchEnded = true;
             StopCoroutine(_timeCounter);
             _timeCounter = null;
+            _timeContainer.gameObject.SetActive(false);
         }
 
         public void SetCustomEntity(CharacterType type, string characterName, int score)

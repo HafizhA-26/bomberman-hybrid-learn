@@ -11,7 +11,6 @@ namespace BombermanRL.UI.Leaderboard
         [Header("UI References")]
         [SerializeField] private TMP_Text _rankText;
         [SerializeField] private TMP_Text _usernameText;
-        [SerializeField] private TMP_Text _playerUsernameText;
         [SerializeField] private TMP_Text _timeMoveText;
         [SerializeField] private TMP_Text _etcText;
         [Header("Data")]
@@ -28,30 +27,30 @@ namespace BombermanRL.UI.Leaderboard
             CanvasGroup cg = GetComponent<CanvasGroup>();
             _rankData = data;
 
+            _timeMoveText.gameObject.SetActive(true);
+            _usernameText.gameObject.SetActive(true);
+
             // Setup player card or normal card
-            if(isCurrentPlayer)
+            if (isCurrentPlayer)
             {
                 cg.alpha = 1f;
                 img.sprite = _playerCardSprite;
-                _timeMoveText.gameObject.SetActive(false);
-                _usernameText.gameObject.SetActive(false);
-                _playerUsernameText.gameObject.SetActive(true);
-                _rankText.color = new Color32(41, 41, 41, 255);
+                _usernameText.color = new Color32(41, 41, 41, 255);
+                _timeMoveText.color = new Color32(41, 41, 41, 255);
+                _rankText.color = new Color32(252, 163, 17, 255);
+                _rankText.text = $"#{data.BestRank}";
             }
             else
             {
                 cg.alpha = 0.3f;
                 img.sprite = _normalCardSprite;
-                _timeMoveText.gameObject.SetActive(true);
-                _usernameText.gameObject.SetActive(true);
-                _playerUsernameText.gameObject.SetActive(false);
+                _usernameText.color = Color.white;
+                _timeMoveText.color = Color.white;
                 _rankText.color = Color.white;
+                _rankText.text = $"#{data.Rank}";
             }
 
-            // Setup card UI text
-            _rankText.text = $"#{data.Rank}";
             _usernameText.text = $"{data.Username}";
-            _playerUsernameText.text = $"{data.Username}";
 
             string resultTime = Util.GetTimeFormatResult(data.PlayTime);
             int actionCount = data.ActionCount;
