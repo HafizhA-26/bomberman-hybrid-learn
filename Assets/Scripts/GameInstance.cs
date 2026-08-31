@@ -1,3 +1,4 @@
+using BombermanRL.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,8 +7,11 @@ namespace BombermanRL
 {
     public class GameInstance : MonoBehaviour
     {
+        [SerializeField] private string _baseURL = "http://128.0.0.1:3000/";
+        [Space(15)]
         [SerializeField] private AudioHandler _audioHandler;
         [SerializeField] private LoadingHandler _loadingHandler;
+        [SerializeField] private AlertUI _alertHandler;
         [Space(15)]
         [SerializeField] private TextMeshProUGUI _versionText;
 
@@ -44,7 +48,9 @@ namespace BombermanRL
         }
 
         public AudioHandler AudioHandler { get => _audioHandler; }
+        public AlertUI AlertHandler { get => _alertHandler; }
         public GameModeConfig OverrideGameConfig { get; set; }
+        public string BASE_URL { get => _baseURL; }
         public string PlayerName { get; set; }
 
         private void Awake()
