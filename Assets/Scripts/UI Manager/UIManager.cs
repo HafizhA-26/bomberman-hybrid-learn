@@ -23,6 +23,7 @@ namespace BombermanRL.UI
 
         public event Action<string, PlayMode> OnStartTriggered; // username, selected playmode
         public event Action OnStartMatch;
+        public event Action<int, Action<LeaderboardResult>> OnPlayerWin;
 
         private void Awake()
         {
@@ -122,22 +123,23 @@ namespace BombermanRL.UI
             }
         }
 
+        public float GetPlaytime() => _winCounter.TimeElapsed;
+
         public async void OnCharacterWin(CharacterType type)
         {
-            float matchTime = _winCounter.OnCharacterWin(type);
-            _winCounter.EndMatchTimer();
+            _winCounter.OnCharacterWin(type);
 
-            // TODO: integration data
-            List<LeaderboardModel> dummyData = new List<LeaderboardModel>
-            {
-                new(1, _playerName, _player.ExecutedActionCount, matchTime, 1, DateTime.Now, DateTime.Now),
-                new(2, "Player1", 10, 300.055f, 2, DateTime.Now, DateTime.Now),
-                new(3, "Player1", 10, 400.055f, 3, DateTime.Now, DateTime.Now),
-                new(4, "Player1", 10, 500.055f, 4, DateTime.Now, DateTime.Now),
-                new(5, "Player1", 10, 600.055f, 5, DateTime.Now, DateTime.Now),
-            };
-            _resultUI.SetupRankCards(dummyData);
-            await _resultUI.ShowResultPanel(type == _player.CharacterType);
+            if(!_trainingMode)
+            { 
+                _winCounter.EndMatchTimer();
+                if(type == _player.CharacterType)
+                    OnPlayerWin?.Invoke(_player.ExecutedActionCount, (data) =>
+                    {
+                        _resultUI.SetupRankCards(data);
+                        _ =_resultUI.ShowResultPanel(type == _player.CharacterType);
+                    });
+            }
+
         }
         
     }

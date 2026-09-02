@@ -38,7 +38,8 @@ namespace BombermanRL.UI.Leaderboard
                 _usernameText.color = new Color32(41, 41, 41, 255);
                 _timeMoveText.color = new Color32(41, 41, 41, 255);
                 _rankText.color = new Color32(252, 163, 17, 255);
-                _rankText.text = $"#{data.BestRank}";
+                PlayerLeaderboard playerData = (PlayerLeaderboard) data;
+                _rankText.text = $"#{playerData.BestRank}";
             }
             else
             {

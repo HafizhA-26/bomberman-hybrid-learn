@@ -64,7 +64,7 @@ namespace BombermanRL.API
             try
             {
                 string url = $"{GetURL()}/leaderboard";
-                LeaderboardResponse response = await APIHelper.PutRequest<LeaderboardResponse, LeaderboardModel>(url, data);
+                LeaderboardResponse response = await APIHelper.PostRequest<LeaderboardResponse, LeaderboardResult>(url, data);
                 GameInstance.Instance.ShowLoading(false);
 
                 Debug.Log("[Post Leaderboard] " + JsonConvert.SerializeObject(response));

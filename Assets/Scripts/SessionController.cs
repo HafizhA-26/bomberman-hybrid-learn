@@ -1,5 +1,6 @@
 ﻿using BombermanRL.API;
 using BombermanRL.UI;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,8 +18,9 @@ namespace BombermanRL
         private void Start()
         {
             _uiManager.OnStartTriggered += SaveEnterData;
+            _uiManager.OnPlayerWin += UpdateLeaderboard;
 
-            if(!PlayerPrefs.HasKey("DeviceID"))
+            if (!PlayerPrefs.HasKey("DeviceID"))
             {
                 PlayerPrefs.SetString("DeviceID", System.Guid.NewGuid().ToString());
                 PlayerPrefs.Save();
@@ -68,6 +70,29 @@ namespace BombermanRL
                     _uiManager.OnTakenUsername();
                 else
                     GameInstance.Instance.AlertHandler.ShowErrorPopup("Somehting wrong when update your name", () => SaveEnterData(playerName, playMode));
+            });
+        }
+
+        public void UpdateLeaderboard(int actionCount, Action<LeaderboardResult> onSuccess)
+        {
+            Dictionary<string, string> data = new()
+            {
+                ["deviceId"] = _deviceId,
+                ["actionCount"] = actionCount.ToString(),
+                ["playTime"] = _uiManager.GetPlaytime().ToString(),
+                ["enemyType"] = GameInstance.Instance.OverrideGameConfig.GamePlayMode == PlayMode.ManualRuleBased ? "0" : "1"
+            };
+
+            _ = APIManager.PostLeaderboard(data, (response) =>
+            {
+                if(response.Data != null)
+                {
+                    onSuccess?.Invoke(response.Data);
+                }
+                else
+                {
+                    GameInstance.Instance.AlertHandler.ShowErrorPopup("Somehting wrong when update leaderboard", () => UpdateLeaderboard(actionCount, onSuccess));
+                }
             });
         }
     }

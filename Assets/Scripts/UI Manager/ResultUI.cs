@@ -27,6 +27,7 @@ namespace BombermanRL.UI
         [SerializeField] private Color32 _loseFontColor;
 
         private LeaderboardCard _playerCard;
+        private PlayerLeaderboard _playerRankData;
         private GameObject _ellipsisCard;
         private readonly List<LeaderboardCard> _instantiatedCards = new List<LeaderboardCard>();
 
@@ -46,20 +47,24 @@ namespace BombermanRL.UI
             _retryButton.transform.localScale = Vector2.zero;
         }
 
-        public void SetupRankCards(List<LeaderboardModel> data)
+        public void SetupRankCards(LeaderboardResult data)
         {
             string currentUsername = GameInstance.Instance.PlayerName;
+            _playerRankData = data.MyRank;
             LeaderboardCard leaderboardCard = null;
 
             // Populate leaderboard card
-            for (int i = 0; i < data.Count; i++)
+            for (int i = 0; i < data.TopRanks.Length; i++)
             {
                 GameObject card = null;
                 bool isCurrentPlayer = false;
-                LeaderboardModel model = data[i];
+                LeaderboardModel model = data.TopRanks[i];
 
                 if (model.Username.Equals(currentUsername))
+                {
                     isCurrentPlayer = true;
+                    model = data.MyRank;
+                }
 
                 // Populate missing cards
                 if (_instantiatedCards.Count <= i)
@@ -100,22 +105,24 @@ namespace BombermanRL.UI
             float targetScrollY = 0;
             _chosenEnemyText.text = Util.GetEnemyStaticName(GameInstance.Instance.OverrideGameConfig.GamePlayMode);
             _usernameText.text = GameInstance.Instance.PlayerName;
-            _winLoseText.text = isPlayerWin ? "YOU WIN!!!" : "YOU LOSE!!!";
-            _winLoseText.color = isPlayerWin ? _winFontColor : _loseFontColor;
 
-            // On condition player lose and never save a win data before
-            if (isPlayerOnLeaderboard)
+            // Setup result panel based on player win/lose
+            if (isPlayerWin)
             {
-                winElapsedTime = _playerCard.RankData.PlayTime;
-                winActionCount = _playerCard.RankData.ActionCount;
+                _winLoseText.text = "YOU WIN!!!";
+                _winLoseText.color = _winFontColor;
                 targetScrollY = -_playerCard.transform.localPosition.y;
-                _rankText.text = $"#{_playerCard.RankData.Rank}";
-                _bestRankText.text = $"#{_playerCard.RankData.BestRank}";
+                winElapsedTime = _playerRankData.PlayTime;
+                winActionCount = _playerRankData.ActionCount;
+                _rankText.text = $"#{_playerRankData.Rank}";
+                _bestRankText.text = $"#{_playerRankData.BestRank}";
                 _rankText.transform.parent.gameObject.SetActive(true);
                 _timeText.transform.parent.gameObject.SetActive(true);
             }
             else
             {
+                _winLoseText.text = "YOU LOSE!!!";
+                _winLoseText.color = _loseFontColor;
                 targetScrollY = -_ellipsisCard.transform.localPosition.y;
                 _rankText.transform.parent.gameObject.SetActive(false);
                 _timeText.transform.parent.gameObject.SetActive(false);
@@ -125,11 +132,11 @@ namespace BombermanRL.UI
             // Show result panel transition sequence
             Sequence showSeq = DOTween.Sequence();
             showSeq.Append(_resultPanel.DOFade(1f, 0.3f));
-            showSeq.Append(_rankGroupTransform.DOAnchorPosY(targetScrollY, 1.5f).SetEase(Ease.OutBack));
+            showSeq.Append(_rankGroupTransform.DOAnchorPosY(targetScrollY, 2f).SetEase(Ease.OutBack));
             if(isPlayerOnLeaderboard)
             {
-                showSeq.Join(_rankText.DOFade(1f, 1f).SetDelay(0.5f));
-                showSeq.Join(_bestRankText.DOFade(1f, 1f).SetDelay(0.5f));
+                showSeq.Join(_rankText.DOFade(1f, 1f).SetDelay(1f));
+                showSeq.Join(_bestRankText.DOFade(1f, 1f).SetDelay(1f));
                 showSeq.Append(_playerCard.transform.DOScale(1.4f, 0.75f));
                 showSeq.Join(DOTween.To(() => elapsedTime, 
                     (t) =>

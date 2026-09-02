@@ -47,6 +47,8 @@ namespace BombermanRL.UI
 
         private string _csvFilePath;
 
+        public float TimeElapsed { get => _timeElapsed; }
+
         private void Awake()
         {
             string csvColumns = "";
@@ -75,15 +77,9 @@ namespace BombermanRL.UI
             _timeElapsed += Time.deltaTime;
         }
 
-
-        /// <summary>
-        /// Update UI on a character or group of character win
-        /// </summary>
-        /// <param name="type">Character Type</param>
-        /// <returns>Elapsed Time since character win</returns>
-        public float OnCharacterWin(CharacterType type)
+        public void OnCharacterWin(CharacterType type)
         {
-            if (!_characterTextDict.ContainsKey(type)) return -1;
+            if (!_characterTextDict.ContainsKey(type)) return;
             _isMatchEnded = true;
 
             _characterWinCount[type]++;
@@ -94,7 +90,6 @@ namespace BombermanRL.UI
             _characterTextDict[type].ScoreText.text = $"{_characterWinCount[type]}";
             _roundCountText.text = $"{_roundCount}";
             CheckAndLog();
-            return _timeElapsed;
         }
 
         private void CheckAndLog()

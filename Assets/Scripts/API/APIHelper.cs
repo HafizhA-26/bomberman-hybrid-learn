@@ -19,11 +19,11 @@ namespace BombermanRL.API
 
             await request.SendWebRequest();
             response.WebRequestStatus = request.result;
+            response.ResponseCode = request.responseCode;
             if(request.result == UnityWebRequest.Result.Success)
-            {
                 response = JsonConvert.DeserializeObject<TResponse>(request.downloadHandler.text);
-                response.ResponseCode = request.responseCode;
-            }
+            else
+                response.Message = request.error;
             return response;
 
         }
@@ -46,11 +46,11 @@ namespace BombermanRL.API
 
             await request.SendWebRequest();
             response.WebRequestStatus = request.result;
+            response.ResponseCode = request.responseCode;
             if (request.result == UnityWebRequest.Result.Success)
-            {
                 response = JsonConvert.DeserializeObject<TResponse>(request.downloadHandler.text);
-                response.ResponseCode = request.responseCode;
-            }
+            else
+                response.Message = request.error;
             return response;
 
         }
@@ -72,11 +72,11 @@ namespace BombermanRL.API
 
             await request.SendWebRequest();
             response.WebRequestStatus = request.result;
+            response.ResponseCode = request.responseCode;
             if (request.result == UnityWebRequest.Result.Success)
-            {
                 response = JsonConvert.DeserializeObject<TResponse>(request.downloadHandler.text);
-                response.ResponseCode = request.responseCode;
-            }
+            else
+                response.Message = request.error;
             return response;
         }
 
