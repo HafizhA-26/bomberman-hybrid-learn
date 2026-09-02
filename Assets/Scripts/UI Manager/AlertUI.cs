@@ -20,6 +20,26 @@ namespace BombermanRL.UI
             gameObject.SetActive(false);
         }
 
+        public void ShowErrorPopup<T>(BaseResponse<T> response, UnityAction retryCallback)
+        {
+            gameObject.SetActive(true);
+
+            _retryButton.interactable = true;
+            _retryButton.onClick.RemoveAllListeners();
+            _retryButton.onClick.AddListener(() =>
+            {
+                _retryButton.interactable = false;
+                _alertCG.DOFade(0f, 0.3f).OnComplete(() =>
+                {
+                    retryCallback?.Invoke();
+                    gameObject.SetActive(false);
+                });
+            });
+
+            _alertCG.DOFade(1f, 0.3f);
+            _errorText.text = response.Error ?? response.Message;
+        }
+
         public void ShowErrorPopup(string error, UnityAction retryCallback)
         {
             gameObject.SetActive(true);
@@ -39,7 +59,5 @@ namespace BombermanRL.UI
             _alertCG.DOFade(1f, 0.3f);
             _errorText.text = error;
         }
-
-        
     }
 }

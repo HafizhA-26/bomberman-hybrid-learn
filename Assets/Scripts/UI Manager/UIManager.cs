@@ -30,21 +30,26 @@ namespace BombermanRL.UI
             {
                 _starterUI.OnStartTriggered += OnGameStartTriggered;
 
-                GameInstance.Instance.ShowLoading(false);
 #if !UNITY_EDITOR && UNITY_WEBGL
                 _deviceType = Util.DetectPlatform();
 #else
                 _deviceType = 0;
 #endif
-                if(_deviceType == 0 ) _desktopUI.gameObject.SetActive(true);
-                else _mobileUI.gameObject.SetActive(true);
             }
         }
 
         private void Start()
         {
+            _mobileUI.gameObject.SetActive(false);
+            _desktopUI.gameObject.SetActive(false);
+            _winCounter.gameObject.SetActive(false);
+
             // Directly start game if on training mode
-            if (_trainingMode) OnStartMatch?.Invoke();
+            if (_trainingMode)
+            {
+                OnStartMatch?.Invoke();
+                _winCounter.gameObject.SetActive(true);
+            }
             else _starterUI.gameObject.SetActive(true);
         }
         private void OnDestroy()
@@ -72,11 +77,15 @@ namespace BombermanRL.UI
         {
             GameInstance.Instance.AudioHandler.PlaySFX("SFX_Invalid", true);
             _starterUI.TakenUsername();
+            _starterUI.SetStartBtnInteractable(true);
         }
 
         public void StartMatch()
         {
+            if (_deviceType == 0) _desktopUI.gameObject.SetActive(true);
+            else _mobileUI.gameObject.SetActive(true);
             _starterUI.gameObject.SetActive(false);
+            _winCounter.gameObject.SetActive(true);
             _winCounter.CheckMatchTimer();
             OnStartMatch?.Invoke();
         }

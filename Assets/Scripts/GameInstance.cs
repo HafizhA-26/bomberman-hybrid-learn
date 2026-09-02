@@ -7,7 +7,7 @@ namespace BombermanRL
 {
     public class GameInstance : MonoBehaviour
     {
-        [SerializeField] private string _baseURL = "http://128.0.0.1:3000/";
+        [SerializeField] private string _baseURL = "http://127.0.0.1:3000";
         [Space(15)]
         [SerializeField] private AudioHandler _audioHandler;
         [SerializeField] private LoadingHandler _loadingHandler;

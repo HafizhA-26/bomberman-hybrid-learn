@@ -69,7 +69,13 @@ namespace BombermanRL.UI
             }
         }
 
-        public void TakenUsername() => _inputName.SetUsernameTakenState();
+        public void TakenUsername()
+        {
+            _inputName.SetUsernameTakenState();
+            GameInstance.Instance.AudioHandler.PlaySFX("SFX_Invalid", true);
+        }
+
+        public void SetStartBtnInteractable(bool enable) => _startButton.interactable = enable;
     }
 
 }

@@ -1,5 +1,6 @@
-﻿using BombermanRL.UI;
-using System.Collections;
+﻿using BombermanRL.API;
+using BombermanRL.UI;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace BombermanRL
@@ -12,7 +13,6 @@ namespace BombermanRL
         [SerializeField] private GameModeConfig _mlAgentGameConfig;
 
         private string _deviceId;
-        private string _savedUsername;
 
         private void Start()
         {
@@ -25,9 +25,7 @@ namespace BombermanRL
             }
 
             _deviceId = PlayerPrefs.GetString("DeviceID");
-            _savedUsername = PlayerPrefs.GetString("Username", "");
-
-            _uiManager.Initialize(_savedUsername);
+            GetSavedUsername(_deviceId);
         }
 
         private void OnDestroy()
@@ -35,20 +33,42 @@ namespace BombermanRL
             _uiManager.OnStartTriggered -= SaveEnterData;
         }
 
+        private void GetSavedUsername(string deviceId)
+        {
+            _ = APIManager.GetPlayerData(deviceId, (response) =>
+            {
+                if (response.Data != null)
+                {
+                    GameInstance.Instance.PlayerName = response.Data.Username;
+                    _uiManager.Initialize(response.Data.Username);
+                }
+            });
+        }
+
         private void SaveEnterData(string playerName, PlayMode playMode)
         {
-            _savedUsername = playerName;
-            PlayerPrefs.SetString("Username", _savedUsername);
-            GameInstance.Instance.PlayerName = _savedUsername;
+            GameInstance.Instance.PlayerName = playerName;
+
+            Dictionary<string, string> data = new()
+            {
+                ["username"] = playerName,
+                ["deviceId"] = _deviceId
+            };
 
             Debug.Log($"Player Name: {playerName} | Chosen Game Mode: {playMode}");
 
             if (playMode == PlayMode.ManualRuleBased) GameInstance.Instance.OverrideGameConfig = _ruleBasedGameConfig;
             else if (playMode == PlayMode.ManualMLAgent) GameInstance.Instance.OverrideGameConfig = _mlAgentGameConfig;
 
-            // TODO: Save entry play data & check availability of username
-
-            _uiManager.StartMatch();
+            _ = APIManager.UpdatePlayerInfo(data, (response) =>
+            {
+                if (response.Data != null)
+                    _uiManager.StartMatch();
+                else if (response.Message.Contains("Username"))
+                    _uiManager.OnTakenUsername();
+                else
+                    GameInstance.Instance.AlertHandler.ShowErrorPopup("Somehting wrong when update your name", () => SaveEnterData(playerName, playMode));
+            });
         }
     }
 }
