@@ -19,6 +19,7 @@ namespace BombermanRL
         {
             _uiManager.OnStartTriggered += SaveEnterData;
             _uiManager.OnPlayerWin += UpdateLeaderboard;
+            _uiManager.gameObject.SetActive(false);
 
             if (!PlayerPrefs.HasKey("DeviceID"))
             {
@@ -42,6 +43,7 @@ namespace BombermanRL
                 if (response.Data != null)
                 {
                     GameInstance.Instance.PlayerName = response.Data.Username;
+                    _uiManager.gameObject.SetActive(true);
                     _uiManager.Initialize(response.Data.Username);
                 }
             });

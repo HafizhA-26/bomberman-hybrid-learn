@@ -63,7 +63,7 @@ namespace BombermanRL.UI
                 if (model.Username.Equals(currentUsername))
                 {
                     isCurrentPlayer = true;
-                    model = data.MyRank;
+                    model = new PlayerLeaderboard(_playerRankData.Rank, model.Username, model.ActionCount, model.PlayTime, _playerRankData.BestRank);
                 }
 
                 // Populate missing cards
@@ -114,7 +114,7 @@ namespace BombermanRL.UI
                 targetScrollY = -_playerCard.transform.localPosition.y;
                 winElapsedTime = _playerRankData.PlayTime;
                 winActionCount = _playerRankData.ActionCount;
-                _rankText.text = $"#{_playerRankData.Rank}";
+                _rankText.text = $"{((_playerRankData.Rank == _playerRankData.BestRank)? _playerRankData.Rank : "-")}";
                 _bestRankText.text = $"#{_playerRankData.BestRank}";
                 _rankText.transform.parent.gameObject.SetActive(true);
                 _timeText.transform.parent.gameObject.SetActive(true);
@@ -132,11 +132,11 @@ namespace BombermanRL.UI
             // Show result panel transition sequence
             Sequence showSeq = DOTween.Sequence();
             showSeq.Append(_resultPanel.DOFade(1f, 0.3f));
-            showSeq.Append(_rankGroupTransform.DOAnchorPosY(targetScrollY, 2f).SetEase(Ease.OutBack));
+            showSeq.Append(_rankGroupTransform.DOAnchorPosY(targetScrollY, 1.5f).SetEase(Ease.OutBack));
             if(isPlayerOnLeaderboard)
             {
-                showSeq.Join(_rankText.DOFade(1f, 1f).SetDelay(1f));
-                showSeq.Join(_bestRankText.DOFade(1f, 1f).SetDelay(1f));
+                showSeq.Join(_rankText.DOFade(1f, 1f).SetDelay(0.5f));
+                showSeq.Join(_bestRankText.DOFade(1f, 1f).SetDelay(0.5f));
                 showSeq.Append(_playerCard.transform.DOScale(1.4f, 0.75f));
                 showSeq.Join(DOTween.To(() => elapsedTime, 
                     (t) =>

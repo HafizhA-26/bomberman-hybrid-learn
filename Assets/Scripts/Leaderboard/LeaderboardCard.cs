@@ -34,12 +34,17 @@ namespace BombermanRL.UI.Leaderboard
             if (isCurrentPlayer)
             {
                 cg.alpha = 1f;
-                img.sprite = _playerCardSprite;
-                _usernameText.color = new Color32(41, 41, 41, 255);
-                _timeMoveText.color = new Color32(41, 41, 41, 255);
-                _rankText.color = new Color32(252, 163, 17, 255);
                 PlayerLeaderboard playerData = (PlayerLeaderboard) data;
-                _rankText.text = $"#{playerData.BestRank}";
+                Debug.Log($"Player RanK : {playerData.Rank} | Best rank {playerData.BestRank}");
+                // Change style card if new rank 
+                if(playerData.Rank == playerData.BestRank)
+                {
+                    img.sprite = _playerCardSprite;
+                    _usernameText.color = new Color32(41, 41, 41, 255);
+                    _timeMoveText.color = new Color32(41, 41, 41, 255);
+                    _rankText.color = new Color32(252, 163, 17, 255);
+                    _rankText.text = $"#{playerData.BestRank}";
+                }
             }
             else
             {
