@@ -81,6 +81,16 @@ namespace BombermanRL.Character
         {
             _stateProvider = provider;
         }
+
+        public virtual void OnAblePlaceBomb() 
+        {
+            BombCount--;
+            ExecutedActionCount++;
+            //Debug.Log($"{name} Able Place Bomb");
+        }
+
+        public virtual void OnInvalidAction(ActionType action) { }
+
         public virtual void Move(Vector3 targetPos, bool canMove, Action onTileChanged)
         {
             Vector3 direction = targetPos - transform.position;
@@ -158,8 +168,10 @@ namespace BombermanRL.Character
 
         public virtual void StartReset(Vector3 resetWorldPos, float resetDelay)
         {
+            _moveTween?.Kill();
             _currentState = EntityState.Resetting;
             _executedActionCount = 0;
+            _bombCount = _agentParameter.BombLimit;
 
             DOVirtual.DelayedCall(resetDelay, () =>
             {

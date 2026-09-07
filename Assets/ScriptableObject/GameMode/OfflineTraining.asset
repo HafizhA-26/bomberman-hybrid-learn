@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: OfflineTraining
   m_EditorClassIdentifier: 
   GamePlayMode: 3
-  PlayerPrefab: {fileID: 1066469955479436273, guid: a1b5f1be3a5531c43872008654f27619, type: 3}
+  PlayerPrefab: {fileID: 1280343449075969925, guid: bd5eedf361dd54c4ca00276dae78c7fb, type: 3}
   EnemyPrefab: {fileID: 1760600524691412346, guid: 53dcce67c65c2ac4e8f4b52babb44bea, type: 3}
   PlayerOffset: {x: 0, y: -0.3, z: 0}
   EnemyOffset: {x: 0, y: -0.3, z: 0}

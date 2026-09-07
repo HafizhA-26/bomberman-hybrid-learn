@@ -1,4 +1,5 @@
 ﻿using BombermanRL.Props;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,40 +8,57 @@ namespace BombermanRL.Character
 {
     public class RuleBasedDecision : IDecisionProvider
     {
-        private int _offensiveDistance = 3;
-        private float _dangerBombThreshold = 0.2f;
+        private readonly AgentParameter _agentParameter;
+        private Action<ActionType> _onDecidedAction;
+        public Action<ActionType> OnDecidedAction { get => _onDecidedAction; set => _onDecidedAction = value; }
 
         public RuleBasedDecision() { }
-        public RuleBasedDecision(AgentParameter agentParameter) 
+        public RuleBasedDecision(AgentParameter agentParameter, Action<ActionType> onDecidedAction) 
         {
-            _offensiveDistance = agentParameter.OffensiveDistance;
-            _dangerBombThreshold = agentParameter.DangerBombThreshold;
+            _agentParameter = agentParameter;
+            _agentParameter.RandomizeParameter();
+            _onDecidedAction = onDecidedAction;
         }
 
 
-        public ActionType Decide(GameplayState state)
+        public void Decide(GameplayState state)
         {
             ActionType actionToTake;
 
             //Debug.Log("Check Survival");
             // Priority 1: Survival
             actionToTake = CheckSurvival(state);
-            if (actionToTake != ActionType.Idle) return actionToTake;
+            if (actionToTake != ActionType.Idle)
+            {
+                _onDecidedAction?.Invoke(actionToTake);
+                return;
+            }
 
             //Debug.Log("Check Offensive");
             // Priority 2: Offensive
             actionToTake = CheckOffensive(state);
-            if (actionToTake != ActionType.Idle) return actionToTake;
+            if (actionToTake != ActionType.Idle)
+            {
+                _onDecidedAction?.Invoke(actionToTake);
+                return;
+            }
 
             //Debug.Log("Check Destrcutive");
             // Priority 3: Destroy Environment
             actionToTake = CheckDestructive(state);
-            if (actionToTake != ActionType.Idle) return actionToTake;
+            if (actionToTake != ActionType.Idle)
+            {
+                _onDecidedAction?.Invoke(actionToTake);
+                return;
+            }
 
             //Debug.Log("Check Exploration");
             // Priority 4: Exploration
             actionToTake = CheckExploration(state);
-            return actionToTake;
+            if(actionToTake != ActionType.Idle)
+            {
+                _onDecidedAction?.Invoke(actionToTake);
+            }
         }
 
         private ActionType CheckSurvival(GameplayState state)
@@ -54,7 +72,7 @@ namespace BombermanRL.Character
             foreach (KeyValuePair<GridPos, TileState> tile in nearby)
             {
                 bool isExplosion = tile.Value.HasSubstate(TileSubState.OnExplosion);
-                bool isBombDanger = tile.Value.HasSubstate(TileSubState.OnBomb) && state.BombTimerNorm[tile.Key] > _dangerBombThreshold;
+                bool isBombDanger = tile.Value.HasSubstate(TileSubState.OnBomb) && state.BombTimerNorm[tile.Key] > _agentParameter.DangerBombThreshold;
 
                 if (isExplosion || isBombDanger)
                     dangerousTiles.Add(tile.Key);
@@ -109,7 +127,7 @@ namespace BombermanRL.Character
             Dictionary<GridPos, TileState> nearby = state.NearbyCondition;
             foreach (KeyValuePair<GridPos, TileState> item in nearby)
             {
-                if (state.EntityPos.Distance(item.Key) <= _offensiveDistance && item.Key.Equals(state.PlayerPos))
+                if (state.EntityPos.Distance(item.Key) <= _agentParameter.OffensiveDistance && item.Key.Equals(state.PlayerPos))
                     isPlayerNearby = true;
                 if (state.EntityPos.Distance(item.Key) == 1 && item.Value.Type == TileType.Empty)
                     isSafeTileExists = true;
@@ -150,7 +168,7 @@ namespace BombermanRL.Character
 
             if (nearby.Count > 0)
             {
-                int randomMove = Random.Range(0, nearby.Count);
+                int randomMove = UnityEngine.Random.Range(0, nearby.Count);
                 Vector2 direction = (nearby[randomMove] - state.EntityPos).ToVector2();
                 actionToTake = DirectionToActionMove(direction);
             }
@@ -168,6 +186,8 @@ namespace BombermanRL.Character
             return actionToTake;
         }
 
+        public void OnInvalidAction(ActionType actionType) { }
+
         public void OnDestroy() { }
 
         public void OnDestroyProps(IDestroyableProps prop) { }
@@ -180,9 +200,13 @@ namespace BombermanRL.Character
 
         public void OnMove(bool canMove) { }
 
-        public void OnReset() { }
+        public void OnReset() 
+        {
+            _agentParameter.RandomizeParameter();
+        }
 
         public void OnWin() { }
 
+        
     }
 }

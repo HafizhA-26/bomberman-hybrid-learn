@@ -126,9 +126,9 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 2e7f064b08e4e264e8e15629d5f20cf9, type: 3}
+  m_Model: {fileID: 0}
   m_InferenceDevice: 0
-  m_BehaviorType: 2
+  m_BehaviorType: 0
   m_BehaviorName: BombermanHybrid
   TeamId: 0
   m_UseChildSensors: 1
@@ -193,4 +193,4 @@ MonoBehaviour:
   _agentParameter: {fileID: 11400000, guid: 9f399890bc36a5b499c17a6b6f1b4500, type: 2}
   _characterType: 2
   _walkSFX: {fileID: 8300000, guid: c54a80cf653cdbc438e071919da3bf92, type: 3}
-  _enableHeuristicAction: 1
+  _enableHeuristicAction: 0

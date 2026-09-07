@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using BombermanRL.Character;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace BombermanRL
@@ -54,6 +55,20 @@ namespace BombermanRL
             int seconds = Mathf.FloorToInt(elapsedTime % 60);
             int miliseconds = Mathf.FloorToInt((elapsedTime % 1f) * 1000f);
             return string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, miliseconds);
+        }
+
+        public static ActionType GetActionFromDirection(Vector2 direction)
+        {
+            if (direction == Vector2.up)
+                return ActionType.MoveUp;
+            else if (direction == Vector2.down)
+                return ActionType.MoveDown;
+            else if (direction == Vector2.left)
+                return ActionType.MoveLeft;
+            else if (direction == Vector2.right)
+                return ActionType.MoveRight;
+            else 
+                return ActionType.Idle;
         }
     }
 }

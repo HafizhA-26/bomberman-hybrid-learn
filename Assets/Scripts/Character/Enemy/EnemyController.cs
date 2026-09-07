@@ -1,5 +1,6 @@
 ﻿using BombermanRL.Props;
 using DG.Tweening;
+using System;
 using UnityEngine;
 
 namespace BombermanRL.Character
@@ -25,7 +26,8 @@ namespace BombermanRL.Character
 
         protected virtual void InitializeAI()
         {
-            _decisionProvider = new RuleBasedDecision(_agentParameter);
+            _agentParameter = Instantiate(_agentParameter);
+            _decisionProvider = new RuleBasedDecision(_agentParameter, OnDecisionDecided);
         }
 
         public virtual void StartAI()
@@ -33,51 +35,79 @@ namespace BombermanRL.Character
             _decisionTween = DOVirtual.DelayedCall(_agentParameter.ActionCooldown, DecisionCallback).SetLoops(-1);
         }
         
-        private void DecisionCallback()
+        protected virtual void DecisionCallback()
         {
             if (_currentState == EntityState.Idle)
             {
                 GameplayState currState = _stateProvider.GetNearbyState(this, NearbyObservationRadius);
-                ActionType actionToTake = _decisionProvider.Decide(currState);
+                _decisionProvider.Decide(currState);
+            }
+        }
 
-                //Debug.Log("Current Nearby State: " + currState.ToString());
-                //Debug.Log("Action Take: "+actionToTake);
+        protected virtual void OnDecisionDecided(ActionType actionToTake)
+        {
+            //if (_AIType == AIType.MLAgent)
+            //    Debug.Log("[AI][Decide] Action To Take: " + actionToTake.ToString());
+            //else if(_AIType == AIType.RuleBased)
+            //    Debug.Log("[Rule Based][Decided] Action To Take: " + actionToTake.ToString());
 
-                switch (actionToTake)
-                {
-                    case ActionType.Idle:
-                        break;
-                    case ActionType.MoveUp:
-                        OnRequestMove(Vector2.up);
-                        break;
-                    case ActionType.MoveDown:
-                        OnRequestMove(Vector2.down);
-                        break;
-                    case ActionType.MoveLeft:
-                        OnRequestMove(Vector2.left);
-                        break;
-                    case ActionType.MoveRight:
-                        OnRequestMove(Vector2.right);
-                        break;
-                    case ActionType.PlaceBomb:
-                        PlaceBomb();
-                        break;
-                }
+            //Debug.Log("Current Nearby State: " + currState.ToString());
+            //Debug.Log("Action Take: "+actionToTake);
+
+            switch (actionToTake)
+            {
+                case ActionType.Idle:
+                    break;
+                case ActionType.MoveUp:
+                    OnRequestMove(Vector2.up);
+                    break;
+                case ActionType.MoveDown:
+                    OnRequestMove(Vector2.down);
+                    break;
+                case ActionType.MoveLeft:
+                    OnRequestMove(Vector2.left);
+                    break;
+                case ActionType.MoveRight:
+                    OnRequestMove(Vector2.right);
+                    break;
+                case ActionType.PlaceBomb:
+                    PlaceBomb();
+                    break;
             }
         }
 
         private void PlaceBomb()
         {
-            if (BombCount <= 0) return;
+            if (BombCount <= 0)
+            {
+                _decisionProvider?.OnInvalidAction(ActionType.PlaceBomb);
+                return;
+            }
 
             OnRequestPlaceBomb();
-            _decisionProvider.OnPlaceBomb();
+        }
+
+        public override void Move(Vector3 targetPos, bool canMove, Action onTileChanged)
+        {
+            base.Move(targetPos, canMove, onTileChanged);
+            _decisionProvider?.OnMove(canMove);
+        }
+        public override void OnAblePlaceBomb()
+        {
+            base.OnAblePlaceBomb();
+            _decisionProvider?.OnPlaceBomb();
+        }
+
+        public override void OnInvalidAction(ActionType action)
+        {
+            base.OnInvalidAction(action);
+            _decisionProvider?.OnInvalidAction(action);
         }
 
         public override void Kill(KillType killType)
         {
             base.Kill(killType);
-            _decisionProvider.OnKillSomeone(killType);
+            _decisionProvider?.OnKillSomeone(killType);
         }
 
         public override void DestroyProps(IDestroyableProps prop)
@@ -96,6 +126,7 @@ namespace BombermanRL.Character
         {
             base.ResetEntity(resetWorldPos);
             _decisionProvider.OnReset();
+            Debug.Log($"{name} after randomized. Cooldown: {_agentParameter.ActionCooldown} | Move Duration {_agentParameter.MoveDuration} | Offensive Dis {_agentParameter.OffensiveDistance} | Danger Thres {_agentParameter.DangerBombThreshold}");
             _decisionTween = DOVirtual.DelayedCall(_agentParameter.ActionCooldown, DecisionCallback).SetLoops(-1);
         }
 
@@ -106,6 +137,7 @@ namespace BombermanRL.Character
 
         public override void Dead(bool isSuicide)
         {
+            _decisionProvider?.OnDead(isSuicide);
             _decisionTween?.Kill();
             base.Dead(isSuicide);
         }

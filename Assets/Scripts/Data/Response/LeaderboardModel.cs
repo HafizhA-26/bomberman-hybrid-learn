@@ -29,11 +29,6 @@ namespace BombermanRL
         {
             BestRank = bestRank;
         }
-
-        public PlayerLeaderboard(LeaderboardModel data, int bestRank) : base(data.Rank, data.Username, data.ActionCount, data.PlayTime)
-        {
-            BestRank = bestRank;
-        }
     }
 
     public class LeaderboardResult

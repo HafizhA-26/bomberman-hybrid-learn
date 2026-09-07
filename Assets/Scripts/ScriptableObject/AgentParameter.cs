@@ -18,51 +18,31 @@ namespace BombermanRL
         [Header("Randomized Parameter")]
         [SerializeField] private bool _isRandomized = false;
         [SerializeField] private float _minActionCooldwon = 0.5f;
-        [SerializeField] private float _minMoveDuration = 0.5f;
+        [SerializeField] private float _maxActionCooldown = 1f;
         [SerializeField] private int _minOffensiveDistance = 1;
+        [SerializeField] private int _maxOffensiveDistance = 3;
         [SerializeField] private float _minDangerBombThreshold = 0.2f;
-        [SerializeField] private int _minBombLimit = 1;
-        [SerializeField] private int _minBombRadius = 1;
+        [SerializeField] private float _maxDangerBombThreshold = 0.5f;
 
-        public float ActionCooldown { 
-            get { 
-                if(!_isRandomized) return _actionCooldown;
-                else return Random.Range(_minActionCooldwon, _actionCooldown);
-            } 
-        }
-        public float MoveDuration {
-            get
-            {
-                if (!_isRandomized) return _moveDuration;
-                else return Random.Range(_minMoveDuration, _actionCooldown - 0.05f);
-            }
-        }
-        public int OffensiveDistance { 
-            get {
-                if (!_isRandomized || _minOffensiveDistance == _offensiveDistance) return _offensiveDistance;
-                else return Random.Range(_minOffensiveDistance, _offensiveDistance);
-            }
-        }
-        public float DangerBombThreshold { 
-            get {
-                if (!_isRandomized) return _dangerBombThreshold;
-                else return Random.Range(_minDangerBombThreshold, _dangerBombThreshold);
-            }
-        }
-        public int BombLimit { 
-            get {
-                if (!_isRandomized || _bombLimit == _minBombLimit) return _bombLimit;
-                else return Random.Range(_minBombLimit, _bombLimit);
-            }
-        }
+        public float ActionCooldown { get => _actionCooldown; }
+        public float MoveDuration { get => _moveDuration;  }
+        public int OffensiveDistance { get => _offensiveDistance; }
+        public float DangerBombThreshold { get => _dangerBombThreshold; }
+        public int BombLimit { get => _bombLimit; }
 
         public int NearbyObservationRadius { get => _nearbyObservationRadius; }
-        public int BombExplosionRadius {
-            get
-            {
-                if (!_isRandomized || _bombExplosionRadius == _minBombRadius) return _bombExplosionRadius;
-                else return Random.Range(_minBombRadius, _bombExplosionRadius);
-            }
+        public int BombExplosionRadius { get => _bombExplosionRadius; }
+
+        public bool IsRandomizedParameter { get => _isRandomized; }
+
+        public void RandomizeParameter()
+        {
+            if (!_isRandomized) return;
+
+            _actionCooldown = Random.Range(_minActionCooldwon, _maxActionCooldown);
+            _moveDuration = _actionCooldown - 0.1f;
+            _offensiveDistance = Random.Range(_minOffensiveDistance, _maxOffensiveDistance);
+            _dangerBombThreshold = Random.Range(_minDangerBombThreshold, _maxDangerBombThreshold);
         }
     }
 }

@@ -18,7 +18,6 @@ namespace BombermanRL.Grid
         private GameObject _bombPrefab;
         private GameObject _explosionPrefab;
 
-
         public Action<BombermanEntity, List<GridPos>> OnBombExplode;
         public Action<BombermanEntity, List<GridPos>> OnTickExplosion;
         public Action<BombermanEntity, List<GridPos>> OnExplosionFinish;
@@ -80,7 +79,7 @@ namespace BombermanRL.Grid
                 explosions.Add(newExplosion);
                 _explosionPool.Add(newExplosion);
             }
-            Debug.Log($"To explode {explosionCount} | explosion spawn {explosions.Count}");
+            //Debug.Log($"To explode {explosionCount} | explosion spawn {explosions.Count}");
 
             return explosions;
         }
@@ -104,7 +103,16 @@ namespace BombermanRL.Grid
         public void ResetAllBombs()
         {
             _bombPool.ForEach(item => item.gameObject.SetActive(false));
-            _explosionPool.ForEach(item => item.gameObject.SetActive(false));
+            _explosionPool.ForEach(item =>
+            {
+                item.name = "UnusedExplosion";
+                item.transform.SetParent(_tileParent);
+                Material material = item.GetComponent<MeshRenderer>().material;
+                Color baseColor = material.GetColor("_BaseColor");
+                baseColor.a = 0;
+                material.SetColor("_BaseColor", baseColor);
+                item.gameObject.SetActive(false);
+            });
         }
     }
 }

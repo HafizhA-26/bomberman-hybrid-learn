@@ -137,7 +137,7 @@ namespace BombermanRL
             // Invoke finishing event
             _explosionSeq.OnComplete(() =>
             {
-                // Reset explosion on bomb disable
+                // Reset explosion on complete
                 _explosions.ForEach(item =>
                 {
                     item.name = "UnusedExplosion";
@@ -166,7 +166,11 @@ namespace BombermanRL
 
             return fadeTween;
         }
-        public void PauseExplosion() => _explosionSeq?.Pause();
+        public void PauseExplosion()
+        {
+            _isExploded = false;
+            _explosionSeq?.Pause();
+        }
 
         private void OnSFXMute(bool mute) => _bombAudioSource.mute = mute;
     }

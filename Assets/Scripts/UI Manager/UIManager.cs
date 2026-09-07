@@ -41,17 +41,21 @@ namespace BombermanRL.UI
 
         private void Start()
         {
-            _mobileUI.gameObject.SetActive(false);
-            _desktopUI.gameObject.SetActive(false);
             _winCounter.gameObject.SetActive(false);
 
             // Directly start game if on training mode
             if (_trainingMode)
             {
-                OnStartMatch?.Invoke();
+                GameInstance.Instance.ShowLoading(false);
                 _winCounter.gameObject.SetActive(true);
+                OnStartMatch?.Invoke();
             }
-            else _starterUI.gameObject.SetActive(true);
+            else
+            {
+                _mobileUI.gameObject.SetActive(false);
+                _desktopUI.gameObject.SetActive(false);
+                _starterUI.gameObject.SetActive(true);
+            }
         }
         private void OnDestroy()
         {

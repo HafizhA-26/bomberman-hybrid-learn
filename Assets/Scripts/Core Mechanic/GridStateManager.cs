@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 namespace BombermanRL.Grid
 {
@@ -49,10 +50,11 @@ namespace BombermanRL.Grid
                     TileState state = tileStates[i, j];
                     GridPos pos = new(i, j);
 
-                    if (tile == null) continue;
-
                     switch(state.Type)
                     {
+                        case TileType.Empty:
+                            _validRespawnPos.Add(pos);
+                            break;
                         case TileType.Crate:
                             _destroyableProps[pos] = tile.GetComponent<CrateHandler>();
                             break;
@@ -65,7 +67,6 @@ namespace BombermanRL.Grid
                     }
 
                     _defaultGrid[i, j] = new(state.Type, state.SubState);
-                    if (state.Type == TileType.Empty) _validRespawnPos.Add(pos);
                 }
             }
         }
@@ -80,6 +81,14 @@ namespace BombermanRL.Grid
                 if (tilePos.Equals(charaPos.Value)) return charaPos.Key;
             }
             return null;
+        }
+
+        public void LogAllEntityPos()
+        {
+            foreach (KeyValuePair<BombermanEntity, GridPos> charaPos in _entityPositions)
+            {
+                Debug.Log($"{charaPos.Key.name} at {charaPos.Value.ToString()}");
+            }
         }
         public GridPos GetRandomValidRespawn(out Vector3 worldPos)
         {
@@ -115,7 +124,7 @@ namespace BombermanRL.Grid
                 worldPos = GridToWorld(pos.Value);
             }else if(avoidPositions.Count == 0)
             {
-                pos = _validRespawnPos[UnityEngine.Random.Range(0, _validRespawnPos.Count)]; ;
+                pos = _validRespawnPos[UnityEngine.Random.Range(0, _validRespawnPos.Count)];
                 worldPos = GridToWorld(pos.Value);
             }
 
@@ -149,6 +158,7 @@ namespace BombermanRL.Grid
         /// <param name="targetPos">Teleported grud position</param>
         public void OnEntityTeleported(BombermanEntity entity, GridPos targetPos)
         {
+            Debug.Log($"{entity.name} is teleported {_entityPositions[entity]} to {targetPos}");
             GridPos originalPos = _entityPositions[entity];
             _grid[targetPos.row, targetPos.col].AddSubstate(TileSubState.OnCharacter);
             _grid[originalPos.row, originalPos.col].RemoveSubstate(TileSubState.OnCharacter);
@@ -273,6 +283,22 @@ namespace BombermanRL.Grid
 
         private bool IsExplosionBlocked(GridPos tilePos) => _grid[tilePos.row, tilePos.col].Type == TileType.Crate;
 
+        public void ResetGridBombStates()
+        {
+            //for (int i = 0; i < _grid.GetLength(0); i++)
+            //{
+            //    for (int j = 0; j < _grid.GetLength(1); j++)
+            //    {
+            //        _grid[i, j].RemoveSubstate(TileSubState.OnBomb);
+            //    }
+            //}
+            foreach (KeyValuePair<GridPos, BombHandler> item in _placedBomb)
+            {
+                _grid[item.Key.row, item.Key.col].RemoveSubstate(TileSubState.OnBomb);
+            }
+            _placedBomb.Clear();
+        }
+
         public (List<GridPos>, List<Vector3>) OnPlaceBomb(BombermanEntity entity)
         {
             GridPos tilePos = _entityPositions[entity];
@@ -346,6 +372,8 @@ namespace BombermanRL.Grid
                 {
                     TileState state = _defaultGrid[i, j];
                     _grid[i,j] = new(state.Type, state.SubState);
+                    if (_grid[i,j].Type == TileType.PlayerSpawn || _grid[i,j].Type == TileType.EnemySpawn)
+                        _grid[i,j].Type = TileType.Empty;
                 }
             }
         }

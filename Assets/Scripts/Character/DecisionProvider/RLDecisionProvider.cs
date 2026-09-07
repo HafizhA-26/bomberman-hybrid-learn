@@ -1,16 +1,17 @@
 ﻿using BombermanRL.Props;
+using System;
 using Unity.MLAgents;
+using UnityEngine;
 
 namespace BombermanRL.Character
 {
     public class RLDecisionProvider : IDecisionProvider
     {
         private readonly AgentBomber _agent;
+        private readonly AgentParameter _agentParameter;
         private GameplayState _currentState;
-        private ActionType _lastAction = ActionType.Idle;
         private int _bumpedMoveCount = 0;
 
-        private readonly int _offensiveDistance = 3;
         // Stats variable
         private int _bombPlacedCount = 0;
         private int _bombPlacedNearPlayer = 0;
@@ -22,15 +23,19 @@ namespace BombermanRL.Character
         private int _deadCount = 0;
         private int _suicideCount = 0;
         private int _winCount = 0;
+        private Action<ActionType> _onDecidedAction;
 
-        public RLDecisionProvider(AgentBomber agent, AgentParameter agentParameter) 
+        public Action<ActionType> OnDecidedAction { get => _onDecidedAction; set => _onDecidedAction = value; }
+
+        public RLDecisionProvider(AgentBomber agent, AgentParameter agentParameter, Action<ActionType> onDecidedAction) 
         {
             _agent = agent;
             _agent.OnActionDecided += OnRequestDecided;
-            _offensiveDistance = agentParameter.OffensiveDistance;
+            _agentParameter = agentParameter;
+            _onDecidedAction = onDecidedAction;
         }
 
-        public ActionType Decide(GameplayState state)
+        public void Decide(GameplayState state)
         {
             _currentState = state;
             _stepsAlive++;
@@ -38,7 +43,6 @@ namespace BombermanRL.Character
             _agent.SetGameplayState(state);
 
             _agent.RequestDecision();
-            return _lastAction;
         }
 
         public void OnDestroy()
@@ -73,14 +77,15 @@ namespace BombermanRL.Character
 
         public void OnRequestDecided(ActionType action)
         {
-            _lastAction = action;
+            //Debug.Log("[AI][OnRequestDecided] Action To Take: " + action.ToString());
+            _onDecidedAction?.Invoke(action);
         }
 
         public void OnDead(bool isSuicide)
         {
             if (isSuicide)
             {
-                _agent.AddReward(-2f);
+                _agent.AddReward(-5f);
                 _suicideCount++;
             }
             else _agent.AddReward(-1f);
@@ -90,7 +95,7 @@ namespace BombermanRL.Character
         public void OnPlaceBomb()
         {
             _agent.AddReward(0.02f);
-            if (_currentState.EntityPos.Distance(_currentState.EntityPos) <= _offensiveDistance)
+            if (_currentState.EntityPos.Distance(_currentState.EntityPos) <= _agentParameter.OffensiveDistance)
             {
                 _agent.AddReward(0.1f);
                 _bombPlacedNearPlayer++;
@@ -114,6 +119,16 @@ namespace BombermanRL.Character
                 _agent.AddReward(-0.02f);
 
         }
+        public void OnInvalidAction(ActionType actionType)
+        {
+            //Debug.Log($"[{_agent.name}] Invalid Action: " + actionType.ToString());
+            switch(actionType)
+            {
+                case ActionType.PlaceBomb:
+                    _agent.AddReward(-0.01f);
+                    break;
+            }
+        }
 
         public void OnReset()
         {
@@ -129,6 +144,7 @@ namespace BombermanRL.Character
             Academy.Instance.StatsRecorder.Add("Enemy/Win", _winCount);
 
             _agent.EndEpisode();
+            _agentParameter.RandomizeParameter();
             _bombPlacedCount = 0;
             _bombPlacedNearPlayer = 0;
             _stepsAlive = 0;
@@ -139,6 +155,7 @@ namespace BombermanRL.Character
             _deadCount = 0;
             _suicideCount = 0;
             _winCount = 0;
+            
         }
 
         public void OnWin()
@@ -146,5 +163,6 @@ namespace BombermanRL.Character
             _winCount++;
             _agent.AddReward(1.5f);
         }
+
     }
 }

@@ -16,6 +16,7 @@ namespace BombermanRL.Grid
         [SerializeField] private BombManager _bombManager;
         [SerializeField] private UIManager _uiManager;
         [Header("Shake Camera Effects")]
+        [SerializeField] private bool _useCameraShake;
         [SerializeField] private Transform _cameraTransform;
         [SerializeField] private float _shakeDuration = 0.5f;
         [SerializeField] private float _shakeStrength = 1f;
@@ -107,6 +108,7 @@ namespace BombermanRL.Grid
                         if(entity is PlayerController player) _player = player;
                         else if(entity is EnemyController enemy) _enemies.Add(enemy);
 
+                        if (_isOnTrainingAgent) entity.name = $"[{gameObject.name}] {entity.name}";
                         entity.Initialize(_gridStateManager);
                         entity.RequestMove += MoveEntity;
                         entity.RequestPlaceBomb += PlaceBomb;
@@ -126,18 +128,23 @@ namespace BombermanRL.Grid
             (GridPos gridPos, Vector3 worldPos) = _gridStateManager.GetNextMovePosition(entity, direction);
             Action onTileChanged = CanMove ? _gridStateManager.OnEntityMove(entity, gridPos) : null;
 
+            if (!CanMove) entity.OnInvalidAction(Util.GetActionFromDirection(direction));
             entity.Move(worldPos, CanMove, onTileChanged);
         }
 
         private void PlaceBomb(BombermanEntity entity)
         {
-            if (_isOnReset || !_gridStateManager.CanPlaceBomb(entity)) return;
+            bool canPlaceBomb = _gridStateManager.CanPlaceBomb(entity);
+            if (_isOnReset || !canPlaceBomb)
+            {
+                if(!canPlaceBomb) entity.OnInvalidAction(ActionType.PlaceBomb);
+                return;
+            }
 
             (List<GridPos> bombingGridPos, List<Vector3> bombingWorldPos) = _gridStateManager.OnPlaceBomb(entity);
             BombHandler newBomb = _bombManager.SpawnBomb(entity, bombingGridPos, bombingWorldPos);
             _gridStateManager.RegisterActiveBomb(newBomb, bombingGridPos[0]);
-            entity.BombCount--;
-            entity.ExecutedActionCount++;
+            entity.OnAblePlaceBomb();
         }
 
         private void OnBombExplode(BombermanEntity placer, List<GridPos> explosionGridPos)
@@ -159,12 +166,22 @@ namespace BombermanRL.Grid
 
         private void CheckExplosionVictim(BombermanEntity placer, List<GridPos> explosionGridPos)
         {
+            if(_isOnReset) return;
             bool deadVictimExists = false;
+
+            int victimCount = 0;
+            string exposionPosStr = "";
+            foreach (GridPos item in explosionGridPos)
+            {
+                exposionPosStr += item.ToString() + " ";
+            }
+
             foreach (GridPos tilePos in explosionGridPos)
             {
                 BombermanEntity victim = _gridStateManager.GetCharacterAt(tilePos);
                 if(victim != null && victim.State != EntityState.Dead)
                 {
+                    victimCount++;
                     deadVictimExists = true;
 
                     // Check kill type on someone died
@@ -176,18 +193,23 @@ namespace BombermanRL.Grid
                     victim.Dead(killType == KillType.Suicide);
                     placer.Kill(killType);
 
+                    Debug.Log($"[{victim.name}-{victim.CharacterType}] at {tilePos} dead as victim of [{placer.name}-{placer.CharacterType}]");
+
                     CharacterType winnerType = CheckWinCondition();
 
                     // Ensure only reset if one type group alive
                     if (winnerType != CharacterType.None)
                     {
+                        _uiManager.OnCharacterWin(winnerType);
                         // Auto reset grid if in training gameplay
                         if (_isOnTrainingAgent) ResetGrid(placer.CharacterType, killType);
                         else EndPlayableSession(winnerType);
+                        break;
                     }
                 }
             }
-            if(deadVictimExists) _cameraTransform.DOShakeRotation(_shakeDuration, _shakeStrength, _shakeVibrato, 90, true, ShakeRandomnessMode.Full);
+
+            if(deadVictimExists && _useCameraShake) _cameraTransform.DOShakeRotation(_shakeDuration, _shakeStrength, _shakeVibrato, 90, true, ShakeRandomnessMode.Full);
         }
 
         private CharacterType CheckWinCondition()
@@ -260,10 +282,12 @@ namespace BombermanRL.Grid
             DOVirtual.DelayedCall(_resetDelay, () =>
             {
                 _bombManager.ResetAllBombs();
+                _gridStateManager.ResetGridBombStates();
 
                 // Reset all props
                 List<(IDestroyableProps prop, Vector3 originPos)> originProps = _gridStateManager.GetPropsOriginPos();
                 originProps.ForEach(item => item.prop.ResetProp(item.originPos));
+                _gridStateManager.ResetGridState();
 
                 // Reset floor color material
                 foreach (GameObject item in _floors)
@@ -287,8 +311,6 @@ namespace BombermanRL.Grid
                     entity.PauseCharacter(true);
                 }
             }
-            _uiManager.OnCharacterWin(winnerSession);
-
             _isOnReset = true;
         }
 

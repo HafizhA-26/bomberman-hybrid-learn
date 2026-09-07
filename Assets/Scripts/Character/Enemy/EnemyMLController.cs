@@ -31,9 +31,10 @@ namespace BombermanRL.Character
             _AIType = AIType.MLAgent;
             _mlAgent = GetComponent<AgentBomber>();
             _inputAction = new PlayerInputActions();
+            _agentParameter = Instantiate(_agentParameter);
             if (_enableHeuristicAction) _inputAction.EnemyHeuristic.SetCallbacks(this);
 
-            _decisionProvider = new RLDecisionProvider(_mlAgent, _agentParameter);
+            _decisionProvider = new RLDecisionProvider(_mlAgent, _agentParameter, OnDecisionDecided);
         }
 
         public void OnMove(InputAction.CallbackContext context)
