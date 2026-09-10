@@ -23,5 +23,5 @@ behaviors:
         
     summary_freq: 5000
     time_horizon: 64
-    max_steps: 1000000
+    max_steps: 500000
 

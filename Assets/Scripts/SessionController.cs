@@ -40,19 +40,14 @@ namespace BombermanRL
         {
             _ = APIManager.GetPlayerData(deviceId, (response) =>
             {
-                if (response.Data != null)
-                {
-                    GameInstance.Instance.PlayerName = response.Data.Username;
-                    _uiManager.gameObject.SetActive(true);
-                    _uiManager.Initialize(response.Data.Username);
-                }
+                GameInstance.Instance.PlayerData = response.Data;
+                _uiManager.gameObject.SetActive(true);
+                _uiManager.Initialize(response.Data);
             });
         }
 
         private void SaveEnterData(string playerName, PlayMode playMode)
         {
-            GameInstance.Instance.PlayerName = playerName;
-
             Dictionary<string, string> data = new()
             {
                 ["username"] = playerName,
@@ -67,7 +62,10 @@ namespace BombermanRL
             _ = APIManager.UpdatePlayerInfo(data, (response) =>
             {
                 if (response.Data != null)
+                {
+                    GameInstance.Instance.PlayerData = response.Data;
                     _uiManager.StartMatch();
+                }
                 else if (response.Message.Contains("Username"))
                     _uiManager.OnTakenUsername();
                 else
@@ -75,14 +73,15 @@ namespace BombermanRL
             });
         }
 
-        public void UpdateLeaderboard(int actionCount, Action<LeaderboardResult> onSuccess)
+        public void UpdateLeaderboard(int actionCount, bool isWin, Action<LeaderboardResult> onSuccess)
         {
             Dictionary<string, string> data = new()
             {
                 ["deviceId"] = _deviceId,
                 ["actionCount"] = actionCount.ToString(),
                 ["playTime"] = _uiManager.GetPlaytime().ToString(),
-                ["enemyType"] = GameInstance.Instance.OverrideGameConfig.GamePlayMode == PlayMode.ManualRuleBased ? "0" : "1"
+                ["enemyType"] = GameInstance.Instance.OverrideGameConfig.GamePlayMode == PlayMode.ManualRuleBased ? "0" : "1",
+                ["isWin"] = isWin.ToString()
             };
 
             _ = APIManager.PostLeaderboard(data, (response) =>
@@ -93,7 +92,7 @@ namespace BombermanRL
                 }
                 else
                 {
-                    GameInstance.Instance.AlertHandler.ShowErrorPopup("Somehting wrong when update leaderboard", () => UpdateLeaderboard(actionCount, onSuccess));
+                    GameInstance.Instance.AlertHandler.ShowErrorPopup("Somehting wrong when update leaderboard", () => UpdateLeaderboard(actionCount, isWin, onSuccess));
                 }
             });
         }

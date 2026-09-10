@@ -24,11 +24,11 @@ namespace BombermanRL.Character
         public void Decide(GameplayState state)
         {
             ActionType actionToTake;
-
+            bool mustIdle;
             //Debug.Log("Check Survival");
             // Priority 1: Survival
-            actionToTake = CheckSurvival(state);
-            if (actionToTake != ActionType.Idle)
+            (actionToTake, mustIdle) = CheckSurvival(state);
+            if (actionToTake != ActionType.Idle || mustIdle)
             {
                 _onDecidedAction?.Invoke(actionToTake);
                 return;
@@ -61,8 +61,9 @@ namespace BombermanRL.Character
             }
         }
 
-        private ActionType CheckSurvival(GameplayState state)
+        private (ActionType, bool) CheckSurvival(GameplayState state)
         {
+            bool isMustIdle = false;
             ActionType actionToTake = ActionType.Idle;
             List<GridPos> safeTiles = new List<GridPos>();
             List<GridPos> dangerousTiles = new List<GridPos>();
@@ -80,41 +81,45 @@ namespace BombermanRL.Character
                     safeTiles.Add(tile.Key);
             }
 
-            GridPos dangerousTile = new GridPos(-1, -1);
-            int closestDis = int.MaxValue;
             if (dangerousTiles.Count > 0)
             {
-                // Search for most closest distance dangerous tile
-                foreach (GridPos item in dangerousTiles)
-                {
-                    int dis = state.EntityPos.Distance(item);
-                    if (dis < closestDis)
-                    {
-                        dangerousTile = item;
-                        closestDis = dis;
-                    }
-                }
-
                 GridPos safestTile = state.EntityPos;
-                int farthestDis = state.EntityPos.Distance(dangerousTile);
-                // Search for safe tile that farthest from dangerous tile
-                foreach (GridPos item in safeTiles)
+                int bestSafeScore = int.MinValue;
+
+                foreach (GridPos candidateTile in safeTiles)
                 {
-                    int dis = item.Distance(dangerousTile);
-                    if (dis > farthestDis )
+                    int currentScore = 0;
+                    // Scoring safe tiles based on dangerous tile distance
+                    foreach (GridPos danger in dangerousTiles)
                     {
-                        safestTile = item;
-                        farthestDis = dis;
+                        currentScore += candidateTile.Distance(danger);
+                        if (candidateTile.row == danger.row || candidateTile.col == danger.col)
+                            currentScore -= 100;
+                    }
+
+                    // Scoring safe tiles based on available escape routes
+                    int escapeRoutes = nearby.Count(t => t.Key.Distance(candidateTile) == 1 && TileState.IsWalkable(t.Value));
+                    currentScore += escapeRoutes * 5;
+
+                    if (currentScore > bestSafeScore)
+                    {
+                        safestTile = candidateTile;
+                        bestSafeScore = currentScore;
                     }
                 }
-                //Debug.Log($"Safest Tile is {safestTile} with distance from {dangerousTile}: {farthestDis}");
 
-                // Get entity direction to move into safest tile
-                Vector2 direction = (safestTile - state.EntityPos).ToVector2();
-                actionToTake = DirectionToActionMove(direction);
+                if (!safestTile.Equals(state.EntityPos))
+                {
+                    Vector2 direction = (safestTile - state.EntityPos).ToVector2();
+                    actionToTake = DirectionToActionMove(direction);
+                }
+                else
+                {
+                    isMustIdle = true;
+                }
             }
 
-            return actionToTake;
+            return (actionToTake, isMustIdle);
         }
 
         private ActionType CheckOffensive(GameplayState state)

@@ -50,8 +50,8 @@ namespace BombermanRL
         public AudioHandler AudioHandler { get => _audioHandler; }
         public AlertUI AlertHandler { get => _alertHandler; }
         public GameModeConfig OverrideGameConfig { get; set; }
+        public PlayerModel PlayerData { get; set; }
         public string BASE_URL { get => _baseURL; }
-        public string PlayerName { get; set; }
 
         private void Awake()
         {

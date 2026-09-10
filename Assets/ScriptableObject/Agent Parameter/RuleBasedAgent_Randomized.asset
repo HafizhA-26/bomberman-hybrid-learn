@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98da47794a4f0ae42b035e90b313401b, type: 3}
   m_Name: RuleBasedAgent_Randomized
   m_EditorClassIdentifier: 
-  _actionCooldown: 0.9
-  _moveDuration: 0.8
+  _actionCooldown: 0.8
+  _moveDuration: 0.7
   _offensiveDistance: 3
   _dangerBombThreshold: 0.45
   _bombLimit: 1
@@ -21,8 +21,8 @@ MonoBehaviour:
   _nearbyObservationRadius: 2
   _isRandomized: 1
   _minActionCooldwon: 0.6
-  _maxActionCooldown: 0.9
+  _maxActionCooldown: 1
   _minOffensiveDistance: 1
   _maxOffensiveDistance: 3
-  _minDangerBombThreshold: 0.2
+  _minDangerBombThreshold: 0.1
   _maxDangerBombThreshold: 0.6

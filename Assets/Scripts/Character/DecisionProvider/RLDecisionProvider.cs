@@ -39,7 +39,7 @@ namespace BombermanRL.Character
         {
             _currentState = state;
             _stepsAlive++;
-            _agent.AddReward(-0.001f); // Step penalty
+            _agent.AddReward(-0.003f); // Step penalty
             _agent.SetGameplayState(state);
 
             _agent.RequestDecision();
@@ -85,7 +85,7 @@ namespace BombermanRL.Character
         {
             if (isSuicide)
             {
-                _agent.AddReward(-5f);
+                _agent.AddReward(-4f);
                 _suicideCount++;
             }
             else _agent.AddReward(-1f);
@@ -94,7 +94,7 @@ namespace BombermanRL.Character
 
         public void OnPlaceBomb()
         {
-            _agent.AddReward(0.02f);
+            _agent.AddReward(0.01f);
             if (_currentState.EntityPos.Distance(_currentState.EntityPos) <= _agentParameter.OffensiveDistance)
             {
                 _agent.AddReward(0.1f);

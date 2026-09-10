@@ -39,6 +39,7 @@ namespace BombermanRL.UI
         private Dictionary<CharacterType, int> _characterWinCount = new();
         private Dictionary<CharacterType, int> _characterBatchWin = new();
 
+        private WinRecordModel[] _winRecords;
         private Coroutine _timeCounter;
         private float _timeElapsed = 0;
         private int _roundCount;
@@ -52,6 +53,7 @@ namespace BombermanRL.UI
         private void Awake()
         {
             string csvColumns = "";
+
             _characterTextDict = _charactersWinText.ToDictionary(item => item.CharacterType);
             foreach(CharacterCountText item in  _charactersWinText)
             {
@@ -62,12 +64,22 @@ namespace BombermanRL.UI
                 item.NameText.text = item.CharacterName;
             }
 
-            if(_logToCsv)
+            if (_logToCsv)
             {
                 _csvFilePath = Path.Combine(Application.dataPath, $"Training_WinRateLog_{_csvAppendixName}.csv");
-                if(!File.Exists(_csvFilePath))
+                if (!File.Exists(_csvFilePath))
                 {
                     File.WriteAllText(_csvFilePath, $"TotalEpisodes,{csvColumns}\n");
+                }
+                else
+                {
+                    string[] lines = File.ReadAllLines(_csvFilePath);
+                    string[] lastRow = lines[lines.Length - 1].Split(',');
+                    if (int.TryParse(lastRow[0], out _roundCount))
+                    {
+                        Debug.Log("Continue log from batch round " + _roundCount);
+                        _roundCountText.text = _roundCount.ToString();
+                    }
                 }
             }
         }
@@ -114,9 +126,14 @@ namespace BombermanRL.UI
                     string logLine = $"{_roundCount},{statsWinrate}\n";
                     File.AppendAllText(_csvFilePath, logLine);
                 }
+
+                foreach (CharacterCountText item in _charactersWinText)
+                {
+                    _characterBatchWin[item.CharacterType] = 0;
+                }
+                _batchRoundCount = 0;
             }
         }
-
         public void CheckMatchTimer()
         {
             if (_timeCounter == null)
