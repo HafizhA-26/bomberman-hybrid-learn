@@ -23,9 +23,11 @@ namespace BombermanRL.UI.Leaderboard
 
         public void SetCard(LeaderboardModel data, bool isCurrentPlayer)
         {
+            _rankData = data;
             Image img = GetComponent<Image>();
             CanvasGroup cg = GetComponent<CanvasGroup>();
-            _rankData = data;
+            string resultTime = Util.GetTimeFormatResult(data.PlayTime);
+            int actionCount = data.ActionCount;
 
             _timeMoveText.gameObject.SetActive(true);
             _usernameText.gameObject.SetActive(true);
@@ -35,7 +37,7 @@ namespace BombermanRL.UI.Leaderboard
             {
                 cg.alpha = 1f;
                 PlayerLeaderboard playerData = (PlayerLeaderboard) data;
-                Debug.Log($"Player RanK : {playerData.Rank} | Best rank {playerData.BestRank}");
+                Debug.Log($"Player Rank : {playerData.Rank} | Best rank {playerData.BestRank}");
                 // Change style card if new rank 
                 if(playerData.Rank == playerData.BestRank)
                 {
@@ -45,6 +47,7 @@ namespace BombermanRL.UI.Leaderboard
                     _rankText.color = new Color32(252, 163, 17, 255);
                     _rankText.text = $"#{playerData.BestRank}";
                 }
+                _timeMoveText.text = $"[BEST] {resultTime} | {actionCount}";
             }
             else
             {
@@ -54,13 +57,10 @@ namespace BombermanRL.UI.Leaderboard
                 _timeMoveText.color = Color.white;
                 _rankText.color = Color.white;
                 _rankText.text = $"#{data.Rank}";
+                _timeMoveText.text = $"{resultTime} | {actionCount}";
             }
 
             _usernameText.text = $"{data.Username}";
-
-            string resultTime = Util.GetTimeFormatResult(data.PlayTime);
-            int actionCount = data.ActionCount;
-            _timeMoveText.text = $"{resultTime} | {actionCount}";
         }
 
         public void SetEllipsisCard()

@@ -6,6 +6,7 @@ namespace BombermanRL
     {
         public string Username { get; set; }
         public string DeviceId { get; set; }
+        public WinRecordModel[] WinRecords { get; set; }
         public DateTime CreatedAt { get; set; }
 
     }

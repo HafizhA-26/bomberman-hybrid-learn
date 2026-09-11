@@ -51,12 +51,14 @@ namespace BombermanRL.UI
                 _retryButton.interactable = false;
                 _alertCG.DOFade(0f, 0.3f).OnComplete(() =>
                 {
-                    retryCallback?.Invoke();
                     gameObject.SetActive(false);
+                    retryCallback?.Invoke();
+                    Debug.Log("Error Popup Disabled");
                 });
             });
 
             _alertCG.DOFade(1f, 0.3f);
+            Debug.Log("Error Popup Showed");
             _errorText.text = error;
         }
     }

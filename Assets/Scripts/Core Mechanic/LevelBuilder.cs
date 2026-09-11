@@ -86,6 +86,8 @@ namespace BombermanRL.Grid
             }
         }
 
+        public void SetLevelData(LevelTilemapData data) => _levelData = data;
+
         public async Awaitable<GameObject[,]> CreateFloor()
         {
             if (_floorsParent == null || _tilePrefabsData == null)

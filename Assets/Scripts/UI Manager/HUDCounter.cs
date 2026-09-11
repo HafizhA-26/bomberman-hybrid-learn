@@ -39,7 +39,6 @@ namespace BombermanRL.UI
         private Dictionary<CharacterType, int> _characterWinCount = new();
         private Dictionary<CharacterType, int> _characterBatchWin = new();
 
-        private WinRecordModel[] _winRecords;
         private Coroutine _timeCounter;
         private float _timeElapsed = 0;
         private int _roundCount;

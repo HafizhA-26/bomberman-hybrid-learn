@@ -1,6 +1,7 @@
 ﻿using BombermanRL.Character;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace BombermanRL.UI
@@ -21,9 +22,9 @@ namespace BombermanRL.UI
         private string _playerName;
         private int _deviceType; // 0: Desktop, 1: Android, 2: iOS
 
-        public event Action<string, PlayMode> OnStartTriggered; // username, selected playmode
+        public event Action<string, PlayMode, int> OnStartTriggered; // username, selected playmode
         public event Action OnStartMatch;
-        public event Action<int, Action<LeaderboardResult>> OnPlayerWin;
+        public event Action<int, bool, Action<LeaderboardResult, int>> OnPlayerWin;
 
         private void Awake()
         {
@@ -66,16 +67,16 @@ namespace BombermanRL.UI
             }
         }
 
-        public void Initialize(string savedUsername)
+        public void Initialize(PlayerModel playerData)
         {
-            if (!_trainingMode) _starterUI.Initialize(savedUsername);
+            if (!_trainingMode) _starterUI.Initialize(playerData?.Username);
         }
 
-        private void OnGameStartTriggered(string playerName, PlayMode chosenEnemyType)
+        private void OnGameStartTriggered(string playerName, PlayMode chosenEnemyType, int selectedArena)
         {
             _playerName = playerName;
             _enemyType = chosenEnemyType;
-            OnStartTriggered?.Invoke(_playerName, _enemyType);
+            OnStartTriggered?.Invoke(_playerName, _enemyType, selectedArena);
         }
 
         public void OnTakenUsername()
@@ -102,8 +103,12 @@ namespace BombermanRL.UI
                 _player = player;
                 _player.OnBombCountChanged += OnBombCountUpdated;
                 _player.SetEntityName(_playerName);
-                _winCounter.SetCustomEntity(_player.CharacterType, _player.Name, 0);
-                _winCounter.SetCustomEntity(CharacterType.Bandit, Util.GetEnemyStaticName(_enemyType), 0);
+
+                // Setup round win counter
+                int enemyType = _enemyType == PlayMode.ManualMLAgent ? 1 : 0;
+                WinRecordModel winRecord = GameInstance.Instance.PlayerData.WinRecords.FirstOrDefault(x => x.EnemyType == enemyType);
+                _winCounter.SetCustomEntity(_player.CharacterType, _player.Name, winRecord?.WinCount ?? 0);
+                _winCounter.SetCustomEntity(CharacterType.Bandit, Util.GetEnemyStaticName(_enemyType), winRecord?.LoseCount ?? 0);
             }
         }
 
@@ -136,12 +141,11 @@ namespace BombermanRL.UI
             if(!_trainingMode)
             { 
                 _winCounter.EndMatchTimer();
-                if(type == _player.CharacterType)
-                    OnPlayerWin?.Invoke(_player.ExecutedActionCount, (data) =>
-                    {
-                        _resultUI.SetupRankCards(data);
-                        _ =_resultUI.ShowResultPanel(type == _player.CharacterType);
-                    });
+                OnPlayerWin?.Invoke(_player.ExecutedActionCount, type == _player.CharacterType, (data, arena) =>
+                {
+                    _resultUI.SetupRankCards(data, arena);
+                    _ = _resultUI.ShowResultPanel(type == _player.CharacterType);
+                });
             }
 
         }

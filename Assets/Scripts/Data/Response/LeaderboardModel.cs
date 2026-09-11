@@ -35,6 +35,7 @@ namespace BombermanRL
     {
         public LeaderboardModel[] TopRanks;
         public PlayerLeaderboard MyRank;
+        public WinRecordModel WinRecord;
     }
 
     public class LeaderboardResponse : BaseResponse<LeaderboardResult> { }

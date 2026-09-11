@@ -81,6 +81,7 @@ namespace BombermanRL.Character
                     safeTiles.Add(tile.Key);
             }
 
+            // Find the safest tiles with simple A* Algorithm
             if (dangerousTiles.Count > 0)
             {
                 GridPos safestTile = state.EntityPos;
