@@ -5,7 +5,7 @@ namespace BombermanRL
 {
     public static class MainSceneInitiator
     {
-        private const string ENTER_SCENE_NAME = "EnterScene";
+        public const string ENTER_SCENE_NAME = "EnterScene";
         public static string FirstLoadedScenePath { get; private set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]

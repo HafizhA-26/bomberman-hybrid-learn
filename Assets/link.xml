@@ -1,0 +1,5 @@
+<linker>
+  <assembly fullname="Unity.MLAgents" preserve="all"/>
+  <assembly fullname="Unity.Barracuda" preserve="all"/>
+  <assembly fullname="Unity.Sentis" preserve="all"/>
+</linker>

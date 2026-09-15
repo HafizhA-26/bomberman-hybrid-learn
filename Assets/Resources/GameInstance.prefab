@@ -1711,3 +1711,5 @@ MonoBehaviour:
   _sfxSounds:
   - {fileID: 8300000, guid: 7dd9f5df51faca74e8166097fc6b31a5, type: 3}
   - {fileID: 8300000, guid: fc50518a759c9b84f89dde58d752c596, type: 3}
+  - {fileID: 8300000, guid: dfa0b0856851da24b922dce20c0d2295, type: 3}
+  - {fileID: 8300000, guid: 018b7238ef1e67043b4aa4a316c79fe0, type: 3}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=overlays-content">
+
+  <meta name="description" content="Try beat my bomberman agent!">
+
+  <meta property="og:title" content="BombermanHybrid">
+  <meta property="og:description" content="Try to beat my Bomberman agent faster!">
+  <!-- <meta property="og:image" content="https://google.com"> -->
+  <!-- <meta property="og:url" content="https://google.com"> -->
+  <meta property="og:type" content="website">
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="BombermanHybrid" />
+  <meta
+    name="twitter:description"
+    content="Try to beat my Bomberman agent faster!"
+  />
+  <!-- <meta
+    name="twitter:image"
+    content="https://google.com"
+  /> -->
+
+  <title>Bomberman Hybrid Learn</title>
+  <link rel="shortcut icon" href="public/img/bomberman.ico">
+  <link rel="stylesheet" href="public/css/style.css">
+  <link rel="stylesheet" href="fonts.css">
+</head>
+
+<body>
+  <div id="unity-container" class="unity-container">
+    <canvas id="unity-canvas" class="unity-canvas" tabindex="-1"></canvas>
+    <div id="rotate-warning" class="rotate-warning">
+      <img src="public/img/rotate-screen.png" alt="Landscape orientation preferred">
+      <p class="rotate">Please rotate your phone!</div>
+    </div>
+    <div id="unity-warning" class="unity-warning"></div>
+  </div>
+  <div id="bomberman-loading" class="bomberman-loading">
+    <div class="loading-group">
+      <img src="public/img/bomberman-white.png">
+      <div id="loading-bar" class="loading-bar">
+        <div id="loading-fill" class="fill"></div>
+      </div>
+      <div id="loading-percentage" class="loading-percentage">0%</div>
+    </div>
+    <div class="contact-group">
+      <div class="social-link">
+        <img src="public/img/linkedin-icon.png" alt="linkedin.com/in/hafizhauliansyah">
+        <a href="https://linkedin.com/in/hafizhauliansyah" class="social-link-desc">linkedin.com/in/hafizhauliansyah</a>
+      </div>
+      <div class="social-link">
+        <img src="public/img/instagram-icon.png" alt="@hafizhauliansyah">
+        <a href="https://www.instagram.com/hafizhauliansyah" class="social-link-desc">@hafizhauliansyah</a>
+      </div>
+      <div class="social-link">
+        <img src="public/img/mail-icon.png" alt="hafizh.auliansyah@gmail.com">
+        <a href="mailto:hafizh.auliansyah@gmail.com" class="social-link-desc">hafizh.auliansyah@gmail.com</a>
+      </div>
+      <div class="social-link">
+        <img src="public/img/phone-number-icon.png" alt="+6282299726967">
+        <a href="tel:+6282299726967" class="social-link-desc">+6282299726967</a>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      Icons by <a href="https://icons8.com/">Icons8</a>
+    </div>
+  </div>
+  <script src="Build/{{{ LOADER_FILENAME }}}"></script>
+  <script src="public/js/script.js"></script>
+  <script>
+    var buildUrl = "Build";
+    var cacheBuster = "?v={{{ PRODUCT_VERSION }}}";
+    var loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
+    var config = {
+      dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}" + cacheBuster,
+      frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}" + cacheBuster,
+      codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}" + cacheBuster,
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "{{{ COMPANY_NAME }}}",
+      productName: "{{{ PRODUCT_NAME }}}",
+      productVersion: "{{{ PRODUCT_VERSION }}}",
+      showBanner: showBannerMessage
+    };
+    loadGame(config);
+  </script>
+</body>
+
+</html>

@@ -8,6 +8,7 @@ namespace BombermanRL
     public class GameInstance : MonoBehaviour
     {
         [SerializeField] private string _baseURL = "http://127.0.0.1:3000";
+        [SerializeField] private string _playableSceneName = "Playable";
         [Space(15)]
         [SerializeField] private AudioHandler _audioHandler;
         [SerializeField] private LoadingHandler _loadingHandler;
@@ -70,7 +71,10 @@ namespace BombermanRL
             _versionText.text = "version " + Application.version;
 
             string firstScene = MainSceneInitiator.FirstLoadedScenePath;
-            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(firstScene);
+            if (string.IsNullOrEmpty(firstScene) || firstScene.Equals(MainSceneInitiator.ENTER_SCENE_NAME))
+                firstScene = _playableSceneName;
+
+            _ = SceneManager.LoadSceneAsync(firstScene);
             ShowLoading(true, 0.3f, true);
         }
 

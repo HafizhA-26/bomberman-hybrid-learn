@@ -136,15 +136,26 @@ namespace BombermanRL.UI
 
         public async void OnCharacterWin(CharacterType type)
         {
+            bool isWin = type == _player.CharacterType;
+
+            // Increase win counter
             _winCounter.OnCharacterWin(type);
 
             if(!_trainingMode)
-            { 
+            {
+                // Play win/lose sfx
+                if (isWin)
+                    GameInstance.Instance.AudioHandler.PlaySFX("SFX_Win");
+                else
+                    GameInstance.Instance.AudioHandler.PlaySFX("SFX_Lose");
+
                 _winCounter.EndMatchTimer();
-                OnPlayerWin?.Invoke(_player.ExecutedActionCount, type == _player.CharacterType, (data, arena) =>
+
+                // Integrate data on player win
+                OnPlayerWin?.Invoke(_player.ExecutedActionCount, isWin, (data, arena) =>
                 {
                     _resultUI.SetupRankCards(data, arena);
-                    _ = _resultUI.ShowResultPanel(type == _player.CharacterType);
+                    _ = _resultUI.ShowResultPanel(isWin);
                 });
             }
 
