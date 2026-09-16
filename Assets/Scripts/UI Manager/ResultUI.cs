@@ -104,33 +104,30 @@ namespace BombermanRL.UI
             int actionCount = 0;
             float winElapsedTime = 0;
             int winActionCount = 0;
-            bool isPlayerOnLeaderboard = (_playerCard != null);
 
             // Setup before transition sequence 
             float targetScrollY = 0;
-            _chosenEnemyText.text = Util.GetEnemyStaticName(GameInstance.Instance.OverrideGameConfig.GamePlayMode);
-            _usernameText.text = GameInstance.Instance.PlayerData.Username;
+            winElapsedTime = _playerRankData.PlayTime;
+            winActionCount = _playerRankData.ActionCount;
 
             // Setup result panel based on player win/lose
+            _chosenEnemyText.text = Util.GetEnemyStaticName(GameInstance.Instance.OverrideGameConfig.GamePlayMode);
+            _usernameText.text = GameInstance.Instance.PlayerData.Username;
+            _timeText.gameObject.SetActive(true);
+            _actionCountText.gameObject.SetActive(true);
             if (isPlayerWin)
             {
                 _winLoseText.text = "YOU WIN!!!";
                 _winLoseText.color = _winFontColor;
-                winElapsedTime = _playerRankData.PlayTime;
-                winActionCount = _playerRankData.ActionCount;
                 _rankText.text = $"{((_playerRankData.Rank == _playerRankData.BestRank)? _playerRankData.Rank : "-")}";
                 _bestRankText.text = $"#{_playerRankData.BestRank}";
                 _rankText.transform.parent.gameObject.SetActive(true);
-                _timeText.gameObject.SetActive(true);
-                _actionCountText.gameObject.SetActive(true);
             }
             else
             {
                 _winLoseText.text = "YOU LOSE!!!";
                 _winLoseText.color = _loseFontColor;
                 _rankText.transform.parent.gameObject.SetActive(false);
-                _timeText.gameObject.SetActive(true);
-                _actionCountText.gameObject.SetActive(false);
             }
             if(_playerCard != null)
                 targetScrollY = -_playerCard.transform.localPosition.y;
@@ -143,23 +140,24 @@ namespace BombermanRL.UI
             Sequence showSeq = DOTween.Sequence();
             showSeq.Append(_resultPanel.DOFade(1f, 0.3f));
             showSeq.Append(_leaderboardContent.DOAnchorPosY(targetScrollY, 1.5f).SetEase(Ease.OutBack));
-            if(isPlayerOnLeaderboard)
-            {
-                showSeq.Join(_rankText.DOFade(1f, 1f).SetDelay(0.5f));
-                showSeq.Join(_bestRankText.DOFade(1f, 1f).SetDelay(0.5f));
-                showSeq.Append(_playerCard.transform.DOScale(1.4f, 0.75f));
-                showSeq.Join(DOTween.To(() => elapsedTime, 
+            showSeq.Join(DOTween.To(() => elapsedTime,
                     (t) =>
                     {
                         elapsedTime = t;
                         _timeText.text = Util.GetTimeFormatResult(elapsedTime);
                     }, winElapsedTime, 0.75f));
-                showSeq.Join(DOTween.To(() => actionCount, 
-                    (a) =>
-                    {
-                        actionCount = a;
-                        _actionCountText.text = actionCount.ToString();
-                    }, winActionCount, 0.75f));
+            showSeq.Join(DOTween.To(() => actionCount,
+                (a) =>
+                {
+                    actionCount = a;
+                    _actionCountText.text = actionCount.ToString();
+                }, winActionCount, 0.75f));
+
+            if (_playerCard != null)
+            {
+                showSeq.Append(_playerCard.transform.DOScale(1.4f, 0.75f));
+                showSeq.Join(_rankText.DOFade(1f, 1f).SetDelay(0.5f));
+                showSeq.Join(_bestRankText.DOFade(1f, 1f).SetDelay(0.5f));
             }
             else
             {

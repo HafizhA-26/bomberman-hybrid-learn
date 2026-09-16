@@ -197,4 +197,4 @@ MonoBehaviour:
   _agentParameter: {fileID: 11400000, guid: 9f399890bc36a5b499c17a6b6f1b4500, type: 2}
   _characterType: 2
   _walkSFX: {fileID: 8300000, guid: c54a80cf653cdbc438e071919da3bf92, type: 3}
-  _enableHeuristicAction: 1
+  _enableHeuristicAction: 0

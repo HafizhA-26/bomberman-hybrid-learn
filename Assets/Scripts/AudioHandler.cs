@@ -40,6 +40,8 @@ namespace BombermanRL
 
             _isMuteBGM = PlayerPrefs.GetInt("MuteBGM", 0) == 1;
             _isMuteSFX = PlayerPrefs.GetInt("MuteSFX", 0) == 1;
+            MuteBGM(_isMuteBGM);
+            MuteSFX(_isMuteSFX);
         }
 
         public void PlayBGM(string name)
@@ -83,6 +85,7 @@ namespace BombermanRL
         {
             _isMuteBGM = mute;
             _bgmAudioSource.mute = mute;
+            PlayerPrefs.SetInt("MuteBGM", mute ? 1 : 0);
             OnBGMMute?.Invoke(_isMuteBGM);
         }
 
@@ -90,6 +93,7 @@ namespace BombermanRL
         {
             _isMuteSFX = mute;
             _sfxAudioSource.mute = mute;
+            PlayerPrefs.SetInt("MuteSFX", mute ? 1 : 0);
             OnSFXMute?.Invoke(_isMuteSFX);
         }
     }

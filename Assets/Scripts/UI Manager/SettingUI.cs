@@ -46,5 +46,9 @@ namespace BombermanRL.UI
             if (GameInstance.Instance.AudioHandler.ToggleMuteSFX()) _sfxMuteButton.image.sprite = _sfxOff;
             else _sfxMuteButton.image.sprite = _sfxOn;
         }
+
+        private void OnBGMMute(bool mute) => _bgmMuteButton.image.sprite = mute ? _bgmOff : _bgmOn;
+        private void OnSFXMute(bool mute) => _sfxMuteButton.image.sprite = mute ? _sfxOff : _sfxOn;
+
     }
 }
