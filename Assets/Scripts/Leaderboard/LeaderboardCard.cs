@@ -37,17 +37,20 @@ namespace BombermanRL.UI.Leaderboard
             {
                 cg.alpha = 1f;
                 PlayerLeaderboard playerData = (PlayerLeaderboard) data;
-                Debug.Log($"Player Rank : {playerData.Rank} | Best rank {playerData.BestRank}");
                 // Change style card if new rank 
-                if(playerData.Rank == playerData.BestRank)
+                if(playerData.IsNewRecord)
                 {
                     img.sprite = _playerCardSprite;
                     _usernameText.color = new Color32(41, 41, 41, 255);
                     _timeMoveText.color = new Color32(41, 41, 41, 255);
                     _rankText.color = new Color32(252, 163, 17, 255);
                     _rankText.text = $"#{playerData.BestRank}";
+                    _timeMoveText.text = $"{resultTime} | {actionCount}  <color=#FCA311><b><i><sub>Best Record</sub></i></b></color>";
                 }
-                _timeMoveText.text = $"[BEST] {resultTime} | {actionCount}";
+                else
+                {
+                    _timeMoveText.text = $"{resultTime} | {actionCount}  <b><i><sub>Best Record</sub></i></b>";
+                }
             }
             else
             {

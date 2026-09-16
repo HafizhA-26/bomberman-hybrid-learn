@@ -21,7 +21,8 @@ namespace BombermanRL.UI
         [SerializeField] private TMP_Text _bestRankText;
         [SerializeField] private TMP_Text _timeText;
         [SerializeField] private TMP_Text _actionCountText;
-        [SerializeField] private RectTransform _rankGroupTransform;
+        [SerializeField] private ScrollRect _leaderboardScrollRect;
+        [SerializeField] private RectTransform _leaderboardContent;
         [SerializeField] private Button _retryButton;
         [Header("Data")]
         [SerializeField] private GameObject _leaderboardCardPrefab;
@@ -47,6 +48,7 @@ namespace BombermanRL.UI
             _resultPanel.alpha = 0f;
             _rankText.color = new Color32(255, 255, 255, 0);
             _retryButton.transform.localScale = Vector2.zero;
+            _leaderboardScrollRect.vertical = false;
         }
 
         public void SetupRankCards(LeaderboardResult data, int selectedArena)
@@ -66,13 +68,13 @@ namespace BombermanRL.UI
                 if (model.Username.Equals(currentUsername))
                 {
                     isCurrentPlayer = true;
-                    model = new PlayerLeaderboard(_playerRankData.Rank, model.Username, model.ActionCount, model.PlayTime, _playerRankData.BestRank);
+                    model = new PlayerLeaderboard(_playerRankData.Rank, model.Username, model.ActionCount, model.PlayTime, _playerRankData.BestRank, _playerRankData.IsNewRecord);
                 }
 
                 // Populate missing cards
                 if (_instantiatedCards.Count <= i)
                 {
-                    card = Instantiate(_leaderboardCardPrefab, _rankGroupTransform);
+                    card = Instantiate(_leaderboardCardPrefab, _leaderboardContent);
                     _instantiatedCards.Add(card.GetComponent<LeaderboardCard>());
                 }
 
@@ -84,7 +86,7 @@ namespace BombermanRL.UI
             // Add ellipsis card at last
             if (_ellipsisCard == null)
             {
-                _ellipsisCard = Instantiate(_leaderboardCardPrefab, _rankGroupTransform);
+                _ellipsisCard = Instantiate(_leaderboardCardPrefab, _leaderboardContent);
                 leaderboardCard = _ellipsisCard.GetComponent<LeaderboardCard>();
                 leaderboardCard.SetEllipsisCard();
             }
@@ -134,12 +136,13 @@ namespace BombermanRL.UI
                 targetScrollY = -_playerCard.transform.localPosition.y;
             else
                 targetScrollY = -_ellipsisCard.transform.localPosition.y;
-            _rankGroupTransform.anchoredPosition = new Vector2(_rankGroupTransform.anchoredPosition.x, -1000);
+            targetScrollY += 20;
+            _leaderboardContent.anchoredPosition = new Vector2(_leaderboardContent.anchoredPosition.x, -1000);
 
             // Show result panel transition sequence
             Sequence showSeq = DOTween.Sequence();
             showSeq.Append(_resultPanel.DOFade(1f, 0.3f));
-            showSeq.Append(_rankGroupTransform.DOAnchorPosY(targetScrollY, 1.5f).SetEase(Ease.OutBack));
+            showSeq.Append(_leaderboardContent.DOAnchorPosY(targetScrollY, 1.5f).SetEase(Ease.OutBack));
             if(isPlayerOnLeaderboard)
             {
                 showSeq.Join(_rankText.DOFade(1f, 1f).SetDelay(0.5f));
@@ -163,6 +166,10 @@ namespace BombermanRL.UI
                 showSeq.Append(_ellipsisCard.transform.DOScale(1.4f, 0.75f));
             }
             showSeq.Append(_retryButton.transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack));
+            showSeq.OnComplete(() =>
+            {
+                _leaderboardScrollRect.vertical = true;
+            });
         }
 
         private void OnRetryClicked()

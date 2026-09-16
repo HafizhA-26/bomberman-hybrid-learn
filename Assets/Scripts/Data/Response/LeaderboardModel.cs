@@ -23,11 +23,13 @@ namespace BombermanRL
     public class PlayerLeaderboard : LeaderboardModel
     {
         public int BestRank;
+        public bool IsNewRecord;
 
         [JsonConstructor]
-        public PlayerLeaderboard(int rank, string username, int actionCount, float playTime, int bestRank) : base(rank, username, actionCount, playTime)
+        public PlayerLeaderboard(int rank, string username, int actionCount, float playTime, int bestRank, bool isNewRecord) : base(rank, username, actionCount, playTime)
         {
             BestRank = bestRank;
+            IsNewRecord = isNewRecord;
         }
     }
 
