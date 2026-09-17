@@ -28,7 +28,7 @@ namespace BombermanRL.Grid
         {
             _floorMaterials = new List<Material>()
                 {
-                    _tilePrefabsData.FloorPrefab.GetComponent<MeshRenderer>().sharedMaterial,
+                    _tilePrefabsData.FloorPrefab.GetComponentInChildren<MeshRenderer>().sharedMaterial,
                     _tilePrefabsData.AgentSuccessFloorMat,
                     _tilePrefabsData.AgentNeutralFloorMat,
                     _tilePrefabsData.AgentFailedFloorMat

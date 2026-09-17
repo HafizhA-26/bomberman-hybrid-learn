@@ -64,6 +64,7 @@ namespace BombermanRL.Character
         protected void Awake()
         {
             _charaAudioSource = GetComponent<AudioSource>();
+            _charaAudioSource.mute = GameInstance.Instance.AudioHandler.IsMuteSFX;
             GameInstance.Instance.AudioHandler.OnSFXMute += OnMuteSFX;
 
             _bombCount = _agentParameter.BombLimit;
