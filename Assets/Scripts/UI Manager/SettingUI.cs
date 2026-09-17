@@ -8,16 +8,21 @@ namespace BombermanRL.UI
         [Header("UI References")]
         [SerializeField] private Button _bgmMuteButton;
         [SerializeField] private Button _sfxMuteButton;
+        [SerializeField] private Button _fullscreenButton;
         [Header("Sprite References")]
         [SerializeField] private Sprite _bgmOn;
         [SerializeField] private Sprite _bgmOff;
         [SerializeField] private Sprite _sfxOn;
         [SerializeField] private Sprite _sfxOff;
-
+        [SerializeField] private Sprite _fullScreen;
+        [SerializeField] private Sprite _shrinkScreen;
         private void Awake()
         {
             _bgmMuteButton.onClick.AddListener(ToggleBGM);
             _sfxMuteButton.onClick.AddListener(ToggleSFX);
+            _fullscreenButton.onClick.AddListener(ToggleFullscreen);
+
+            _fullscreenButton.image.sprite = Screen.fullScreen ? _shrinkScreen : _fullScreen;
         }
 
         private void Start()
@@ -33,6 +38,7 @@ namespace BombermanRL.UI
         {
             _bgmMuteButton.onClick.RemoveListener(ToggleBGM);
             _sfxMuteButton.onClick.RemoveListener(ToggleSFX);
+            _fullscreenButton.onClick.RemoveListener(ToggleFullscreen);
         }
 
         private void ToggleBGM()
@@ -45,6 +51,12 @@ namespace BombermanRL.UI
         {
             if (GameInstance.Instance.AudioHandler.ToggleMuteSFX()) _sfxMuteButton.image.sprite = _sfxOff;
             else _sfxMuteButton.image.sprite = _sfxOn;
+        }
+
+        private void ToggleFullscreen()
+        {
+            Screen.fullScreen = !Screen.fullScreen;
+            _fullscreenButton.image.sprite = Screen.fullScreen ? _shrinkScreen : _fullScreen;
         }
 
         private void OnBGMMute(bool mute) => _bgmMuteButton.image.sprite = mute ? _bgmOff : _bgmOn;

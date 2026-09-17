@@ -694,6 +694,50 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: ShrinkButton
+      rect:
+        serializedVersion: 2
+        x: 594
+        y: 81
+        width: 142
+        height: 148
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 92052ad1c6a2e2f4e907e7d8387ccbc9
+      internalID: -264953988
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FullscreenButton
+      rect:
+        serializedVersion: 2
+        x: 759
+        y: 81
+        width: 142
+        height: 148
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8068daaa5cde9b54a93d7f372dd05a2b
+      internalID: 1821701861
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -718,6 +762,7 @@ TextureImporter:
       CircleBorderTransparent: 1024674614
       CircleSolid: -953164424
       D_Icon: 1666705852
+      FullscreenButton: 1821701861
       MLAgentButton: 871864192
       MusicOff: 1939814416
       MusicOn: 531071996
@@ -725,6 +770,7 @@ TextureImporter:
       SFXOff: -881150676
       SFXOn: -858385813
       S_Icon: -1933507996
+      ShrinkButton: -264953988
       SolidArrow: -572603797
       SolidButton: -1453909793
       SolidButtonWhite: 1410238466
