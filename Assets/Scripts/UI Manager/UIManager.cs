@@ -106,6 +106,9 @@ namespace BombermanRL.UI
 
                 // Setup round win counter
                 int enemyType = _enemyType == PlayMode.ManualMLAgent ? 1 : 0;
+                Debug.Log("PlayerData NULL? " + (GameInstance.Instance.PlayerData == null));
+                Debug.Log("WinRecords NULL? " + (GameInstance.Instance.PlayerData.WinRecords == null));
+                Debug.Log("WinRecords Length " + (GameInstance.Instance.PlayerData.WinRecords.Length));
                 WinRecordModel winRecord = GameInstance.Instance.PlayerData.WinRecords.FirstOrDefault(x => x.EnemyType == enemyType);
                 _winCounter.SetCustomEntity(_player.CharacterType, _player.Name, winRecord?.WinCount ?? 0);
                 _winCounter.SetCustomEntity(CharacterType.Bandit, Util.GetEnemyStaticName(_enemyType), winRecord?.LoseCount ?? 0);

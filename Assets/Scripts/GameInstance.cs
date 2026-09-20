@@ -1,5 +1,6 @@
 using BombermanRL.UI;
 using TMPro;
+using Unity.InferenceEngine;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -52,7 +53,8 @@ namespace BombermanRL
         public AlertUI AlertHandler { get => _alertHandler; }
         public GameModeConfig OverrideGameConfig { get; set; }
         public PlayerModel PlayerData { get; set; }
-        public string BASE_URL { get => _baseURL; }
+        public string BaseURL { get => _baseURL; }
+        public int DeviceType {  get; private set; }
 
         private void Awake()
         {
@@ -66,6 +68,16 @@ namespace BombermanRL
 
         private void Start()
         {
+#if !UNITY_EDITOR && UNITY_WEBGL
+            DeviceType = Util.DetectPlatform();
+#else
+            DeviceType = 0;
+#endif
+            if(DeviceType == 0) 
+                Application.targetFrameRate = 60;
+            else
+                Application.targetFrameRate = 30;
+
             _audioHandler.PlayBGM("BGM_Main");
 
             _versionText.text = "version " + Application.version;

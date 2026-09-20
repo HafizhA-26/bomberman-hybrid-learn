@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System;
+using UnityEngine.Networking;
 
 namespace BombermanRL
 {
@@ -38,8 +39,30 @@ namespace BombermanRL
         public LeaderboardModel[] TopRanks;
         public PlayerLeaderboard MyRank;
         public WinRecordModel WinRecord;
+
+        [JsonConstructor]
+        public LeaderboardResult(LeaderboardModel[] topRanks, PlayerLeaderboard myRank, WinRecordModel winRecord)
+        {
+            TopRanks = topRanks;
+            MyRank = myRank;
+            WinRecord = winRecord;
+        }
     }
 
-    public class LeaderboardResponse : BaseResponse<LeaderboardResult> { }
+    public class LeaderboardResponse : BaseResponse<LeaderboardResult>
+    {
+        public LeaderboardResponse() { }
+
+        [JsonConstructor]
+        public LeaderboardResponse(LeaderboardResult data, 
+            string message, 
+            string error, 
+            string status, 
+            UnityWebRequest.Result webRequestStatus, 
+            long responseCode) : base(data, message, error, status, webRequestStatus, responseCode)
+        {
+
+        }
+    }
 
 }

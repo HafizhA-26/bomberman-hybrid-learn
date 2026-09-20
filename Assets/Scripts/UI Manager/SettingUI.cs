@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using DG.Tweening;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace BombermanRL.UI
@@ -56,7 +57,10 @@ namespace BombermanRL.UI
         private void ToggleFullscreen()
         {
             Screen.fullScreen = !Screen.fullScreen;
-            _fullscreenButton.image.sprite = Screen.fullScreen ? _shrinkScreen : _fullScreen;
+            DOVirtual.DelayedCall(0.5f, () =>
+            {
+                _fullscreenButton.image.sprite = Screen.fullScreen ? _shrinkScreen : _fullScreen;
+            });
         }
 
         private void OnBGMMute(bool mute) => _bgmMuteButton.image.sprite = mute ? _bgmOff : _bgmOn;

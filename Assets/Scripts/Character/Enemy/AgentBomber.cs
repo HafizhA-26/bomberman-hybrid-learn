@@ -15,7 +15,6 @@ namespace BombermanRL.Character
         public event Action<ActionType> OnActionDecided;
         public override void Initialize()
         {
-            Application.targetFrameRate = 60;
             Time.timeScale = 1f;
         }
 

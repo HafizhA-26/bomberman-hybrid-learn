@@ -34,8 +34,6 @@ namespace BombermanRL.Grid
 
         private void Awake()
         {
-            Application.targetFrameRate = 60;
-
             _uiManager.OnStartMatch += StartMatch;
 
             foreach (CharacterType type in Enum.GetValues(typeof(CharacterType)))

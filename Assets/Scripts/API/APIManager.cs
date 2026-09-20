@@ -8,7 +8,7 @@ namespace BombermanRL.API
 {
     public static class APIManager
     {
-        private static string GetURL() => GameInstance.Instance.BASE_URL;
+        private static string GetURL() => GameInstance.Instance.BaseURL;
 
         public static async Awaitable GetPlayerData(string deviceId, Action<PlayerResponse> callback = null)
         {

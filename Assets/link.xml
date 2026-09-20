@@ -1,5 +1,8 @@
 <linker>
-  <assembly fullname="Unity.MLAgents" preserve="all"/>
-  <assembly fullname="Unity.Barracuda" preserve="all"/>
-  <assembly fullname="Unity.Sentis" preserve="all"/>
+	<assembly fullname="Unity.MLAgents" preserve="all"/>
+	<assembly fullname="Newtonsoft.Json" preserve="all"/>
+	<assembly fullname="Unity.Sentis" preserve="all"/>
+	<assembly fullname="Assembly-CSharp">
+		<namespace fullname="BombermanRL" preserve="all"/>
+	</assembly>
 </linker>
