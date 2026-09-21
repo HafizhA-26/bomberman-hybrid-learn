@@ -252,7 +252,7 @@ namespace BombermanRL.Grid
             }
 
             // Get current character's enemy position
-            GridPos enemyPos = _entityPositions.FirstOrDefault(item => item.Key.CharacterType != item.Key.CharacterType).Value;
+            GridPos enemyPos = _entityPositions.FirstOrDefault(item => item.Key.CharacterType != entity.CharacterType).Value;
 
             return new
                 (
