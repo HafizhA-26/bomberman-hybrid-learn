@@ -54,7 +54,7 @@ namespace BombermanRL
         public GameModeConfig OverrideGameConfig { get; set; }
         public PlayerModel PlayerData { get; set; }
         public string BaseURL { get => _baseURL; }
-        public int DeviceType {  get; private set; }
+        public int DeviceType {  get; set; }
 
         private void Awake()
         {
@@ -68,16 +68,6 @@ namespace BombermanRL
 
         private void Start()
         {
-#if !UNITY_EDITOR && UNITY_WEBGL
-            DeviceType = Util.DetectPlatform();
-#else
-            DeviceType = 0;
-#endif
-            if(DeviceType == 0) 
-                Application.targetFrameRate = 60;
-            else
-                Application.targetFrameRate = 30;
-
             _audioHandler.PlayBGM("BGM_Main");
 
             _versionText.text = "version " + Application.version;

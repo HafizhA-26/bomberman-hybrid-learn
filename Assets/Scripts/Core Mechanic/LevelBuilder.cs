@@ -4,6 +4,13 @@ using UnityEngine;
 
 namespace BombermanRL.Grid
 {
+    /// <summary>
+    /// Procedurally builds the arena at match start from a <see cref="LevelTilemapData"/>
+    /// asset: spawns floor tiles, walls, crates, the player, and enemies at their grid
+    /// positions, converting grid coordinates to world space along the way. Consumed once
+    /// by <see cref="MatchDirector.StartMatch"/>; the resulting object grids are then handed
+    /// to <see cref="GridStateManager"/> to track logical state.
+    /// </summary>
     public class LevelBuilder : MonoBehaviour
     {
         [Header("Level Generator Parameter")]
@@ -13,8 +20,10 @@ namespace BombermanRL.Grid
         [SerializeField] private Transform _objectsTileParent;
         [Space(10)]
         [SerializeField] private TilePrefabsData _tilePrefabsData;
+        // Fallback game mode (player/enemy prefabs + spawn offsets) used when no override is supplied via GameInstance.
         [SerializeField] private GameModeConfig _defaultGameMode;
 
+        // Floor materials indexed as [0]=neutral, [1]=agent success, [2]=agent neutral, [3]=agent failed; used by MatchDirector to color-code episode outcomes.
         private List<Material> _floorMaterials;
         private Dictionary<PlayMode, GameObject> _enemyPool;
         public List<Material> FloorMaterials { get => _floorMaterials; }
@@ -36,6 +45,7 @@ namespace BombermanRL.Grid
 
         }
 
+        // Editor-only preview: draws the floor grid and placed walls/crates/spawns as gizmos in the Scene view for level design, without needing Play mode.
         private void OnDrawGizmosSelected()
         {
             if(_levelData == null 
@@ -86,8 +96,19 @@ namespace BombermanRL.Grid
             }
         }
 
+        /// <summary>
+        /// Swaps the level layout asset used by subsequent <see cref="CreateFloor"/>/<see cref="LoadLevelTile"/> calls (e.g. for set custom arena or procedural level rotation between episodes).
+        /// </summary>
+        /// <param name="data">Custom level arena data</param>
         public void SetLevelData(LevelTilemapData data) => _levelData = data;
 
+        /// <summary>
+        /// Instantiates one floor tile per grid cell (width x height), spaced by
+        /// <see cref="TileSize"/> and anchored at this transform's position. Yields every
+        /// 20 tiles via <see cref="Awaitable.NextFrameAsync"/> to spread the instantiation
+        /// cost across frames and avoid a load-time hitch on larger grids.
+        /// </summary>
+        /// <returns>A [width, height] grid of the instantiated floor GameObjects.</returns>
         public async Awaitable<GameObject[,]> CreateFloor()
         {
             if (_floorsParent == null || _tilePrefabsData == null)
@@ -116,6 +137,19 @@ namespace BombermanRL.Grid
             return floors;
         }
 
+        /// <summary>
+        /// Reads <see cref="_levelData"/>'s flat tile list and instantiates the gameplay
+        /// object for each non-empty tile (wall, crate, player, enemy) at its converted
+        /// world position. Player/enemy prefabs come from <see cref="_defaultGameMode"/>,
+        /// unless <see cref="GameInstance.OverrideGameConfig"/> is set (playable scenes
+        /// override the default training config). Yields every 3 tiles to spread
+        /// instantiation cost across frames.
+        /// </summary>
+        /// <returns>
+        /// A tuple of the [width, height] instantiated GameObject grid (null where empty)
+        /// and the matching logical <see cref="TileState"/> grid, both consumed by
+        /// <see cref="GridStateManager.Initialize"/>.
+        /// </returns>
         public async Awaitable<(GameObject[,], TileState[,])> LoadLevelTile()
         {
             // Check for override game mode from game instance [Override if in playable scene]
@@ -177,7 +211,10 @@ namespace BombermanRL.Grid
 
             return (gridObjects, gridState);
         }
+        // Converts a grid cell to the world position for gameplay objects (raised to TileSize.y * 1.5 so props/characters sit above the floor mesh).
         private Vector3 GridToWorld(GridPos tilePos) => new Vector3(tilePos.col * TileSize.x + ParentPos.x, TileSize.y * 1.5f + ParentPos.y, tilePos.row * TileSize.z * -1 + ParentPos.z);
+
+        // Same conversion as GridToWorld but at floor height (TileSize.y * 0.5), used for placing/previewing floor tiles.
         private Vector3 FloorGridToWorld(GridPos tilePos) => new Vector3(tilePos.col * TileSize.x + ParentPos.x, TileSize.y * 0.5f + ParentPos.y, tilePos.row * TileSize.z * -1 + ParentPos.z);
     }
 }

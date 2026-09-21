@@ -9,6 +9,13 @@ using UnityEngine;
 
 namespace BombermanRL.Grid
 {
+    /// <summary>
+    /// Orchestrates a full match/episode. Builds the level via <see cref="LevelBuilder"/>,
+    /// wires every entity's move/bomb request events to <see cref="GridStateManager"/>,
+    /// listens for bomb/explosion events from <see cref="BombManager"/> to resolve prop
+    /// destruction and character deaths, tracks the win condition, and either auto-resets
+    /// the arena (ML training episodes) or ends the session (player-vs-agent play).
+    /// </summary>
     public class MatchDirector : MonoBehaviour
     {
         [SerializeField] private LevelBuilder _levelBuilder;
@@ -22,18 +29,33 @@ namespace BombermanRL.Grid
         [SerializeField] private float _shakeStrength = 1f;
         [SerializeField] private int _shakeVibrato = 1;
         [Header("Training Paramaters")]
+        // When true, a death auto-resets the arena for another training episode instead of ending the session (see ResetGrid vs EndPlayableSession).
         [SerializeField] private bool _isOnTrainingAgent = true;
+        // Which character type is treated as "the agent" for floor-color feedback on reset (success/neutral/failed materials).
         [SerializeField] private CharacterType _trainingAgentType = CharacterType.Bandit;
+        // Seconds to hold on the post-death arena (with result-colored floors) before actually resetting, so the outcome is observable.
         [SerializeField] private float _resetDelay = 2f;
 
+        // All tracked entities grouped by character type (e.g. Player vs Bandit), used to evaluate win conditions.
         private readonly Dictionary<CharacterType, List<BombermanEntity>> _entityTypeGroup = new Dictionary<CharacterType, List<BombermanEntity>>();
         private readonly List<EnemyController> _enemies = new();
         private PlayerController _player;
         private GameObject[,] _floors;
+        // True while an episode-reset sequence is in progress; move/bomb/explosion handling is suppressed during this window.
         private bool _isOnReset;
 
         private void Awake()
         {
+#if !UNITY_EDITOR && UNITY_WEBGL
+            GameInstance.Instance.DeviceType = Util.DetectPlatform();
+#else
+            GameInstance.Instance.DeviceType = 0;
+#endif
+            if (GameInstance.Instance.DeviceType == 0)
+                Application.targetFrameRate = 60;
+            else
+                Application.targetFrameRate = 30;
+
             _uiManager.OnStartMatch += StartMatch;
 
             foreach (CharacterType type in Enum.GetValues(typeof(CharacterType)))
@@ -60,6 +82,12 @@ namespace BombermanRL.Grid
             _bombManager.OnExplosionFinish -= OnExplosionFinish;
         }
 
+        /// <summary>
+        /// Main entry point for beginning a match (bound to the UI's start button/event).
+        /// Builds the floor and level tiles, registers all entities and their event
+        /// handlers, initializes the grid state and bomb manager, hooks up bomb/explosion
+        /// callbacks, and starts enemy AI.
+        /// </summary>
         public async void StartMatch()
         {
             GameInstance.Instance.ShowLoading(true, 0.3f);
@@ -84,6 +112,14 @@ namespace BombermanRL.Grid
             GameInstance.Instance.ShowLoading(false);
         }
 
+        /// <summary>
+        /// Scans the instantiated tile grid for the player/enemy spawn objects, sorts each
+        /// into <see cref="_player"/>/<see cref="_enemies"/> and <see cref="_entityTypeGroup"/>,
+        /// initializes them against <see cref="_gridStateManager"/>, and subscribes to their
+        /// move/bomb-placement request events.
+        /// </summary>
+        /// <param name="tiles">All instantiated gameobjects on grid</param>
+        /// <param name="tileStates">All tile states of the grid</param>
         private void InitializeEntities(GameObject[,] tiles, TileState[,] tileStates)
         {
             if (tiles.GetLength(0) != tileStates.GetLength(0) || tiles.GetLength(1) != tileStates.GetLength(1))
@@ -116,7 +152,16 @@ namespace BombermanRL.Grid
                 }
             }
         }
-        
+
+        /// <summary>
+        /// Handles a move request from any entity (player input or an AI agent's action).
+        /// Validates the move against <see cref="GridStateManager.CanMove"/>, reserves the
+        /// destination tile, and tells the entity to play its move animation — invalid moves
+        /// still call <see cref="BombermanEntity.OnInvalidAction"/> so the entity (and any
+        /// ML training signal) knows the action failed. No-ops while an episode reset is in progress.
+        /// </summary>
+        /// <param name="entity">Target entity to move</param>
+        /// <param name="direction">Move direction</param>
         private void MoveEntity(BombermanEntity entity, Vector2 direction)
         {
             if (_isOnReset) return;
@@ -130,6 +175,13 @@ namespace BombermanRL.Grid
             entity.Move(worldPos, CanMove, onTileChanged);
         }
 
+        /// <summary>
+        /// Handles a bomb-placement request. Rejects it (and notifies the entity via
+        /// <see cref="BombermanEntity.OnInvalidAction"/>) if the entity's tile already has a
+        /// bomb, or while an episode reset is in progress; otherwise computes the blast
+        /// tiles, spawns the bomb, and registers it with the grid state.
+        /// </summary>
+        /// <param name="entity">Target entity to place the bomb</param>
         private void PlaceBomb(BombermanEntity entity)
         {
             bool canPlaceBomb = _gridStateManager.CanPlaceBomb(entity);
@@ -145,11 +197,20 @@ namespace BombermanRL.Grid
             entity.OnAblePlaceBomb();
         }
 
+        /// <summary>
+        /// Fired the instant a bomb detonates. Updates blast tiles to the "exploding" grid
+        /// state, then destroys any destructible prop caught in the blast that the placer's
+        /// character type is allowed to destroy.
+        /// </summary>
+        /// <param name="placer">Bomb placer entity</param>
+        /// <param name="explosionGridPos">Explosions position</param>
         private void OnBombExplode(BombermanEntity placer, List<GridPos> explosionGridPos)
         {
             if (_isOnReset) return;
 
             _gridStateManager.OnBombExplode(explosionGridPos);
+
+            // Destroy all props that on the tile of the explosions
             foreach (GridPos item in explosionGridPos)
             {
                 IDestroyableProps prop = _gridStateManager.GetPropAt(item);
@@ -162,17 +223,22 @@ namespace BombermanRL.Grid
             }
         }
 
+        /// <summary>
+        /// Called on each explosion tick to check whether any character is standing in the
+        /// blast. For every victim found: determines the kill type (normal / suicide /
+        /// friendly-fire), fires death/kill callbacks on both victim and placer, then checks
+        /// the win condition — if the match is decided, either auto-resets the arena
+        /// (training mode) or ends the playable session, and triggers a camera shake if any
+        /// death occurred.
+        /// </summary>
+        /// <param name="placer">Bomb placer entity</param>
+        /// <param name="explosionGridPos">Explosions position</param>
         private void CheckExplosionVictim(BombermanEntity placer, List<GridPos> explosionGridPos)
         {
             if(_isOnReset) return;
             bool deadVictimExists = false;
 
             int victimCount = 0;
-            string exposionPosStr = "";
-            foreach (GridPos item in explosionGridPos)
-            {
-                exposionPosStr += item.ToString() + " ";
-            }
 
             foreach (GridPos tilePos in explosionGridPos)
             {
@@ -210,6 +276,10 @@ namespace BombermanRL.Grid
             if(deadVictimExists && _useCameraShake) _cameraTransform.DOShakeRotation(_shakeDuration, _shakeStrength, _shakeVibrato, 90, true, ShakeRandomnessMode.Full);
         }
 
+        /// <summary>
+        /// Returns the character type that alone still has living members, or <see cref="CharacterType.None"/> if more than one group is still alive. Triggers <see cref="BombermanEntity.Win"/> on the winning group's entities as a side effect
+        /// </summary>
+        /// <returns>Character type that win</returns>
         private CharacterType CheckWinCondition()
         {
             // Check current alive character group
@@ -230,12 +300,28 @@ namespace BombermanRL.Grid
             return CharacterType.None;
         }
 
+        /// <summary>
+        /// Called once an explosion's hazard window ends: clears the grid's exploding state and replenishes the placer's available bomb count.
+        /// </summary>
+        /// <param name="entity">Bomb placer entity</param>
+        /// <param name="explosionGridPos">Explosions position</param>
         private void OnExplosionFinish(BombermanEntity entity, List<GridPos> explosionGridPos)
         {
             _gridStateManager.OnExplosionFinish(explosionGridPos);
             entity.BombCount++;
         }
 
+        /// <summary>
+        /// Training-mode episode reset, triggered when a training match is decided.
+        /// Immediately: pauses explosions and recolors every floor tile based on the
+        /// outcome (agent success / agent suicide / other), then respawns all entities at
+        /// mutually-distant random valid tiles. After <see cref="_resetDelay"/> seconds
+        /// (so the result is observable), it clears bombs, resets all destructible props
+        /// and the logical grid back to defaults, and restores neutral floor color.
+        /// Guarded by <see cref="_isOnReset"/> against re-entrancy. 
+        /// </summary>
+        /// <param name="placerType">Bomb placer entity CharacterType</param>
+        /// <param name="killType">Kill type that triggered reset grid</param>
         private void ResetGrid(CharacterType placerType, KillType killType)
         {
             if (_isOnReset) return;
@@ -246,7 +332,7 @@ namespace BombermanRL.Grid
             // Visualize episode result on floor
             foreach (GameObject item in _floors)
             {
-                MeshRenderer floorRenderer = item.GetComponent<MeshRenderer>();
+                MeshRenderer floorRenderer = item.transform.GetComponentInChildren<MeshRenderer>();
                 if (placerType == _trainingAgentType && killType == KillType.NormalKill)
                     floorRenderer.material = floorMaterials[1];
                 else if (placerType != _trainingAgentType && killType == KillType.Suicide)
@@ -290,7 +376,7 @@ namespace BombermanRL.Grid
                 // Reset floor color material
                 foreach (GameObject item in _floors)
                 {
-                    MeshRenderer floorRenderer = item.GetComponent<MeshRenderer>();
+                    MeshRenderer floorRenderer = item.transform.GetComponentInChildren<MeshRenderer>();
                     if (floorRenderer) floorRenderer.material = floorMaterials[0];
                 }
 
@@ -298,7 +384,10 @@ namespace BombermanRL.Grid
             });
         }
 
-
+        /// <summary>
+        /// Player-mode match end (non-training): pauses explosions and freezes every entity in place, without respawning or reloading the arena.
+        /// </summary>
+        /// <param name="winnerSession">Character type that win the session</param>
         private void EndPlayableSession(CharacterType winnerSession)
         {
             _bombManager.PauseExplosions();

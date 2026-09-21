@@ -16,6 +16,10 @@ namespace BombermanRL.Character
         public override void Initialize()
         {
             Time.timeScale = 1f;
+            if (GameInstance.Instance.DeviceType == 0)
+                Application.targetFrameRate = 60;
+            else
+                Application.targetFrameRate = 30;
         }
 
         public override void CollectObservations(VectorSensor sensor)

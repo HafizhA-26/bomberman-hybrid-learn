@@ -139,13 +139,13 @@ namespace BombermanRL.UI
 
         public async void OnCharacterWin(CharacterType type)
         {
-            bool isWin = type == _player.CharacterType;
 
             // Increase win counter
             _winCounter.OnCharacterWin(type);
 
             if(!_trainingMode)
             {
+                bool isWin = type == _player.CharacterType;
                 // Play win/lose sfx
                 if (isWin)
                     GameInstance.Instance.AudioHandler.PlaySFX("SFX_Win");
