@@ -35,7 +35,7 @@ namespace BombermanRL.UI
 #if !UNITY_EDITOR && UNITY_WEBGL
                 _deviceType = Util.DetectPlatform();
 #else
-                _deviceType = 0;
+                _deviceType = 1;
 #endif
             }
         }
