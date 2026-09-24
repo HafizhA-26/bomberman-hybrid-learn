@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace BombermanRL.UI
 {
+    /// <summary>
+    /// UI Orchestrator for all UI Manager
+    /// Receive data from <see cref="SessionController"/> and send it to all UI manager that need it
+    /// </summary>
     public class UIManager : MonoBehaviour
     {
         [SerializeField] private bool _trainingMode = false;
@@ -31,12 +35,6 @@ namespace BombermanRL.UI
             if(!_trainingMode)
             {
                 _starterUI.OnStartTriggered += OnGameStartTriggered;
-
-#if !UNITY_EDITOR && UNITY_WEBGL
-                _deviceType = Util.DetectPlatform();
-#else
-                _deviceType = 1;
-#endif
             }
         }
 
@@ -57,6 +55,8 @@ namespace BombermanRL.UI
                 _desktopUI.gameObject.SetActive(false);
                 _starterUI.gameObject.SetActive(true);
             }
+
+            _deviceType = GameInstance.Instance.DeviceType;
         }
         private void OnDestroy()
         {
@@ -67,11 +67,23 @@ namespace BombermanRL.UI
             }
         }
 
+        /// <summary>
+        /// Initialize UI managers
+        /// Receive data from <see cref="SessionController"/> and send it to all init UI managers
+        /// </summary>
+        /// <param name="playerData"></param>
         public void Initialize(PlayerModel playerData)
         {
             if (!_trainingMode) _starterUI.Initialize(playerData?.Username);
         }
 
+        /// <summary>
+        /// Event callback on start button clicked. Only to be used on Playable scenario via <see cref="StarterUI"/>
+        /// Trigger API integration before game really started from here
+        /// </summary>
+        /// <param name="playerName">Playable player's name</param>
+        /// <param name="chosenEnemyType">Selected enemy type by player</param>
+        /// <param name="selectedArena">Selected arena by player</param>
         private void OnGameStartTriggered(string playerName, PlayMode chosenEnemyType, int selectedArena)
         {
             _playerName = playerName;
@@ -79,6 +91,9 @@ namespace BombermanRL.UI
             OnStartTriggered?.Invoke(_playerName, _enemyType, selectedArena);
         }
 
+        /// <summary>
+        /// Show alert username already taken by other player
+        /// </summary>
         public void OnTakenUsername()
         {
             GameInstance.Instance.AudioHandler.PlaySFX("SFX_Invalid", true);
@@ -86,6 +101,9 @@ namespace BombermanRL.UI
             _starterUI.SetStartBtnInteractable(true);
         }
 
+        /// <summary>
+        /// Trigger start match after integration API data completed by <see cref="SessionController"/>
+        /// </summary>
         public void StartMatch()
         {
             if (_deviceType == 0) _desktopUI.gameObject.SetActive(true);
@@ -96,6 +114,10 @@ namespace BombermanRL.UI
             OnStartMatch?.Invoke();
         }
 
+        /// <summary>
+        /// Listen to <see cref="PlayerController"/> event and setup Win Counter UI based on player data
+        /// </summary>
+        /// <param name="player">Playable player controller reference</param>
         public void SetupPlayerListener(PlayerController player)
         {
             if(!_trainingMode)
@@ -106,9 +128,6 @@ namespace BombermanRL.UI
 
                 // Setup round win counter
                 int enemyType = _enemyType == PlayMode.ManualMLAgent ? 1 : 0;
-                Debug.Log("PlayerData NULL? " + (GameInstance.Instance.PlayerData == null));
-                Debug.Log("WinRecords NULL? " + (GameInstance.Instance.PlayerData.WinRecords == null));
-                Debug.Log("WinRecords Length " + (GameInstance.Instance.PlayerData.WinRecords.Length));
                 WinRecordModel winRecord = GameInstance.Instance.PlayerData.WinRecords.FirstOrDefault(x => x.EnemyType == enemyType);
                 _winCounter.SetCustomEntity(_player.CharacterType, _player.Name, winRecord?.WinCount ?? 0);
                 _winCounter.SetCustomEntity(CharacterType.Bandit, Util.GetEnemyStaticName(_enemyType), winRecord?.LoseCount ?? 0);
@@ -135,17 +154,30 @@ namespace BombermanRL.UI
             }
         }
 
+        /// <summary>
+        /// Get current match time elapsed
+        /// </summary>
+        /// <returns>Time elapsed in seconds</returns>
         public float GetPlaytime() => _winCounter.TimeElapsed;
 
+        /// <summary>
+        /// Setup ui on character win and trigger integration leaderboard data via <see cref="SessionController"/>
+        /// </summary>
+        /// <param name="type">Last standing character type</param>
         public async void OnCharacterWin(CharacterType type)
         {
-
             // Increase win counter
             _winCounter.OnCharacterWin(type);
 
             if(!_trainingMode)
             {
                 bool isWin = type == _player.CharacterType;
+
+                // Disable input for mobile users
+                _mobileUI.SetDpadInteractable(false);
+                _mobileUI.SetJoystickInteractable(false);
+                _mobileUI.SetBombButtonInteractable(false);
+
                 // Play win/lose sfx
                 if (isWin)
                     GameInstance.Instance.AudioHandler.PlaySFX("SFX_Win");

@@ -76,6 +76,7 @@ namespace BombermanRL.Grid
                 }
             }
 
+            // Unsubs event listener
             _uiManager.OnStartMatch -= StartMatch;
             _bombManager.OnBombExplode -= OnBombExplode;
             _bombManager.OnTickExplosion -= CheckExplosionVictim;
@@ -100,7 +101,7 @@ namespace BombermanRL.Grid
             _gridStateManager.PreSetup(_levelBuilder.ParentPos, _levelBuilder.TileSize);
             _gridStateManager.Initialize(tiles, grid);
 
-            _bombManager.Initialize(_levelBuilder.BombPrefab, _levelBuilder.ExplosionPrefab, _levelBuilder.ObjectsTileParent);
+            _bombManager.Initialize(_levelBuilder.BombPrefab, _levelBuilder.ExplosionPrefab);
             _bombManager.OnBombExplode += OnBombExplode;
             _bombManager.OnTickExplosion += CheckExplosionVictim;
             _bombManager.OnExplosionFinish += OnExplosionFinish;

@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace BombermanRL
 {
+    /// <summary>
+    /// Data container class that has main responsibility for giving nearby grid condition to enemy AI
+    /// </summary>
     public class GameplayState
     {
         public GameplayState(GridPos entityPos, Dictionary<GridPos, TileState> nearbyCondition, GridPos playerPos, Dictionary<GridPos, float> bombTimerNorm, int observationRadius)
@@ -14,8 +17,8 @@ namespace BombermanRL
             ObservationRadius = observationRadius;
         }
 
-        public int ObservationRadius { get; private set; }
-        public GridPos EntityPos { get; private set; } // Related entity position that requested gameplay state
+        public int ObservationRadius { get; private set; } // Observed radius around the entity
+        public GridPos EntityPos { get; private set; } // Entity position that requested gameplay state
         public Dictionary<GridPos, TileState> NearbyCondition { get; private set; } // Nearby tiles condition (Includes Current Tiles)
         public GridPos PlayerPos { get; private set; } // Player position inside grid
         public Dictionary<GridPos, float> BombTimerNorm { get; private set; } // Nearby placed bomb timer

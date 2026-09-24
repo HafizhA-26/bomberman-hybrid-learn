@@ -10,8 +10,16 @@ using UnityEngine;
 
 namespace BombermanRL.UI
 {
+    /// <summary>
+    /// Main handling for match scores and time elapsed.
+    /// For monitoring training growth, <see cref="_logToCsv"/> can be used for tracking winrate every <see cref="_logInterval"/> rounds
+    /// Orchestrated by <see cref="UIManager"/>
+    /// </summary>
     public class HUDCounter : MonoBehaviour
     {
+        /// <summary>
+        /// Simple struct container for easier usage
+        /// </summary>
         [Serializable]
         private struct CharacterCountText
         {
@@ -53,6 +61,7 @@ namespace BombermanRL.UI
         {
             string csvColumns = "";
 
+            // Setup UI and Dictionary
             _characterTextDict = _charactersWinText.ToDictionary(item => item.CharacterType);
             foreach(CharacterCountText item in  _charactersWinText)
             {
@@ -63,6 +72,7 @@ namespace BombermanRL.UI
                 item.NameText.text = item.CharacterName;
             }
 
+            // Setup CSV file for logging
             if (_logToCsv)
             {
                 _csvFilePath = Path.Combine(Application.dataPath, $"Training_WinRateLog_{_csvAppendixName}.csv");
@@ -88,6 +98,10 @@ namespace BombermanRL.UI
             _timeElapsed += Time.deltaTime;
         }
 
+        /// <summary>
+        /// Update UI and counter on character win 
+        /// </summary>
+        /// <param name="type">Last standing character type</param>
         public void OnCharacterWin(CharacterType type)
         {
             if (!_characterTextDict.ContainsKey(type)) return;
@@ -103,6 +117,9 @@ namespace BombermanRL.UI
             CheckAndLog();
         }
 
+        /// <summary>
+        /// Check per-<see cref="_logInterval"/> and start writing win rate log to csv file
+        /// </summary>
         private void CheckAndLog()
         {
             if(_batchRoundCount >= _logInterval)
@@ -133,6 +150,10 @@ namespace BombermanRL.UI
                 _batchRoundCount = 0;
             }
         }
+
+        /// <summary>
+        /// Check and start match timer
+        /// </summary>
         public void CheckMatchTimer()
         {
             if (_timeCounter == null)
@@ -142,6 +163,9 @@ namespace BombermanRL.UI
             }
         }
 
+        /// <summary>
+        /// Stop timer and hide time cpimyer IO
+        /// </summary>
         public void EndMatchTimer()
         {
             _isMatchEnded = true;
@@ -150,6 +174,12 @@ namespace BombermanRL.UI
             _timeContainer.gameObject.SetActive(false);
         }
 
+        /// <summary>
+        /// Setup score UI based on custom character data
+        /// </summary>
+        /// <param name="type">Custom character type</param>
+        /// <param name="characterName">Character name</param>
+        /// <param name="score">Base character</param>
         public void SetCustomEntity(CharacterType type, string characterName, int score)
         {
             if(!_characterTextDict.ContainsKey(type))
@@ -162,6 +192,10 @@ namespace BombermanRL.UI
             _characterTextDict[type].ScoreText.text = score.ToString();
         }
 
+        /// <summary>
+        /// Coroutine for match timer
+        /// </summary>
+        /// <returns>Coroutine to start</returns>
         private IEnumerator StartMatchTimer()
         {
             while(!_isMatchEnded && _timeElapsed <= _maxPlayTimeSeconds)

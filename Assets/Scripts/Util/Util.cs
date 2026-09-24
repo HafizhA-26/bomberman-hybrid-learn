@@ -57,6 +57,11 @@ namespace BombermanRL
             return string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, miliseconds);
         }
 
+        /// <summary>
+        /// Converts a single-axis unit direction vector into the matching movement action (Idle if it isn't a clean cardinal direction).
+        /// </summary>
+        /// <param name="direction">Vector2 direction to move</param>
+        /// <returns>Action to take based on direction</returns>
         public static ActionType GetActionFromDirection(Vector2 direction)
         {
             if (direction == Vector2.up)

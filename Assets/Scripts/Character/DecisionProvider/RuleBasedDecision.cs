@@ -6,13 +6,21 @@ using UnityEngine;
 
 namespace BombermanRL.Character
 {
+    /// <summary>
+    /// Scripted (non-ML) opponent brain. Each decision step evaluates a fixed priority
+    /// ladder — survival, then offense, then destroying crates, then exploring — and takes
+    /// the first non-idle action found. Driven entirely by <see cref="GameplayState"/>
+    /// snapshots supplied by <see cref="GridStateManager.GetNearbyState"/>; holds no
+    /// reference to the grid itself.
+    /// </summary>
     public class RuleBasedDecision : IDecisionProvider
     {
         private readonly AgentParameter _agentParameter;
         private Action<ActionType> _onDecidedAction;
         public Action<ActionType> OnDecidedAction { get => _onDecidedAction; set => _onDecidedAction = value; }
 
-        public RuleBasedDecision() { }
+        /// <param name="agentParameter">Tunable thresholds (danger sensitivity, offensive range, etc.); randomized on construction and on every reset for behavioral variety.</param>
+        /// <param name="onDecidedAction">Callback invoked with the chosen action once <see cref="Decide"/> resolves it.</param>
         public RuleBasedDecision(AgentParameter agentParameter, Action<ActionType> onDecidedAction) 
         {
             _agentParameter = agentParameter;
@@ -20,12 +28,18 @@ namespace BombermanRL.Character
             _onDecidedAction = onDecidedAction;
         }
 
-
+        /// <summary>
+        /// Runs the priority ladder against the current observation and fires
+        /// <see cref="OnDecidedAction"/> with the first non-idle result: survival beats
+        /// offense beats crate-clearing beats free exploration. <see cref="CheckSurvival"/>
+        /// can also force a deliberate idle (<c>mustIdle</c>) when staying put is itself
+        /// the safest option.
+        /// </summary>
+        /// <param name="state">Nearby observed tile condition. Provided by <see cref="IGameplayStateProvider"/></param>
         public void Decide(GameplayState state)
         {
             ActionType actionToTake;
             bool mustIdle;
-            //Debug.Log("Check Survival");
             // Priority 1: Survival
             (actionToTake, mustIdle) = CheckSurvival(state);
             if (actionToTake != ActionType.Idle || mustIdle)
@@ -34,7 +48,6 @@ namespace BombermanRL.Character
                 return;
             }
 
-            //Debug.Log("Check Offensive");
             // Priority 2: Offensive
             actionToTake = CheckOffensive(state);
             if (actionToTake != ActionType.Idle)
@@ -43,7 +56,6 @@ namespace BombermanRL.Character
                 return;
             }
 
-            //Debug.Log("Check Destrcutive");
             // Priority 3: Destroy Environment
             actionToTake = CheckDestructive(state);
             if (actionToTake != ActionType.Idle)
@@ -52,7 +64,6 @@ namespace BombermanRL.Character
                 return;
             }
 
-            //Debug.Log("Check Exploration");
             // Priority 4: Exploration
             actionToTake = CheckExploration(state);
             if(actionToTake != ActionType.Idle)
@@ -61,6 +72,14 @@ namespace BombermanRL.Character
             }
         }
 
+        /// <summary>
+        /// Highest-priority check: if any tile is currently exploding, or holds a
+        /// soon-to-detonate bomb, this steers the agent toward the best reachable safe
+        /// neighbor tile — or deliberately idles if the current tile is already the safest
+        /// option available.
+        /// </summary>
+        /// <param name="state">Nearby observed tile condition. Provided by <see cref="IGameplayStateProvider"/></param>
+        /// <returns>Action to take</returns>
         private (ActionType, bool) CheckSurvival(GameplayState state)
         {
             bool isMustIdle = false;
@@ -87,6 +106,10 @@ namespace BombermanRL.Character
                 GridPos safestTile = state.EntityPos;
                 int bestSafeScore = int.MinValue;
 
+                // If current tiles not dangerous, add it also as safe tile
+                if (!dangerousTiles.Contains(state.EntityPos))
+                    safeTiles.Add(state.EntityPos);
+
                 foreach (GridPos candidateTile in safeTiles)
                 {
                     int currentScore = 0;
@@ -109,10 +132,11 @@ namespace BombermanRL.Character
                     }
                 }
 
+                // Calculate move direction or must idle to be safe
                 if (!safestTile.Equals(state.EntityPos))
                 {
                     Vector2 direction = (safestTile - state.EntityPos).ToVector2();
-                    actionToTake = DirectionToActionMove(direction);
+                    actionToTake = Util.GetActionFromDirection(direction);
                 }
                 else
                 {
@@ -123,6 +147,13 @@ namespace BombermanRL.Character
             return (actionToTake, isMustIdle);
         }
 
+        /// <summary>
+        /// Second priority: if the (tracked) player is within offensive range and the
+        /// agent has an adjacent safe tile to retreat to and hasn't already got a bomb
+        /// down, place a bomb.
+        /// </summary>
+        /// <param name="state">Nearby observed tile condition. Provided by <see cref="IGameplayStateProvider"/></param>
+        /// <returns>Action to take</returns>
         private ActionType CheckOffensive(GameplayState state)
         {
             ActionType actionToTake = ActionType.Idle;
@@ -148,6 +179,11 @@ namespace BombermanRL.Character
             return actionToTake;
         }
 
+        /// <summary>
+        /// Third priority: place a bomb if any orthogonally-adjacent tile is a destructible crate.
+        /// </summary>
+        /// <param name="state">Nearby observed tile condition. Provided by <see cref="IGameplayStateProvider"/></param>
+        /// <returns>Action to take</returns>
         private ActionType CheckDestructive(GameplayState state)
         {
             ActionType actionToTake = ActionType.Idle;
@@ -163,6 +199,11 @@ namespace BombermanRL.Character
             return actionToTake;
         }
 
+        /// <summary>
+        /// Lowest priority fallback: pick a random adjacent empty tile to move into, so the agent keeps exploring when nothing more urgent applies
+        /// </summary>
+        /// <param name="state">Nearby observed tile condition. Provided by <see cref="IGameplayStateProvider"/></param>
+        /// <returns>Action to take</returns>
         private ActionType CheckExploration(GameplayState state)
         {
             ActionType actionToTake = ActionType.Idle;
@@ -176,19 +217,8 @@ namespace BombermanRL.Character
             {
                 int randomMove = UnityEngine.Random.Range(0, nearby.Count);
                 Vector2 direction = (nearby[randomMove] - state.EntityPos).ToVector2();
-                actionToTake = DirectionToActionMove(direction);
+                actionToTake = Util.GetActionFromDirection(direction);
             }
-            return actionToTake;
-        }
-
-        public static ActionType DirectionToActionMove(Vector2 direction)
-        {
-            ActionType actionToTake = ActionType.Idle;
-            if (direction == Vector2.up) actionToTake = ActionType.MoveUp;
-            else if (direction == Vector2.down) actionToTake = ActionType.MoveDown;
-            else if (direction == Vector2.left) actionToTake = ActionType.MoveLeft;
-            else if (direction == Vector2.right) actionToTake = ActionType.MoveRight;
-            else actionToTake = ActionType.Idle;
             return actionToTake;
         }
 
@@ -198,7 +228,7 @@ namespace BombermanRL.Character
 
         public void OnDestroyProps(IDestroyableProps prop) { }
 
-        public void OnKillSomeone(KillType character) { }
+        public void OnKillSomeone(KillType killType) { }
 
         public void OnDead(bool isSuicide) { }
 
@@ -208,6 +238,7 @@ namespace BombermanRL.Character
 
         public void OnReset() 
         {
+            // Re-rolls this agent's behavioral parameters at the start of a new episode, for training/variety.
             _agentParameter.RandomizeParameter();
         }
 

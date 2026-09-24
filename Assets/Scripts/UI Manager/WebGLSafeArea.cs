@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace Assets.Scripts.UI_Manager
 {
+    /// <summary>
+    /// Helper scripts to detect safe area via js scripting API
+    /// </summary>
     [RequireComponent(typeof(RectTransform))]
     public class WebGLSafeArea : MonoBehaviour
     {

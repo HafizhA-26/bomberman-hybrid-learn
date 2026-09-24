@@ -1,7 +1,6 @@
 ﻿using BombermanRL.UI.Leaderboard;
 using DG.Tweening;
 using System.Collections.Generic;
-using System.IO.Abstractions.TestingHelpers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,6 +8,10 @@ using UnityEngine.UI;
 
 namespace BombermanRL.UI
 {
+    /// <summary>
+    /// Class to handle results panel on Playable Scene
+    /// Handles populating card based on leaderboard data from API and animate it
+    /// </summary>
     public class ResultUI: MonoBehaviour
     {
         [Header("UI References")]
@@ -30,7 +33,7 @@ namespace BombermanRL.UI
         [SerializeField] private Color32 _loseFontColor;
 
         private readonly List<LeaderboardCard> _instantiatedCards = new List<LeaderboardCard>();
-        private LeaderboardCard _playerCard;
+        private LeaderboardCard _playerCard; // Playable player card on leaderboard
         private PlayerLeaderboard _playerRankData;
         private GameObject _ellipsisCard;
 
@@ -43,6 +46,9 @@ namespace BombermanRL.UI
             _retryButton.onClick.RemoveListener(OnRetryClicked);
         }
 
+        /// <summary>
+        /// Reset all components related to animation on result panel
+        /// </summary>
         private void ResetAnimComponents()
         {
             _resultPanel.alpha = 0f;
@@ -51,6 +57,13 @@ namespace BombermanRL.UI
             _leaderboardScrollRect.vertical = false;
         }
 
+        /// <summary>
+        /// Populate all available leaderboard card based on data from <see cref="SessionController"/> via <see cref="UIManager"/>
+        /// Mark the player's card on <see cref="_playerCard"/> if player is on leaderboard
+        /// Add one ellipsis card at last position
+        /// </summary>
+        /// <param name="data">All leaderboard data from server</param>
+        /// <param name="selectedArena">Player's selected arena from <see cref="StarterUI"/></param>
         public void SetupRankCards(LeaderboardResult data, int selectedArena)
         {
             string currentUsername = GameInstance.Instance.PlayerData.Username;
@@ -96,9 +109,15 @@ namespace BombermanRL.UI
             Canvas.ForceUpdateCanvases();
         }
 
-        public async Awaitable ShowResultPanel(bool isPlayerWin)
+        /// <summary>
+        /// Show and animate the transition of result panel
+        /// </summary>
+        /// <param name="isPlayerWin">Is the match end because player win?</param>
+        /// <param name="delay">Delay to show the panel. Maybe for waiting the dead animation finish</param>
+        /// <returns></returns>
+        public async Awaitable ShowResultPanel(bool isPlayerWin, float delay = 1f)
         {
-            await Awaitable.EndOfFrameAsync();
+            await Awaitable.WaitForSecondsAsync(delay);
 
             float elapsedTime = 0;
             int actionCount = 0;
@@ -129,6 +148,8 @@ namespace BombermanRL.UI
                 _winLoseText.color = _loseFontColor;
                 _rankText.transform.parent.gameObject.SetActive(false);
             }
+
+            // Calculate target scrollY for casino scroll animation purpose
             if(_playerCard != null)
                 targetScrollY = -_playerCard.transform.localPosition.y;
             else
@@ -170,6 +191,9 @@ namespace BombermanRL.UI
             });
         }
 
+        /// <summary>
+        /// Handle if player want to play again
+        /// </summary>
         private void OnRetryClicked()
         {
             GameInstance.Instance.ShowLoading(true, 0.3f, true);
