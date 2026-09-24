@@ -15,7 +15,7 @@ MonoBehaviour:
   _actionCooldown: 0.65
   _moveDuration: 0.55
   _offensiveDistance: 3
-  _dangerBombThreshold: 0.3
+  _dangerBombThreshold: 0.225
   _bombLimit: 1
   _bombExplosionRadius: 1
   _nearbyObservationRadius: 2
