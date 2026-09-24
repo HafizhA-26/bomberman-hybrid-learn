@@ -1,1 +1,0 @@
-mlagents-learn config/BombermanHybrid.yaml --run-id=BombermanHybrid
