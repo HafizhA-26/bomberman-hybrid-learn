@@ -20,6 +20,10 @@ PrefabInstance:
       propertyPath: m_IsTrigger
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2036822622188517949, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3672868777114816096, guid: a29f194177e17eb4db43fb088d8bc992, type: 3}
       propertyPath: m_Name
       value: Enemy_RB_Training

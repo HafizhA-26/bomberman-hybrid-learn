@@ -130,7 +130,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 8feaafe457330534db53f9b4629e9f44, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 1f1aef8e2a1cba948b503880c0b7158f, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 2
   m_BehaviorName: BombermanHybrid

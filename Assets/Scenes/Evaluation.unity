@@ -811,7 +811,7 @@ GameObject:
   - component: {fileID: 906550309}
   - component: {fileID: 906550308}
   m_Layer: 0
-  m_Name: Env1
+  m_Name: Arena
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -846,6 +846,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fd600c946d1743409a0e40350c4ef7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _tileParent: {fileID: 5168788}
 --- !u!114 &906550309
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -858,12 +859,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19465abf7c6d4b34b9a1c6389d4f476d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _levelData: {fileID: 11400000, guid: 222eeb830eb84dd4484b5ee420aad8ac, type: 2}
+  _levelData: {fileID: 11400000, guid: f2958e601a841f1438afdeec553b9cfb, type: 2}
   _envParent: {fileID: 906550307}
   _floorsParent: {fileID: 81086410}
   _objectsTileParent: {fileID: 5168788}
   _tilePrefabsData: {fileID: 11400000, guid: 613135f75c7693e4b950ff8f366eb48e, type: 2}
-  _defaultGameMode: {fileID: 11400000, guid: 5ff7eeba0cc5bd048b3b67ab6fac638c, type: 2}
+  _defaultGameMode: {fileID: 11400000, guid: 8e72dde28e08b324683b919c2e59f18f, type: 2}
 --- !u!114 &906550310
 MonoBehaviour:
   m_ObjectHideFlags: 0

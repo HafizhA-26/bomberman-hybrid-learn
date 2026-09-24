@@ -4730,6 +4730,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fd600c946d1743409a0e40350c4ef7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _tileParent: {fileID: 5168788}
 --- !u!114 &906550309
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4777,11 +4778,11 @@ MonoBehaviour:
   _gridStateManager: {fileID: 906550310}
   _bombManager: {fileID: 906550308}
   _uiManager: {fileID: 348601742}
-  _useCameraShake: 0
+  _useCameraShake: 1
   _cameraTransform: {fileID: 330585546}
   _shakeDuration: 1
-  _shakeStrength: 0.4
-  _shakeVibrato: 5
+  _shakeStrength: 0.5
+  _shakeVibrato: 7
   _isOnTrainingAgent: 0
   _trainingAgentType: 2
   _resetDelay: 2
@@ -5524,6 +5525,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd696fa9bb2af5942bdae7bb16e2fa3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _virtualDpad: {fileID: 621421718}
   _virtualJoystick: {fileID: 656412598}
   _bombButton: {fileID: 51511935}
   _bombIcon: {fileID: 1807469859}
