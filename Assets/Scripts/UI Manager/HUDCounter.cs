@@ -190,6 +190,7 @@ namespace BombermanRL.UI
 
             _characterTextDict[type].NameText.text = characterName;
             _characterTextDict[type].ScoreText.text = score.ToString();
+            _characterWinCount[type] = score;
         }
 
         /// <summary>
