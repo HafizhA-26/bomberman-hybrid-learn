@@ -49,7 +49,7 @@ namespace BombermanRL.UI
 
         private Coroutine _timeCounter;
         private float _timeElapsed = 0;
-        private int _roundCount;
+        private int _roundCount = 1;
         private int _batchRoundCount;
         private bool _isMatchEnded = true;
 
@@ -71,6 +71,7 @@ namespace BombermanRL.UI
 
                 item.NameText.text = item.CharacterName;
             }
+            _roundCountText.text = _roundCount.ToString();
 
             // Setup CSV file for logging
             if (_logToCsv)
